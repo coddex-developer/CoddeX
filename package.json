@@ -3,11 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "nodemon src/server.js",
-    "build": "node --watch src/server.js",
-    "ngrok": "ngrok http 3000",
-  "dev": "concurrently \"npm run test\" \"ngrok http 3000\""
-
+    "test": "nodemon src/server.js"
   },
   "keywords": [],
   "author": "",

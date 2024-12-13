@@ -182,8 +182,6 @@ module.exports = {
     }
 
     contentIndex.projects.push(generateProgent)
-    console.log(contentIndex.projects)
-    console.log(contentIndex)
     res.redirect("/admin/dashboard/editPage/CreateProjects");
   },
 

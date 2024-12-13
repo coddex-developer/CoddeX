@@ -1,7 +1,7 @@
 const userAdmin = [
   {
     username: "Admin",
-    password: "99897792",
+    password: "Admin",
     contact: Number
   }
 ]
