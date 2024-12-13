@@ -1,0 +1,87 @@
+<%- include('fragments/header') %>
+
+<div class="container my-5">
+  <!-- Botão de Voltar -->
+  <div class="text-center mb-4">
+    <a href="/admin/dashboard/messages" class="btn btn-outline-danger rounded-pill px-4 py-2 shadow">
+      <i class="bi bi-arrow-left me-2"></i>Voltar
+    </a>
+  </div>
+
+  <!-- Card com Detalhes da Mensagem -->
+  <div class="card shadow border-0 rounded-4">
+    <div class="card-header bg-gradient text-white text-center rounded-top-4 py-4" >
+      <h4 class="mb-0 fw-bold"><i class="bi bi-envelope-fill me-2"></i>Detalhes da Mensagem</h4>
+    </div>
+    <div class="card-body bg-dark">
+      <ul class="list-group list-group-flush">
+        <li class="bg-dark text-white list-group-item d-flex align-items-center">
+          <i class="bi bi-person-badge me-3 text-primary fs-4"></i>
+          <span><strong>Nome:</strong> <%= notes.name %></span>
+        </li>
+        <li class="bg-dark text-white list-group-item d-flex align-items-center">
+          <i class="bi bi-envelope-at me-3 text-danger fs-4"></i>
+          <span><strong>E-Mail:</strong> <%= notes.email %></span>
+        </li>
+        <li class="bg-dark text-white list-group-item d-flex align-items-center">
+          <i class="bi bi-whatsapp me-3 text-success fs-4"></i>
+          <span><strong>Contato:</strong>
+            <a class="text-white fw-bold" href="https://wa.me/<%= notes.phone %>" target="_blank">
+              <%= notes.phone %>
+            </a>
+          </span>
+        </li>
+        <li class="bg-dark text-white list-group-item d-flex align-items-center">
+          <i class="bi bi-calendar-event me-3 text-warning fs-4"></i>
+          <span><strong>Data e Hora:</strong> <%= notes.data %> às <%= notes.time %></span>
+        </li>
+        <li class="bg-dark text-white list-group-item">
+          <i class="bi bi-chat-left-dots me-3 text-info fs-4"></i>
+          <strong>Mensagem:</strong>
+          <p class="mt-2 ms-4 fst-italic text-white">
+            "<%= notes.content %>"
+          </p>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Botões de Ação -->
+    <div class="card-footer d-flex justify-content-between flex-wrap gap-2 p-4 bg-gradient rounded-bottom-4">
+      <% if (!notes.completed) { %>
+        <form action="/admin/dashboard/messages/<%= notes.id %>/complete" method="post" class="mb-0">
+          <button class="btn btn-success rounded-pill shadow">
+            <i class="bi bi-check2-circle me-2"></i>Completar
+          </button>
+        </form>
+      <% } else { %>
+        <form action="/admin/dashboard/messages/<%= notes.id %>/incomplete" method="post" class="mb-0">
+          <button class="btn btn-warning rounded-pill shadow">
+            <i class="bi bi-arrow-counterclockwise me-2"></i>Desfazer
+          </button>
+        </form>
+      <% } %>
+      <button class="btn btn-danger rounded-pill shadow" type="button" data-bs-toggle="offcanvas" 
+        data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom">
+        <i class="bi bi-trash3-fill me-2"></i>Excluir
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmação de Exclusão -->
+<div class="offcanvas offcanvas-bottom" tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
+  <div class="offcanvas-header bg-danger text-white">
+    <h5 class="offcanvas-title fw-bold" id="offcanvasBottomLabel"><i class="bi bi-exclamation-circle me-2"></i>Confirmação</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <p class="text-muted">Você tem certeza que deseja excluir esta mensagem? Essa ação não pode ser desfeita.</p>
+    <form action="/admin/dashboard/messages/<%= notes.id %>/delete" method="post">
+      <button class="btn btn-danger shadow rounded-pill w-100">
+        <i class="bi bi-trash3 me-2"></i>Confirmar Exclusão
+      </button>
+    </form>
+  </div>
+</div>
+
+<%- include('fragments/footer') %>

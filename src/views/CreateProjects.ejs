@@ -1,0 +1,132 @@
+<%- include('fragments/header') %>
+
+<main class="container py-5">
+  
+  <!-- Botão de Voltar -->
+  <div class="text-center mb-4">
+    <a href="/admin/dashboard/editPage/CreateProjects/allProjects" class="btn btn-outline-danger rounded-pill px-4 py-2 shadow-sm">
+      <i class="bi bi-arrow-left-circle me-2"></i>Voltar</a>
+  </div>  
+  
+  <h1 class="text-center mb-4 text-white">Adicionar Novo Projeto</h1>
+  <div class="card p-4">
+    
+    <form id="project-form" action="/admin/dashboard/editPage" method="POST">
+      <!-- Formulário Principal -->
+      <div id="projects-container">
+        <div class="project-fields card mb-2 p-3">
+          <div class="d-flex gap-1 align-items-center mb-3">
+            <!-- Botão para Gerar URL -->
+            <button 
+              type="button" 
+              class="btn btn-secondary btn-sm shadow-sm popover-trigger" 
+              data-bs-toggle="popover" 
+              data-bs-content="Gerar URL no Imgur"
+              onclick="window.open('https://imgur.com/', '_blank')">
+              <i class="bi bi-brush"></i>
+            </button>
+            
+            <!-- Botão para Visualizar Projetos Publicados -->
+            <button 
+              type="button" 
+              class="btn btn-primary btn-sm shadow-sm popover-trigger" 
+              data-bs-toggle="popover" 
+              data-bs-content="Visualizar a lista de projetos publicados"
+              onclick="window.location.href='/admin/dashboard/editPage/CreateProjects/allProjects'">
+              <i class="bi bi-eye-fill"></i>
+            </button>
+          </div>
+          <hr>
+          <div class="mb-3">
+            <label for="image" class="form-label d-flex align-items-center">
+              <i class="bi bi-image-fill me-2"></i> Link da Imagem
+            </label>
+            <input 
+              type="url" 
+              class="form-control" 
+              id="image"
+              placeholder="ex: https://imgur.com/suaimagem.jpg"
+              name="imagePj" 
+              required
+            >
+          </div>
+
+          <div class="mb-3">
+            <label for="title" class="form-label d-flex align-items-center">
+              <i class="bi bi-pencil-square me-2"></i> Título do Projeto
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="title" 
+              name="titlePj" 
+              placeholder="Digite o título do projeto" 
+              required
+            >
+          </div>
+
+          <div class="mb-3">
+            <label for="description" class="form-label d-flex align-items-center">
+              <i class="bi bi-card-text me-2"></i> Descrição
+            </label>
+            <textarea 
+              class="form-control" 
+              id="description" 
+              name="descriptionPj" 
+              rows="6" 
+              placeholder="Digite uma descrição breve do projeto" 
+              required
+            ></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="link" class="form-label d-flex align-items-center">
+              <i class="bi bi-link-45deg me-2"></i> Link do Projeto
+            </label>
+            <input 
+              type="url" 
+              class="form-control" 
+              id="link" 
+              name="linkPj" 
+              placeholder="Digite o link do repositório ou url" 
+              required
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Botão de Enviar -->
+      <button type="submit" class="btn btn-success w-100 rounded-pill shadow-sm fw-bold">
+        <i class="bi bi-cloud-upload-fill me-2"></i>Publicar Projeto
+      </button>
+    </form>
+  </div>
+</main>
+
+<!-- Popover Script -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const popovers = [].slice.call(document.querySelectorAll('.popover-trigger')).map(popoverTriggerEl => {
+      const popover = new bootstrap.Popover(popoverTriggerEl, { trigger: 'manual' });
+
+      // Exibe o popover ao clicar
+      popoverTriggerEl.addEventListener('click', () => {
+        popover.show();
+
+        // Oculta automaticamente após 3 segundos
+        setTimeout(() => popover.hide(), 3000);
+      });
+
+      // Oculta o popover ao clicar novamente
+      popoverTriggerEl.addEventListener('blur', () => {
+        popover.hide();
+      });
+
+      return popover;
+    });
+  });
+</script>
+
+<script src="/script/generateCardProjects.js" type="module"></script>
+
+<%- include('fragments/footer') %>

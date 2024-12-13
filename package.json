@@ -1,0 +1,26 @@
+{
+  "name": "coddex",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "nodemon src/server.js",
+    "build": "node --watch src/server.js",
+    "ngrok": "ngrok http 3000",
+  "dev": "concurrently \"npm run test\" \"ngrok http 3000\""
+
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.21.0",
+    "express-session": "^1.18.1",
+    "multer": "^1.4.5-lts.1",
+    "nodemon": "^3.1.7",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+  }
+}

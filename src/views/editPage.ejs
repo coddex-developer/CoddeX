@@ -1,0 +1,83 @@
+<%- include('fragments/header') %>
+
+<main class="container py-5">
+  
+  <!-- Botão de Voltar -->
+  <div class="text-center mb-4">
+    <a href="/admin/dashboard" class="btn btn-outline-danger rounded-pill px-4 py-2 shadow-sm">
+      <i class="bi bi-house-fill me-2"></i>Voltar para Home</a>
+  </div>    
+  
+    <h1 class="text-center text-white mb-4">Edição da Página Web</h1>
+    <form action="/admin/dashboard/editPage/save" method="POST">
+        <!-- Campo Título -->
+        <div class="mb-4">
+            <label for="title" class="form-label text-white d-flex align-items-center">
+                <i class="bi bi-fonts me-2"></i> Título
+            </label>
+            <input 
+                type="text" 
+                class="form-control input-bg shadow-sm bg-dark text-light" 
+                id="title" 
+                name="titleForm" 
+                placeholder="Defina um título" 
+                value="<%= contentIndex.title %>" 
+                required
+            >
+        </div>
+
+        <!-- Campo Subtítulo -->
+        <div class="mb-4">
+            <label for="subtitle" class="form-label text-white d-flex align-items-center">
+                <i class="bi bi-card-text me-2"></i> Subtítulo
+            </label>
+            <textarea 
+                class="form-control mt-2 input-bg shadow-sm bg-dark text-light" 
+                id="subtitle" 
+                name="subtitleForm" 
+                rows="8" 
+                placeholder="Defina o subtítulo ou slogan" 
+                required
+            ><%= contentIndex.subtitle %></textarea>
+        </div>
+
+        <!-- Campos Sobre Mim -->
+        <section class="mb-4">
+            <label for="input2" class="form-label text-white d-flex align-items-center">
+                <i class="bi bi-person-fill me-2"></i> Sobre Mim
+            </label>
+            <input 
+                type="text" 
+                class="form-control input-bg shadow-sm bg-dark text-light" 
+                id="input2" 
+                name="titleAboutMeForm" 
+                placeholder="Ex: Sobre Mim" 
+                value="<%= contentIndex.titleAboutMe %>" 
+                required
+            >
+            <textarea 
+                class="form-control mt-2 input-bg shadow-sm bg-dark text-light" 
+                id="textarea2" 
+                name="textAboutMeForm" 
+                rows="8" 
+                placeholder="Ex: Meu nome é Jhon, sou formado em..." 
+                required
+            ><%= contentIndex.textAboutMe %></textarea>
+        </section>
+
+        <!-- Links para outras áreas -->
+        <section class="mb-4">
+            <a href="/admin/dashboard/editPage/CreateProjects/allProjects" class="btn btn-outline-danger w-100 mb-2 shadow-sm d-flex align-items-center">
+                <i class="bi bi-folder-fill me-2"></i> Acessar área Meus Projetos
+            </a>
+            <a href="#" class="btn btn-outline-danger w-100 mb-2 shadow-sm d-flex align-items-center">
+                <i class="bi bi-award-fill me-2"></i> Acessar área Meus Certificados
+            </a>
+        </section>
+
+        <!-- Botão Salvar -->
+        <button type="submit" class="btn btn-primary w-100 rounded-pill shadow-sm">Salvar</button>
+    </form>
+</main>
+
+<%- include('fragments/footer') %>

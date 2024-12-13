@@ -1,0 +1,97 @@
+<%- include('fragments/header') %>
+
+<main class="container py-5">
+  
+  <!-- Botão de Voltar -->
+  <div class="text-center mb-4">
+    <a href="/admin/dashboard/editPage/CreateProjects/allProjects" class="btn btn-outline-danger rounded-pill px-4 py-2 shadow-sm">
+      <i class="bi bi-arrow-left-circle me-2"></i>Voltar</a>
+  </div>  
+  
+  <h1 class="text-center mb-4 text-white">Editar Projeto</h1>
+  <div class="card p-4">
+    
+    <form id="project-form" action="/admin/dashboard/editPage/allProjects/<%= project.id %>/updated" method="POST">
+      <!-- Formulário Principal -->
+      <div id="projects-container">
+        <div class="project-fields card mb-2 p-3">
+          <div class="d-flex gap-1 align-items-center mb-3">
+            <!-- Botão para Gerar URL -->
+            <button 
+              type="button" 
+              class="btn btn-secondary btn-sm shadow-sm popover-trigger" 
+              data-bs-toggle="popover" 
+              data-bs-content="Gerar URL no Imgur"
+              onclick="window.open('https://imgur.com/', '_blank')">
+              <i class="bi bi-brush"></i>
+            </button>
+            
+          </div>
+          <hr>
+          <div class="mb-3">
+            <label for="image" class="form-label d-flex align-items-center">
+              <i class="bi bi-image-fill me-2"></i> Link da Imagem
+            </label>
+            <input 
+              type="url" 
+              class="form-control" 
+              id="image"
+              placeholder="ex: https://imgur.com/suaimagem.jpg"
+              name="updateImagePj" 
+             value="<%= project.imagePj %>" required
+            >
+          </div>
+
+          <div class="mb-3">
+            <label for="title" class="form-label d-flex align-items-center">
+              <i class="bi bi-pencil-square me-2"></i> Título do Projeto
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="title" 
+              name="updateTitlePj" 
+              placeholder="Digite o título do projeto" 
+             value="<%= project.titlePj %>" required
+            >
+          </div>
+
+          <div class="mb-3">
+            <label for="description" class="form-label d-flex align-items-center">
+              <i class="bi bi-card-text me-2"></i> Descrição
+            </label>
+            <textarea 
+              class="form-control" 
+              id="description" 
+              name="updateDescriptionPj" 
+              rows="6" 
+              placeholder="Digite uma descrição breve do projeto" 
+               required
+            ><%= project.descriptionPj %></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="link" class="form-label d-flex align-items-center">
+              <i class="bi bi-link-45deg me-2"></i> Link do Projeto
+            </label>
+            <input 
+              type="url" 
+              class="form-control" 
+              id="link" 
+              name="updateLinkPj" 
+              placeholder="Digite o link do repositório ou url" 
+              required
+            value="<%= project.linkPj %>">
+          </div>
+        </div>
+      </div>
+
+      <!-- Botão de Enviar -->
+      <button type="submit" class="btn btn-primary w-100 rounded-pill shadow-sm fw-bold">
+        <i class="bi bi-rocket me-2"></i>Atualizar Projeto
+      </button>
+    </form>
+  </div>
+</main>
+
+<%- include('fragments/footer') %>
