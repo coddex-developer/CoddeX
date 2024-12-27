@@ -4,22 +4,21 @@
   <i class="bi bi-plus"></i>
 </a>
 
-<main class="container py-5">
+<main>
   <!-- Botão de Voltar -->
-  <div class="text-center mb-4">
+  <div class="text-center mt-4 mb-4">
     <a href="/admin/dashboard/editPage" class="btn btn-outline-danger rounded-pill px-4 py-2 shadow-sm">
-      <i class="bi bi-arrow-left-circle me-2"></i>Voltar para Edição da Página Web
-    </a>
+      <i class="bi bi-arrow-left-circle me-2"></i>Return Edit Page</a>
   </div>
 
-  <h1 class="text-center mb-4 text-white">Lista de Projetos</h1>
+  <h1 class="text-center mb-4 text-white">List for Projects</h1>
 
-  <div class="row justify-content-center g-4">
+  <div style="display:flex;flex-wrap:wrap;">
     <% projects.forEach(function(project) { %>
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-        <div class="card shadow-lg border-0 rounded-4 text-center h-100">
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3 mt-4">
+        <div class="card shadow-lg border-0 rounded-4 text-center h-100" style="min-width:300px;max-width:300px;margin: 0 auto;">
           <!-- Imagem do Projeto -->
-          <img src="<%= project.imagePj %>" class="card-img-top img-fluid" alt="<%= project.titlePj %>">
+          <img style="height:190px;min-width:300px;" src="<%= project.imagePj %>" class="card-img-top img-fluid" alt="<%= project.titlePj %>">
           <div class="card-body">
             <h5 class="card-title mb-2 text-white fw-bold"><%= project.titlePj %></h5>
             <p class="text-secondary"><%= project.descriptionPj %></p>

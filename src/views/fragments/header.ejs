@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 
 <head>
   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
@@ -37,24 +37,18 @@
       <!-- Itens do menu -->
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <!-- Perfil -->
-          <li class="nav-item">
-            <a class="nav-link" href="/admin/dashboard/adminProfile">
-              <i class="bi bi-person-circle me-2"></i> Meu Perfil
-            </a>
-          </li>
-
+          
           <!-- Mensagens -->
           <li class="nav-item">
-            <a class="nav-link" href="/admin/dashboard/messages">
-              <i class="bi bi-envelope-fill me-2"></i> Mensagens
+            <a class="nav-link" href="/admin/dashboard/unread">
+              <i class="bi bi-envelope-fill me-2"></i> New Messages
             </a>
           </li>
           
           <!-- Posts de Projetos -->
           <li class="nav-item">
             <a class="nav-link" href="/admin/dashboard/editPage/CreateProjects/allProjects">
-              <i class="bi bi-file-post me-2"></i>(<%= projects.length %>) Posts de Projetos
+              <i class="bi bi-file-post me-2"></i>(<%= projects.length %>) Project Posts
             </a>
           </li>
 
@@ -65,10 +59,20 @@
             </a>
           </li>
 
+          <!-- Perfil -->
+
+          <li class="nav-item">
+
+            <a class="nav-link" href="/admin/dashboard/adminProfile">
+              <i class="bi bi-person-circle me-2"></i> Profile
+            </a>
+          </li>
+
+
           <!-- Sair -->
           <li class="nav-item">
             <a class="nav-link" href="/admin/dashboard/logout" id="logout">
-              <i class="bi bi-box-arrow-in-right me-2"></i> Sair
+              <i class="bi bi-box-arrow-in-right me-2"></i> Exit
             </a>
           </li>
         </ul>
