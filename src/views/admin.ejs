@@ -2,21 +2,36 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin</title>
-    <link rel="stylesheet" href="/styles/admin.css">
-    <link rel="shortcut icon" href="/assets/admin1.png" type="image/x-icon">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin</title>
+  <link rel="stylesheet" href="/styles/admin.css">
+  <link rel="shortcut icon" href="/assets/admin1.png" type="image/x-icon">
 </head>
 
 <body style="background-color: #e5e5e5;">
-    <form action="/auth/access" method="post">
-        <img src="/assets/admin1.png" class="logo">
-        <p>Faça login na sua conta</p>
-        <input type="text" name="usuario" class="usuario" id="usuario" placeholder="Usuário" required>
-        <input type="password" name="senha" class="senha" id="senha" placeholder="Senha" required>
-        <button type="submit">Entrar</button>
-    </form>
+
+<form class="form" action="/auth/access" method="post">
+  
+  <img src="/assets/admin1.png" class="logo">
+  
+  <span>Access your account</span>
+  <span class="input-span">
+    <label for="email" class="label">Username</label>
+    <input type="text" name="usuario" id="email"
+  required=""/></span>
+  <span class="input-span">
+    <label for="password" class="label">Password</label>
+    <input type="password" name="senha" id="password"
+   required=""/></span>
+
+  <input class="submit" type="submit" value="Log in" />
+</form>
+
+
+  <script>
+    document.getElementById("myPass").addEventListener("click", () => alert("Opção Indisponível no momento"));
+  </script>
 </body>
 
 </html>

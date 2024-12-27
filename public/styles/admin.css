@@ -16,64 +16,92 @@ body {
   justify-content: center;
   align-items: center;
   font-family: 'Inter', Sans-Serif;
-  background-color: #101010 !important;
+  background-color: #292929 !important;
 }
 
 .logo {
-  width: 150px;
-  position: absolute;
-  top: -45px;
+  width: 120px;
 }
 
-p {
-  color: #ccc;
-}
-
-form {
-  width: 100%;
-  max-width: 600px;
-  min-width: 350px;
-  height: 400px;
+/* From Uiverse.io by bociKond */ 
+.form {
+  --bg-light: #efefef;
+  --bg-dark: #707070;
+  --clr: #58bc82;
+  --clr-alpha: #9c9c9c60;
   display: flex;
   flex-direction: column;
-  position: relative;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  gap: .7rem;
-  font-style: italic;
-  justify-content: center;
   align-items: center;
-  background-color: #000;
-  padding: 1rem;
-  border-radius: 10px;
-}
-
-form input, button {
+  gap: 1rem;
   width: 100%;
-  height: 40px;
-  display: block;
-  border: 0;
-  border-radius: 5px;
+  max-width: 360px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  padding: 2rem 1rem;
+  border-radius: 18px;
 }
 
-form input {
-  background-color: #404040;
-  padding: 5px;
-  font-weight: 700;
-  color: #ccc;
+span {
+  color: var(--clr);
+  font-weight: 400;
 }
 
-form button {
-  background-color: transparent;
-  color: #dc3545;
-  border: 1px solid #dc3545;
-  font-weight: 500;
-  font-size: 13pt;
+.form .input-span {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form input[type="text"],
+.form input[type="password"] {
+  border-radius: 0.5rem;
+  padding: 1rem 0.75rem;
+  width: 100%;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--clr-alpha);
+  outline: 2px solid var(--bg-dark);
+}
+
+.form input[type="text"]:focus,
+.form input[type="password"]:focus {
+  outline: 2px solid var(--clr);
+}
+
+.label {
+  align-self: flex-start;
+  color: var(--clr);
+  font-weight: 600;
+}
+
+.form .submit {
+  padding: 1rem 0.75rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 3rem;
+  background-color: var(--bg-dark);
+  color: var(--bg-light);
+  border: none;
   cursor: pointer;
-  transition: .8s;
-  font-style: italic;
+  transition: all 300ms;
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
-form button:hover {
-  background-color: #dc3545;
-  color: white;
+.form .submit:hover {
+  background-color: var(--clr);
+  color: var(--bg-dark);
+}
+
+.span {
+  text-decoration: none;
+  color: var(--bg-dark);
+}
+
+.span a {
+  color: var(--clr);
 }
