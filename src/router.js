@@ -38,7 +38,7 @@ router.post("/admin/dashboard/editPage", controlerPage.saveProject);
 router.get("/admin/dashboard/editPage/CreateProjects/allProjects", midlewareLogin, controlerPage.allProjects);
 
 //GET Editar Projeto
-router.get("/admin/dashboard/editPage/CreateProjects/allProjects/:id", controlerPage.editProject);
+router.get("/admin/dashboard/editPage/CreateProjects/allProjects/:id", midlewareLogin, controlerPage.editProject);
 
 //PUT Editar Projeto
 // Rota para atualizar o projeto
