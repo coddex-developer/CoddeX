@@ -1,7 +1,9 @@
+require('dotenv').config();
+
 const userAdmin = [
   {
     username: "Admin",
-    password: "adminCod96879594",
+    password: process.env.ADMIN_PASS,
     contact: 61981323772
   }
 ]
