@@ -32,11 +32,6 @@
       <img src="/assets/admin1.png" alt="CoddeX" />
     </a>
     
-    <div class="form-check form-switch invisible">
-            <input class="form-check-input theme" type="checkbox" id="darkModeSwitch">
-            <label class="form-check-label text-white" for="darkModeSwitch">Tema</label>
-          </div>
-    
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -45,7 +40,6 @@
         <li class="nav-item"><a class="nav-link" href="#sobre">Sobre</a></li>
         <li class="nav-item"><a class="nav-link" href="#projetos">Projetos</a></li>
         <li class="nav-item"><a class="nav-link" href="#certificados">Certificados</a></li>
-        <li class="nav-item"><a class="nav-link" href="#blog">Blog</a></li>
         <li class="nav-item"><a class="nav-link" href="#contato">Contato</a></li>
       </ul>
     </div>
@@ -92,14 +86,14 @@
   <div class="container">
     <h2 class="text-center mb-4" data-animate>Certificados</h2>
     <div class="row g-4 text-center">
-      <div class="col-md-3" data-animate>
-        <img src="https://via.placeholder.com/150" alt="Certificado 1" class="img-fluid">
-        <p class="mt-2">Certificação Full Stack</p>
-      </div>
-      <div class="col-md-3" data-animate>
-        <img src="https://via.placeholder.com/150" alt="Certificado 2" class="img-fluid">
-        <p class="mt-2">Curso de JavaScript Avançado</p>
-      </div>
+      <% certificates.forEach(certificate => { %>
+        <div class="col-md-3" data-animate>
+          <a href="<%= certificate.url %>" target="_blank">
+            <img src="<%= certificate.image %>" alt="<%= certificate.id %>" class="img-fluid">
+          </a>
+          <p class="mt-2"><%= certificate.title %></p>
+        </div>
+      <% }); %>
     </div>
   </div>
 </section>

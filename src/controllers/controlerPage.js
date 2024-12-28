@@ -3,12 +3,15 @@ const controllerSms = require('../controllers/controllerSms');
 const userAdmin = require('../models/adminModel');
 const contentIndex = require('../models/contentPageIndelModel');
 const messengers = controllerSms.getMessages()
+const certificateGenerate = require('../models/modelCertificate.js');
+
+const myCertificates = certificateGenerate.containerCertificates()
 
 module.exports = {
 
   //GET /
   index: (req, res) => {
-    res.render('index', { contentIndex, projects: contentIndex.projects });
+    res.render('index', { contentIndex, projects: contentIndex.projects, certificates: myCertificates });
   },
 
   //GET /admin
@@ -47,7 +50,7 @@ module.exports = {
     const newMessages = messengers.filter(el => el.completed === false)
 
     if (newMessages.length <= 0) {
-      return res.render("alertNotMessages", {projects: contentIndex.projects})
+      return res.render("alertNotMessages", { projects: contentIndex.projects })
     }
 
     res.render("unread", { newMessages, projects: contentIndex.projects })
@@ -56,7 +59,7 @@ module.exports = {
   //GET admin/dashboard/messages
   showMessage: (req, res) => {
     if (messengers.length === 0) {
-      return res.render("alertNotMessages", {projects: contentIndex.projects})
+      return res.render("alertNotMessages", { projects: contentIndex.projects })
     }
     res.render("messages", { notes: messengers, projects: contentIndex.projects })
   },
@@ -146,7 +149,7 @@ module.exports = {
 
   //GET /admin/dashboard/editPage
   editPage: (req, res) => {
-    res.render("editPage", { contentIndex,  projects: contentIndex.projects})
+    res.render("editPage", { contentIndex, projects: contentIndex.projects })
   },
 
   //POST /admin/dashboard/editPage/save
@@ -167,7 +170,7 @@ module.exports = {
   },
 
   createProject: (req, res) => {
-    res.status(200).render("CreateProjects", {projects: contentIndex.projects})
+    res.status(200).render("CreateProjects", { projects: contentIndex.projects })
   },
 
   saveProject: (req, res) => {
@@ -225,29 +228,29 @@ module.exports = {
   //GET /admin/dashboard/editPage/allProjects:id/updated
 
   updateProject: (req, res) => {
-  const { id } = req.params; // Obter o ID do projeto a ser atualizado
-  const { updateImagePj, updateTitlePj, updateDescriptionPj, updateLinkPj } = req.body;
+    const { id } = req.params; // Obter o ID do projeto a ser atualizado
+    const { updateImagePj, updateTitlePj, updateDescriptionPj, updateLinkPj } = req.body;
 
-  // Encontrar o índice do projeto pelo ID
-  const pjID = contentIndex.projects.findIndex(pj => pj.id == id);
+    // Encontrar o índice do projeto pelo ID
+    const pjID = contentIndex.projects.findIndex(pj => pj.id == id);
 
-  // Validar se o projeto existe
-  if (pjID === -1) {
-    return res.status(404).send("Projeto não encontrado!");
+    // Validar se o projeto existe
+    if (pjID === -1) {
+      return res.status(404).send("Projeto não encontrado!");
+    }
+
+    // Validar os campos recebidos
+    if (!updateImagePj || !updateTitlePj || !updateDescriptionPj || !updateLinkPj) {
+      return res.status(400).send("Todos os campos precisam ser preenchidos!");
+    }
+
+    // Atualizar os dados do projeto
+    contentIndex.projects[pjID].imagePj = updateImagePj;
+    contentIndex.projects[pjID].titlePj = updateTitlePj;
+    contentIndex.projects[pjID].descriptionPj = updateDescriptionPj;
+    contentIndex.projects[pjID].linkPj = updateLinkPj;
+
+    // Redirecionar ou renderizar uma página de confirmação
+    res.status(200).redirect("/admin/dashboard/editPage/CreateProjects/allProjects");
   }
-
-  // Validar os campos recebidos
-  if (!updateImagePj || !updateTitlePj || !updateDescriptionPj || !updateLinkPj) {
-    return res.status(400).send("Todos os campos precisam ser preenchidos!");
-  }
-
-  // Atualizar os dados do projeto
-  contentIndex.projects[pjID].imagePj = updateImagePj;
-  contentIndex.projects[pjID].titlePj = updateTitlePj;
-  contentIndex.projects[pjID].descriptionPj = updateDescriptionPj;
-  contentIndex.projects[pjID].linkPj = updateLinkPj;
-
-  // Redirecionar ou renderizar uma página de confirmação
-  res.status(200).redirect("/admin/dashboard/editPage/CreateProjects/allProjects");
-}
 }
