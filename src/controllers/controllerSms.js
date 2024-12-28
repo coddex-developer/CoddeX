@@ -1,24 +1,21 @@
 const UUID = require('uuid').v4;
 const messengers = require('../models/smsModel');
+const { DateTime } = require('luxon');
 
 module.exports = {
 
   submiteMessage: (req, res) => {
     const { email, phone, name, messenger } = req.body;
-    const horas = new Date().getHours();
-    const minutos = new Date().getMinutes();
-    const segundos = new Date().getSeconds();
-    const dia = String(new Date().getDate()).padStart(2, '0');
-    const mes = String(new Date().getMonth() + 1).padStart(2, '0');
-    const ano = new Date().getFullYear();
+
+    const brTime = DateTime.now().setZone('America/Sao_Paulo');
 
     const message = {
       id: UUID(),
-      time: `${horas}:${minutos}:${segundos}`,
+      time: brTime.toFormat('HH:mm:ss'),
       name,
       email,
       phone,
-      data: `${dia}/${mes}/${ano}`,
+      data: brTime.toFormat('dd/MM/yyyy'),
       content: messenger,
       completed: false
     };
