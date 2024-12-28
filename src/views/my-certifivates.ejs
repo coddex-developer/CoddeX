@@ -1,0 +1,46 @@
+<%- include('fragments/header') %>
+
+<main class="container py-5">
+  <h1 class="text-center mb-4 text-white">Certificados</h1>
+  <div class="row">
+    <% if (certificates.length > 0) { %>
+      <% certificates.forEach((certificate) => { %>
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card shadow-sm">
+            <!-- Imagem do Certificado -->
+            <img 
+              src="<%= certificate.imagePj %>" 
+              class="card-img-top" 
+              alt="Certificado de <%= certificate.titlePj %>"
+              style="height: 200px; object-fit: cover;"
+            >
+            <div class="card-body">
+              <!-- Título -->
+              <h5 class="card-title text-dark"><%= certificate.titlePj %></h5>
+              <!-- Descrição -->
+              <p class="card-text text-muted">
+                <%= certificate.descriptionPj %>
+              </p>
+              <!-- Botão para Visualizar -->
+              <a 
+                href="<%= certificate.linkPj %>" 
+                class="btn btn-primary rounded-pill px-4" 
+                target="_blank">
+                <i class="bi bi-eye me-2"></i>Ver Certificado
+              </a>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <!-- Mensagem Caso Não Haja Certificados -->
+      <div class="col-12">
+        <div class="alert alert-warning text-center">
+          Nenhum certificado foi postado até o momento.
+        </div>
+      </div>
+    <% } %>
+  </div>
+</main>
+
+<%- include('fragments/footer') %>
