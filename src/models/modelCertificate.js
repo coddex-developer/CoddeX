@@ -5,31 +5,7 @@ const myCertificates = [
    image: "https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png",
    title: "Fundamentos Javascript",
    url: "https://drive.google.com/drive/folders/1qMSQAzXmOd1JCwYjUqsVo7op8y6n68Ij"
- },
-  {
-   id: 32,
-   image: "https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png",
-   title: "Fundamentos Javascript",
-   url: "https://drive.google.com/drive/folders/1qMSQAzXmOd1JCwYjUqsVo7op8y6n68Ij"
- },
-  {
-   id: 32,
-   image: "https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png",
-   title: "Fundamentos Javascript",
-   url: "https://drive.google.com/drive/folders/1qMSQAzXmOd1JCwYjUqsVo7op8y6n68Ij"
- },
-  {
-   id: 32,
-   image: "https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png",
-   title: "Fundamentos Javascript",
-   url: "https://drive.google.com/drive/folders/1qMSQAzXmOd1JCwYjUqsVo7op8y6n68Ij"
- },
-  {
-   id: 32,
-   image: "https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png",
-   title: "Fundamentos Javascript",
-   url: "https://drive.google.com/drive/folders/1qMSQAzXmOd1JCwYjUqsVo7op8y6n68Ij"
- },
+ }
 ];
 
 module.exports = {
