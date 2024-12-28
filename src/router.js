@@ -47,5 +47,8 @@ router.post('/admin/dashboard/editPage/allProjects/:id/updated', controlerPage.u
 //Excluir Projeto
 router.post("/admin/dashboard/editPage/CreateProjects/allProjects/:id", controlerPage.deleteProject);
 
+//GET certificates
+router.get("/admin/dashboard/editPage/certificates", midlewareLogin, controlerPage.formCertificates);
+
 module.exports = router;
 

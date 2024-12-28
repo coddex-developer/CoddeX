@@ -1,0 +1,64 @@
+<%- include('fragments/header') %>
+
+<main class="container py-5">
+  
+  <!-- Botão de Voltar -->
+  <div class="text-center mb-4">
+    <a href="/admin/dashboard" class="btn btn-outline-danger rounded-pill px-4 py-2 shadow-sm">
+      <i class="bi bi-house-fill me-2"></i>Voltar para Home</a>
+  </div>    
+
+  <h1 class="text-center text-white mb-4">Adicionar Certificado</h1>
+  
+  <form action="/certificates" method="POST">
+    <!-- Campo Imagem -->
+    <div class="mb-4">
+      <label for="image" class="form-label text-white d-flex align-items-center">
+        <i class="bi bi-card-image me-2"></i> Imagem
+      </label>
+      <input 
+        type="text" 
+        class="form-control input-bg shadow-sm bg-dark text-light" 
+        id="image" 
+        name="image" 
+        placeholder="URL para imagem do certificado" 
+        required
+      >
+    </div>
+
+    <!-- Campo Título -->
+    <div class="mb-4">
+      <label for="title" class="form-label text-white d-flex align-items-center">
+        <i class="bi bi-fonts me-2"></i> Título
+      </label>
+      <input 
+        type="text" 
+        class="form-control input-bg shadow-sm bg-dark text-light" 
+        id="title" 
+        name="title" 
+        placeholder="Título do certificado" 
+        required
+      >
+    </div>
+
+    <!-- Campo URL -->
+    <div class="mb-4">
+      <label for="url" class="form-label text-white d-flex align-items-center">
+        <i class="bi bi-link-45deg me-2"></i> URL
+      </label>
+      <input 
+        type="url" 
+        class="form-control input-bg shadow-sm bg-dark text-light" 
+        id="url" 
+        name="url" 
+        placeholder="URL do certificado" 
+        required
+      >
+    </div>
+
+    <!-- Botão Enviar -->
+    <button type="submit" class="btn btn-primary w-100 rounded-pill shadow-sm">Enviar</button>
+  </form>
+</main>
+
+<%- include('fragments/footer') %>

@@ -252,5 +252,10 @@ module.exports = {
 
     // Redirecionar ou renderizar uma página de confirmação
     res.status(200).redirect("/admin/dashboard/editPage/CreateProjects/allProjects");
+  },
+  
+  //GET /admin/dashboard/editPage/certificates
+  formCertificates: (req, res) => {
+    res.status(201).render('certificates', {projects: contentIndex.projects})
   }
 }
