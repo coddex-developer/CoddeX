@@ -257,5 +257,9 @@ module.exports = {
   //GET /admin/dashboard/editPage/certificates
   formCertificates: (req, res) => {
     res.status(201).render('certificates', {projects: contentIndex.projects})
+  },
+  
+  certificatesView: (req, res) => {
+    res.status(201).render('my-certificates', {myCertificates, projects: contentIndex.projects});
   }
 }

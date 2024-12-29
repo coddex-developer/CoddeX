@@ -3,23 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="keywords" content="">
-  <title>CoddeX</title>
+  <title>Blog - CoddeX</title>
   <meta name="description" content="CoddeX Blog for Developer">
-   <meta name="keywords" content="Programador, coddex, CoddeX, Gabriel Rodrigues Lima">
-   <meta name="author" content="Gabriel Rodrigues Lima">
-   <!-- Controle de compatibilidade para IE -->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-
-    <!-- Tag Open Graph para redes sociais -->
-    <meta property="og:title" content="CoddeX">
-    <meta property="og:description" content="CoddeX Blog for Developer">
-    <meta property="og:image" content="/assets/admin1.png">
-    <meta property="og:url" content="https://coddex.store">
-    <meta property="og:type" content="website">
+  <meta name="keywords" content="Programador, coddex, CoddeX, Gabriel Rodrigues Lima">
+  <meta name="author" content="Gabriel Rodrigues Lima">
+  <meta property="og:title" content="CoddeX">
+  <meta property="og:description" content="CoddeX Blog for Developer">
+  <meta property="og:image" content="/assets/admin1.png">
+  <meta property="og:url" content="https://coddex.store">
+  <meta property="og:type" content="website">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
   <link rel="stylesheet" href="/styles/style.css" type="text/css" media="all" />
   <link rel="shortcut icon" href="/assets/admin1.png" type="image/x-icon">
 </head>
@@ -31,16 +27,15 @@
     <a class="navbar-brand" href="#">
       <img src="/assets/admin1.png" alt="CoddeX" />
     </a>
-    
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link" href="#sobre">Sobre</a></li>
-        <li class="nav-item"><a class="nav-link" href="#projetos">Projetos</a></li>
-        <li class="nav-item"><a class="nav-link" href="#certificados">Certificados</a></li>
-        <li class="nav-item"><a class="nav-link" href="#contato">Contato</a></li>
+        <li class="nav-item"><a class="nav-link" href="#sobre"><i class="bi bi-person-circle me-1"></i>Sobre</a></li>
+        <li class="nav-item"><a class="nav-link" href="#projetos"><i class="bi bi-code-slash me-1"></i>Projetos</a></li>
+        <li class="nav-item"><a class="nav-link" href="#certificados"><i class="bi bi-mortarboard me-1"></i>Certificados</a></li>
+        <li class="nav-item"><a class="nav-link" href="#contato"><i class="bi bi-envelope me-1"></i>Contato</a></li>
       </ul>
     </div>
   </div>
@@ -67,7 +62,7 @@
     <div class="containerProjects row g-4">
       <% projects.forEach(project => { %>
         <div class="col-md-4" data-animate>
-          <div class="card">
+          <div class="card cardProject">
             <img src="<%= project.imagePj %>" class="imageCard card-img-top" alt="<%= project.title %>">
             <div class="card-body contentCard">
               <h5 class="card-title"><%= project.titlePj %></h5>
@@ -84,16 +79,36 @@
 <!-- Certificados -->
 <section id="certificados" class="py-5 certificados">
   <div class="container">
-    <h2 class="text-center mb-4" data-animate>Certificados</h2>
-    <div class="row g-4 text-center">
-      <% certificates.forEach(certificate => { %>
-        <div class="col-md-3" data-animate>
-          <a href="<%= certificate.url %>" target="_blank">
-            <img style="width:120px;border-radius:10px;" src="<%= certificate.image %>" alt="<%= certificate.id %>" class="img-fluid">
-          </a>
-          <p class="mt-2"><%= certificate.title %></p>
+    <h2 class="text-center mb-5" data-animate>Certificados</h2>
+    <div class="row g-4 d-flex justify-content-center">
+      <% if (certificates.length > 0) { %>
+        <% certificates.forEach(certificate => { %>
+          <div class="col-md-3 col-lg-2">
+            <div class="cardCertificate card shadow-sm h-100 text-center" style="max-width: 180px;min-width:180px;">
+              <img 
+                src="<%= certificate.image %>" 
+                class="card-img-top mx-auto" 
+                alt="<%= certificate.title %>" 
+                style="object-fit: cover; height: 120px; width: 180px;"
+              >
+              <div class="card-body p-2">
+                <h6 class="card-title mb-3"><%= certificate.title %></h6>
+                <a 
+                  href="<%= certificate.url %>" 
+                  class="btn btn-danger w-100 rounded-pill">
+                  <i class="bi bi-eye me-2"></i>View
+                </a>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div class="col-12">
+          <div class="alert alert-warning text-center">
+            Nenhum certificado foi postado até o momento.
+          </div>
         </div>
-      <% }); %>
+      <% } %>
     </div>
   </div>
 </section>
@@ -121,28 +136,29 @@
 
 <!-- Formulário de Contato -->
 <section id="contato" class="py-5">
-  <div class="container" data-animate>
-    <h2 class="text-center mb-4">Entre em Contato</h2>
-    
-    <form action="/sms/env" method="POST">
-      <div class="mb-3">
-        <label for="nome" class="form-label">Nome</label>
-        <input type="text" class="form-control" name="name" id="name" placeholder="Digite seu nome" required>
-      </div>
-      <div class="mb-3">
-        <label for="zap" class="form-label">Whatsapp</label>
-        <input type="number" class="form-control" id="zap" name="phone" placeholder="D igite seu numero de contato" required>
-      </div>
-      <div class="mb-3">
-        <la bel for="email" class="form-label">E-mail</label>
-        <input type="email" name="email" class="form-control" id="email" placeholder="Digite seu e-mail" required>
-      </div>
-      <div class="mb-3">
-        <label for="mensagem" class="form-label">Mensagem</label>
-        <textarea class="form-control" id="mensagem" name="messenger" rows="4" placeholder="Digite sua mensagem" required></textarea>
-      </div>
-      <button type="submit" class="btn btn-danger">Enviar</button>
-    </form>
+  <div class="container d-flex justify-content-center">
+    <div class="col-md-7 col-lg-6" data-animate>
+      <h2 class="text-center mb-4">Entre em Contato</h2>
+      <form action="/sms/env" method="POST">
+        <div class="mb-3">
+          <label for="nome" class="form-label">Nome</label>
+          <input type="text" class="form-control rounded-pill" name="name" id="name" placeholder="Digite seu nome" required>
+        </div>
+        <div class="mb-3">
+          <label for="zap" class="form-label">Whatsapp</label>
+          <input type="number" class="form-control rounded-pill" id="zap" name="phone" placeholder="Digite seu número de contato" required>
+        </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">E-mail</label>
+          <input type="email" name="email" class="form-control rounded-pill" id="email" placeholder="Digite seu e-mail" required>
+        </div>
+        <div class="mb-3">
+          <label for="mensagem" class="form-label">Mensagem</label>
+          <textarea class="form-control rounded-3" id="mensagem" name="messenger" rows="4" placeholder="Digite sua mensagem" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-danger w-100 rounded-pill">Enviar</button>
+      </form>
+    </div>
   </div>
 </section>
 

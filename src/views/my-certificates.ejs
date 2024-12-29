@@ -3,29 +3,24 @@
 <main class="container py-5">
   <h1 class="text-center mb-4 text-white">Certificados</h1>
   <div class="row">
-    <% if (certificates.length > 0) { %>
-      <% certificates.forEach((certificate) => { %>
+    <% if (myCertificates.length > 0) { %>
+      <% myCertificates.forEach((certificate) => { %>
         <div class="col-lg-4 col-md-6 mb-4">
           <div class="card shadow-sm">
             <!-- Imagem do Certificado -->
             <img 
-              src="<%= certificate.imagePj %>" 
+              src="<%= certificate.image %>" 
               class="card-img-top" 
-              alt="Certificado de <%= certificate.titlePj %>"
+              alt="<%= certificate.id %>"
               style="height: 200px; object-fit: cover;"
             >
             <div class="card-body">
               <!-- Título -->
-              <h5 class="card-title text-dark"><%= certificate.titlePj %></h5>
-              <!-- Descrição -->
-              <p class="card-text text-muted">
-                <%= certificate.descriptionPj %>
-              </p>
+              <h5 class="card-title text-dark"><%= certificate.title %></h5>
               <!-- Botão para Visualizar -->
               <a 
-                href="<%= certificate.linkPj %>" 
-                class="btn btn-primary rounded-pill px-4" 
-                target="_blank">
+                href="<%= certificate.id %>" 
+                class="btn btn-primary rounded-pill px-4">
                 <i class="bi bi-eye me-2"></i>Ver Certificado
               </a>
             </div>
