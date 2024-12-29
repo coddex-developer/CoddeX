@@ -11,6 +11,24 @@ const myCertificates = [
    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFkuFnmjP9czwPWkFA3OPHQqh770ResqnwEg&s",
    title: "NodeJS",
    url: "https://drive.google.com/drive/folders/1qMSQAzXmOd1JCwYjUqsVo7op8y6n68Ij"
+ },
+  {
+   id: 33,
+   image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFkuFnmjP9czwPWkFA3OPHQqh770ResqnwEg&s",
+   title: "NodeJS",
+   url: "https://drive.google.com/drive/folders/1qMSQAzXmOd1JCwYjUqsVo7op8y6n68Ij"
+ },
+  {
+   id: 33,
+   image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFkuFnmjP9czwPWkFA3OPHQqh770ResqnwEg&s",
+   title: "NodeJS",
+   url: "https://drive.google.com/drive/folders/1qMSQAzXmOd1JCwYjUqsVo7op8y6n68Ij"
+ },
+  {
+   id: 33,
+   image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFkuFnmjP9czwPWkFA3OPHQqh770ResqnwEg&s",
+   title: "NodeJS",
+   url: "https://drive.google.com/drive/folders/1qMSQAzXmOd1JCwYjUqsVo7op8y6n68Ij"
  }
 ];
 
