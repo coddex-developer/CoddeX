@@ -114,6 +114,9 @@ body {
   overflow-x: hidden;
 }
 
+.effectCenter.cardCertificate {
+  display: none;
+}
 
 .imageCerificate {
   width: 100%;
