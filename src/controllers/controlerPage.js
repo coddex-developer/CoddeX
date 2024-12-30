@@ -253,13 +253,91 @@ module.exports = {
     // Redirecionar ou renderizar uma página de confirmação
     res.status(200).redirect("/admin/dashboard/editPage/CreateProjects/allProjects");
   },
-  
+
   //GET /admin/dashboard/editPage/certificates
   formCertificates: (req, res) => {
-    res.status(201).render('certificates', {projects: contentIndex.projects})
+    res.status(201).render('certificates', { projects: contentIndex.projects })
+  },
+
+  certificatesView: (req, res) => {
+    res.status(201).render('my-certificates', { myCertificates, projects: contentIndex.projects });
+  },
+
+  //GET /admin/dashboard/editPage/certificates/:id
+  updateCertificate: (req, res) => {
+
+    const { id } = req.params
+
+    const certificateID = myCertificates.findIndex(pj => pj.id == id);
+
+
+    res.status(200).render('editCertificate', { certificate: myCertificates[certificateID], projects: contentIndex.projects });
   },
   
-  certificatesView: (req, res) => {
-    res.status(201).render('my-certificates', {myCertificates, projects: contentIndex.projects});
+  //GET /admin/dashboard/editPage/certificates/add-certificate/new
+  addCertificate: (req, res) => {
+    res.status(200).render("add-certificate", {projects: contentIndex.projects});
+  },
+  
+  createCertificate: (req, res) => {
+
+  const { image, title, url } = req.body;
+
+    const certificate = {
+      id: UUID(),
+      image,
+      title,
+      url
+    }
+
+    myCertificates.push(certificate)
+    res.redirect("/admin/dashboard/editPage/my-certificates")
+  },
+
+  //PUT /admin/dashboard/editPage/certificates/:id/updated
+  editCertificate: (req, res) => {
+    
+    const { id } = req.params; // Obter o ID do projeto a ser atualizado
+    const { imageEDIT, titleEDIT, urlEDIT } = req.body;
+
+    // Encontrar o índice do projeto pelo ID
+    const certificateID = myCertificates.findIndex(pj => pj.id == id);
+
+    // Validar se o projeto existe
+    if (certificateID === -1) {
+      return res.status(404).send("Projeto não encontrado!");
+    }
+
+    // Validar os campos recebidos
+    if (!imageEDIT || !titleEDIT || !urlEDIT) {
+      return res.status(400).send("Todos os campos precisam ser preenchidos!");
+    }
+
+    // Atualizar os dados do projeto
+  
+    myCertificates[certificateID].image = imageEDIT;
+    myCertificates[certificateID].title = titleEDIT;
+    myCertificates[certificateID].url = urlEDIT;
+
+  console.log(myCertificates)
+
+    // Redirecionar ou renderizar uma página de confirmação
+    res.status(200).redirect("/admin/dashboard/editPage/my-certificates");
+  },
+
+  //DELETE /admin/dashboard/editPage/my-certificates/:id
+  deleteCertificate: (req, res) => {
+    const { id } = req.params;
+
+    const certificateID = myCertificates.findIndex(cf => cf.id == id)
+
+    if (certificateID === -1) {
+      res.status(404).send("Certificado não encontrado!");
+      return
+    }
+
+    myCertificates.splice(certificateID, 1)
+
+    res.status(201).redirect("/admin/dashboard/editPage/my-certificates");
   }
 }

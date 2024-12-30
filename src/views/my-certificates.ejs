@@ -1,32 +1,69 @@
 <%- include('fragments/header') %>
 
+<a href="/admin/dashboard/editPage/my-certificates/add-certificate" class="btn btn-primary rounded-circle" style="width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; font-size: 24px; position: fixed; bottom: 10%; right: 10%; transform: translate(50%, 50%); z-index: 1;">
+  <i class="bi bi-plus"></i>
+</a>
+
 <main class="container py-5">
+
+  <!-- Botão de Voltar -->
+  <div class="text-center mt-4 mb-4">
+    <a href="/admin/dashboard/editPage" class="btn btn-outline-danger rounded-pill px-4 py-2 shadow-sm">
+      <i class="bi bi-arrow-left-circle me-2"></i>Return Edit Page</a>
+  </div>  
+  
   <h1 class="text-center mb-4 text-white">Certificados</h1>
   <div class="row">
     <% if (myCertificates.length > 0) { %>
-      <% myCertificates.forEach((certificate) => { %>
-        <div class="col-lg-4 col-md-6 mb-4">
-          <div class="card shadow-sm">
-            <!-- Imagem do Certificado -->
-            <img 
-              src="<%= certificate.image %>" 
-              class="card-img-top" 
-              alt="<%= certificate.id %>"
-              style="height: 200px; object-fit: cover;"
+
+    <% myCertificates.forEach(function(certificate) { %>
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3 mt-4">
+        <div class="card shadow-lg border-0 rounded-4 text-center h-100" style="min-width:300px;max-width:300px;margin: 0 auto;">
+          <!-- Imagem do Projeto -->
+          <img style="height:190px;min-width:300px;" src="<%= certificate.image %>" class="card-img-top img-fluid" alt="<%= certificate.title %>">
+          <div class="card-body">
+            <h5 class="card-title mb-2 text-white fw-bold"><%= certificate.title %></h5>
+            <p class="text-secondary"><%= certificate.descriptionPj %></p>
+          </div>
+          <!-- Botões de Ação -->
+          <div class="card-footer rounded-bottom-4 d-flex justify-content-evenly">
+            <a href="/admin/dashboard/editPage/my-certificates/<%= certificate.id %>" class="btn btn-secondary rounded-pill shadow-sm">
+              <i class="bi bi-pencil-fill me-1"></i>Editar
+            </a>
+            <!-- Botão para Abrir Offcanvas de Exclusão -->
+            <button 
+              class="btn btn-danger rounded-pill shadow-sm" 
+              data-bs-toggle="offcanvas" 
+              data-bs-target="#deletecertificate<%= certificate.id %>"
             >
-            <div class="card-body">
-              <!-- Título -->
-              <h5 class="card-title text-dark"><%= certificate.title %></h5>
-              <!-- Botão para Visualizar -->
-              <a 
-                href="<%= certificate.id %>" 
-                class="btn btn-primary rounded-pill px-4">
-                <i class="bi bi-eye me-2"></i>Ver Certificado
-              </a>
-            </div>
+              <i class="bi bi-trash-fill me-1"></i>Excluir
+            </button>
           </div>
         </div>
-      <% }); %>
+      </div>
+
+      <!-- Offcanvas para Confirmar Exclusão -->
+      <div 
+        class="offcanvas offcanvas-bottom" 
+        tabindex="-1" 
+        id="deletecertificate<%= certificate.id %>" 
+        aria-labelledby="deletecertificateLabel<%= certificate.id %>"
+      >
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="deletecertificateLabel<%= certificate.id %>">Confirmar Exclusão</h5>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <p class="text-muted">Você tem certeza que deseja excluir este projeto? (<strong><%= certificate.title %></strong>) </br> Esta ação não pode ser desfeita.</p>
+          <form action="/admin/dashboard/editPage/my-certificates/<%= certificate.id %>" method="POST">
+            <button class="btn btn-danger shadow rounded-pill w-100">
+              <i class="bi bi-trash3 me-2"></i>Confirmar Exclusão
+            </button>
+          </form>
+        </div>
+      </div>
+    <% }); %>
+
     <% } else { %>
       <!-- Mensagem Caso Não Haja Certificados -->
       <div class="col-12">

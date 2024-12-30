@@ -47,8 +47,22 @@ router.post('/admin/dashboard/editPage/allProjects/:id/updated', controlerPage.u
 //Excluir Projeto
 router.post("/admin/dashboard/editPage/CreateProjects/allProjects/:id", controlerPage.deleteProject);
 
-//GET certificates
+//GET /admin/dashboard/editPage/my-certificates
 router.get("/admin/dashboard/editPage/my-certificates", midlewareLogin, controlerPage.certificatesView);
+
+//GET /admin/dashboard/editPage/my-certificates/add-certificate
+router.get("/admin/dashboard/editPage/my-certificates/add-certificate", midlewareLogin, controlerPage.addCertificate);
+
+router.post("/admin/dashboard/editPage/certificates/add-certificate/new", controlerPage.createCertificate);
+
+//GET /admin/dashboard/editPage/my-certificates/:id
+router.get("/admin/dashboard/editPage/my-certificates/:id", midlewareLogin, controlerPage.updateCertificate)
+
+//PUT /admin/dashboard/editPage/my-certificates/:id/updated
+router.post("/admin/dashboard/editPage/my-certificates/editCertificate/:id/update", controlerPage.editCertificate)
+
+//DELETE certificates
+router.post("/admin/dashboard/editPage/my-certificates/:id", controlerPage.deleteCertificate);
 
 module.exports = router;
 
