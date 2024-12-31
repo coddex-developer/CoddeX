@@ -14,6 +14,9 @@
   <h1 class="text-center mb-4 text-white">List for Projects</h1>
 
   <div style="display:flex;flex-wrap:wrap;">
+    
+    <% if (projects.length > 0) { %>
+
     <% projects.forEach(function(project) { %>
       <div class="col-12 col-sm-6 col-md-4 col-lg-3 mt-4">
         <div class="card shadow-lg border-0 rounded-4 text-center h-100" style="min-width:300px;max-width:300px;margin: 0 auto;">
@@ -61,6 +64,16 @@
         </div>
       </div>
     <% }); %>
+    
+    <% } else { %>
+
+      <!-- Mensagem Caso Não Haja Certificados -->
+      <div class="col-12">
+        <div class="alert alert-warning text-center my-5 mx-3">
+          Nenhum projeto foi postado até o momento.
+        </div>
+      </div>
+    <% } %>    
   </div>
 </main>
 

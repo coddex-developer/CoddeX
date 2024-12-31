@@ -44,6 +44,11 @@ body {
   transform: translateX(-90px);
 }
 
+[data-animate-bottom] {
+  opacity: 0;
+  transform: translateY(90px);
+}
+
 .show {
   opacity: 1;
   transform: translateX(0);

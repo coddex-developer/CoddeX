@@ -50,18 +50,21 @@
 <!-- Sobre mim -->
 <section id="sobre" class="py-5">
   <div class="container">
-    <h2 class="text-center mb-4"><%= contentIndex.titleAboutMe %></h2>
-    <p><%= contentIndex.textAboutMe %></p>
+    <h2 class="text-center mb-4" data-animate-bottom><%= contentIndex.titleAboutMe %></h2>
+    <p data-animate-bottom><%= contentIndex.textAboutMe %></p>
   </div>
 </section>
 
 <!-- Projetos Section -->
 <section id="projetos" class="py-5">
   <div class="container">
-    <h2 class="text-center mb-4" data-animate>Meus Projetos</h2>
+    <h2 class="text-center mb-4" data-animate-bottom>Meus Projetos</h2>
     <div class="containerProjects row g-4">
+
+    <% if (projects.length > 0) { %>
+
       <% projects.forEach(project => { %>
-        <div class="col-md-4" data-animate>
+        <div class="col-md-4" data-animate-bottom>
           <div class="card cardProject">
             <img src="<%= project.imagePj %>" class="imageCard card-img-top" alt="<%= project.title %>">
             <div class="card-body contentCard">
@@ -72,13 +75,24 @@
           </div>
         </div>
       <% }); %>
+ 
+     <% } else { %>
+
+      <!-- Mensagem Caso Não Haja Certificados -->
+      <div class="col-12">
+        <div class="alert alert-warning text-center my-5 mx-2" data-animate-bottom>
+          Nenhum Projeto foi postado até o momento.
+        </div>
+      </div>
+    <% } %>         
+      
     </div>
   </div>
 </section>
 
 <!-- Certificados -->
 <section id="certificados" class="py-5 certificados">
-  <h2 class="text-center mb-5" data-animate>Certificados</h2>
+  <h2 class="text-center mb-5" data-animate-bottom>Certificados</h2>
 
     <div class="certificateContainer">
       <% if (certificates.length > 0) { %>
@@ -102,7 +116,7 @@
         <% }); %>
       <% } else { %>
         <div class="col-12">
-          <div class="alert alert-warning text-center">
+          <div class="alert alert-warning text-center" data-animate-bottom>
             Nenhum certificado foi postado até o momento.
           </div>
         </div>
@@ -134,7 +148,7 @@
 <!-- Formulário de Contato -->
 <section id="contato" class="py-5">
   <div class="container d-flex justify-content-center">
-    <div class="col-md-7 col-lg-6" data-animate>
+    <div class="col-md-7 col-lg-6" data-animate-bottom>
       <h2 class="text-center mb-4">Entre em Contato</h2>
       <form action="/sms/env" method="POST">
         <div class="mb-3">

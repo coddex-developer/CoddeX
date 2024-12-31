@@ -1,5 +1,5 @@
 function observerEvent() {
-  const targets = document.querySelectorAll("[data-animate]");
+  const targets = document.querySelectorAll("[data-animate], [data-animate-bottom]");
 
   const animateOnScroll = new IntersectionObserver(entries => {
     entries.forEach(entry => {
