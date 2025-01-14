@@ -273,15 +273,15 @@ module.exports = {
 
     res.status(200).render('editCertificate', { certificate: myCertificates[certificateID], projects: contentIndex.projects });
   },
-  
+
   //GET /admin/dashboard/editPage/certificates/add-certificate/new
   addCertificate: (req, res) => {
-    res.status(200).render("add-certificate", {projects: contentIndex.projects});
+    res.status(200).render("add-certificate", { projects: contentIndex.projects });
   },
-  
+
   createCertificate: (req, res) => {
 
-  const { image, title, url } = req.body;
+    const { image, title, url } = req.body;
 
     const certificate = {
       id: UUID(),
@@ -289,14 +289,14 @@ module.exports = {
       title,
       url
     }
-
+      
     myCertificates.push(certificate)
     res.redirect("/admin/dashboard/editPage/my-certificates")
   },
 
   //PUT /admin/dashboard/editPage/certificates/:id/updated
   editCertificate: (req, res) => {
-    
+
     const { id } = req.params; // Obter o ID do projeto a ser atualizado
     const { imageEDIT, titleEDIT, urlEDIT } = req.body;
 
@@ -314,12 +314,12 @@ module.exports = {
     }
 
     // Atualizar os dados do projeto
-  
+
     myCertificates[certificateID].image = imageEDIT;
     myCertificates[certificateID].title = titleEDIT;
     myCertificates[certificateID].url = urlEDIT;
 
-  console.log(myCertificates)
+    console.log(myCertificates)
 
     // Redirecionar ou renderizar uma página de confirmação
     res.status(200).redirect("/admin/dashboard/editPage/my-certificates");
