@@ -25,7 +25,8 @@ router.get('/admin/dashboard/messages/:id', midlewareLogin, controlerPage.viewMe
 router.post('/admin/dashboard/messages/:id/delete', controlerPage.deletessage);
 router.post('/admin/dashboard/messages/:id/complete', controlerPage.completedMessage);
 router.post('/admin/dashboard/messages/:id/incomplete', controlerPage.incompletedMessage);
-router.post('/sms/env', controllerSms.submiteMessage);
+
+router.post('/sms/env', controllerSms.submitMessage);
 
 //editPage
 router.get('/admin/dashboard/editPage', midlewareLogin, controlerPage.editPage);

@@ -4,17 +4,17 @@
   
   <!-- Botão de Voltar -->
   <div class="text-center mb-4">
-    <a href="/admin/dashboard/editPage/CreateProjects/allProjects" class="btn btn-outline-danger rounded-pill px-4 py-2 shadow-sm">
+    <a href="/admin/dashboard/editPage/Createprojectss/allprojectss" class="btn btn-outline-danger rounded-pill px-4 py-2 shadow-sm">
       <i class="bi bi-arrow-left-circle me-2"></i>Voltar</a>
   </div>  
 
   <h1 class="text-center mb-4 text-white">Editar Projeto</h1>
   <div class="card p-4 shadow-sm bg-dark border-0">
     
-    <form id="project-form" action="/admin/dashboard/editPage/allProjects/<%= project.id %>/updated" method="POST">
+    <form id="projects-form" action="/admin/dashboard/editPage/allprojectss/<%= projects.id %>/updated" method="POST">
       <!-- Formulário Principal -->
-      <div id="projects-container">
-        <div class="project-fields card mb-2 p-3 shadow-sm bg-dark border-0 text-light">
+      <div id="projectss-container">
+        <div class="projects-fields card mb-2 p-3 shadow-sm bg-dark border-0 text-light">
           <div class="d-flex gap-2 align-items-center mb-3">
             <!-- Botão para Gerar URL -->
             <button 
@@ -37,7 +37,7 @@
               id="image"
               placeholder="ex: https://imgur.com/suaimagem.jpg"
               name="updateImagePj" 
-              value="<%= project.imagePj %>"
+              value="<%= projects.imagePj %>"
               required
             >
           </div>
@@ -52,7 +52,7 @@
               id="title" 
               name="updateTitlePj" 
               placeholder="Digite o título do projeto"
-              value="<%= project.titlePj %>"
+              value="<%= projects.titlePj %>"
               required
             >
           </div>
@@ -68,7 +68,7 @@
               rows="6" 
               placeholder="Digite uma descrição breve do projeto" 
               required
-            ><%= project.descriptionPj %></textarea>
+            ><%= projects.descriptionPj %></textarea>
           </div>
 
           <div class="mb-3">
@@ -81,7 +81,7 @@
               id="link" 
               name="updateLinkPj" 
               placeholder="Digite o link do repositório ou URL"
-              value="<%= project.linkPj %>"
+              value="<%= projects.linkPj %>"
               required
             >
           </div>

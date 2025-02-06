@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Blog - CoddeX</title>
-  <meta name="description" content="CoddeX Blog for Developer">
-  <meta name="keywords" content="Programador, coddex, CoddeX, Gabriel Rodrigues Lima">
+  <meta name="description" content="CoddeX Web Developer">
+  <meta name="keywords" content="Programador, coddex, CoddeX, CoddeX Developer, Programador">
   <meta name="author" content="Gabriel Rodrigues Lima">
-  <meta property="og:title" content="CoddeX">
-  <meta property="og:description" content="CoddeX Blog for Developer">
+  <meta property="og:title" content="CoddeX Developer">
+  <meta property="og:description" content="Bog for CoddeX Web Developer">
   <meta property="og:image" content="/assets/admin1.png">
   <meta property="og:url" content="https://coddex.store">
   <meta property="og:type" content="website">
@@ -45,6 +45,7 @@
 <div class="text-center py-5 header">
   <h1 data-animate><%= contentIndex.title %></h1>
   <p data-animate><%= contentIndex.subtitle %></p>
+  <a style="border-radius:100px; padding: .5rem 2rem;" class="btn bg-outline-white mt-5" href="#contato" data-animate>Entrar em contato</a>
 </div>
 
 <!-- Sobre mim -->
@@ -94,7 +95,7 @@
 <section id="certificados" class="py-5 certificados">
   <h2 class="text-center mb-5" data-animate-bottom>Certificados</h2>
 
-    <div class="certificateContainer">
+    <div class="certificateContainer" data-animate-bottom>
       <% if (certificates.length > 0) { %>
         <% certificates.forEach(certificate => { %>
           <div class="cardCertificate">
@@ -107,8 +108,8 @@
               <div class="contentCertificate">
                 <h6 class="card-title"><%= certificate.title %></h6>
                 <a 
-                  href="<%= certificate.url %>" 
-                  class="btn btn-danger">
+                   href="<%= certificate.url %>" 
+                  class="btn btn-danger btnCertificate">
                   <i class="bi bi-eye me-2"></i>View
                 </a>
               </div>
@@ -184,8 +185,9 @@
     </div>
   </div>
 </footer>
+<button class="btn-certificate">Certificado 1</button>
+<button class="btn-certificate">Certificado 2</button>
 
 <script src="./script/index.js" type="module"></script>
-
 </body>
 </html>

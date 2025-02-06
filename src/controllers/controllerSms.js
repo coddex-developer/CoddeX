@@ -1,11 +1,10 @@
 const UUID = require('uuid').v4;
-const messengers = require('../models/smsModel');
 const { DateTime } = require('luxon');
 const MessageDB = require("../db/messageDB")
 
 module.exports = {
 
-  submiteMessage: async (req, res) => {
+  submitMessage: async (req, res) => {
     const { email, phone, name, messenger } = req.body;
 
     const brTime = DateTime.now().setZone('America/Sao_Paulo');

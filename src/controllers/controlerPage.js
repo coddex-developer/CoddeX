@@ -1,20 +1,17 @@
 require("dotenv").config();
 const UUID = require('uuid').v4;
-const controllerSms = require('../controllers/controllerSms');
 const contentIndex = require('../models/contentPageIndelModel');
 const MessageDB = require("../db/messageDB");
+const ProjectsDB = require("../db/projectsDB");
 const CertificateDB = require("../db/certificatesDB");
-const certificateGenerate = require('../models/modelCertificate.js');
-const myCertificates = certificateGenerate.containerCertificates()
-
-const adminModel = require("../models/adminModel.js");
 const Admin = require("../db/adminDB.js");
 
 module.exports = {
 
   //GET /
-  index: (req, res) => {
-    res.render('index', { contentIndex, projects: contentIndex.projects, certificates: myCertificates });
+  index: async (req, res) => {
+    const certificates = await CertificateDB.find();
+    res.render('index', { contentIndex, projects: contentIndex.projects, certificates });
   },
 
   //GET /admin
@@ -195,36 +192,58 @@ module.exports = {
     res.status(201).render("alertSaveSuccess");
   },
 
-  createProject: (req, res) => {
-    res.status(200).render("CreateProjects", { projects: contentIndex.projects })
+  createProject: async (req, res) => {
+    const projects = await ProjectsDB.find();
+    if (!projects) {
+      res.send("Projeto não encontrado!")
+      return
+    }
+    res.status(200).render("CreateProjects", { projects })
   },
 
-  saveProject: (req, res) => {
+  saveProject: async (req, res) => {
     const { imagePj, titlePj, descriptionPj, linkPj } = req.body;
 
-    const generateProgent = {
+    const createProjectDB = new ProjectsDB({
       id: UUID(),
       imagePj,
       titlePj,
       descriptionPj,
       linkPj
-    }
+    })
 
-    contentIndex.projects.push(generateProgent)
+    await createProjectDB.save();
+
     res.redirect("/admin/dashboard/editPage/CreateProjects");
   },
 
   //GET /admin/dashboard/editPage/allProjects
-  allProjects: (req, res) => {
-    res.render("allProjects", { projects: contentIndex.projects })
+  allProjects: async (req, res) => {
+    const projects = await ProjectsDB.find()
+    res.render("allProjects", { projects })
   },
 
   //GET /admin/dashboard/editPage/allProjects:id
 
   editProject: (req, res) => {
+    const { updateImagePj, updateTitlePj, updateDescriptionPj, updateLinkPj } = req.body;
+    
+    const { id } = req.params;
+    const projects = await ProjectsDB.findOne({ _id: id })
 
+    if(!projects) {
+      res.send("Id do projeto não identificado!")
+      return
+    }
+    
+    projects.imagePj = updateLinkPj;
+    projects.titlePj = updateTitlePj;
+    projects.descriptionPj = updateDescriptionPj;
+    projects.linkPj = updateLinkPj;
+    
+    await projects.save()
 
-    res.status(200).render("editProject", { project: 0, projects: contentIndex.projects });
+    res.status(200).render("editProject", { projects });
 
   },
 
@@ -344,9 +363,9 @@ module.exports = {
   //DELETE /admin/dashboard/editPage/my-certificates/:id
   deleteCertificate: async (req, res) => {
     const { id } = req.params;
-    
+
     const removeCertificate = await CertificateDB.findByIdAndDelete(id);
-    
+
     console.log(removeCertificate)
 
     if (!removeCertificate) {
