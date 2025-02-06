@@ -9,13 +9,13 @@
   </div>
 
   <div class="btn-group mb-4">
-    <a href="/admin/dashboard/messages" class="btn btn-outline-warning" aria-current="page">All</a>
-    <a href="#" class="btn btn-outline-warning active">Unread</a>
+    <a href="/admin/dashboard/messages" class="btn btn-outline-warning" aria-current="page">Todos</a>
+    <a href="#" class="btn btn-outline-warning active">Não lido</a>
   </div>
 
   <!-- Lista de Mensagens -->
   <div class="row justify-content-center g-4">
-    <% newMessages.forEach(function(note) { %>
+    <% resultMessage.forEach(function(note) { %>
       <div class="col-12 col-sm-6 col-md-4 col-lg-3">
         <a class="text-decoration-none" id="<%= note.id %>" href="/admin/dashboard/messages/<%= note.id %>">
           <div class="card shadow-lg border-0 rounded-4 text-center h-100">

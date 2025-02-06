@@ -1,11 +1,14 @@
+require("dotenv").config();
 const UUID = require('uuid').v4;
 const controllerSms = require('../controllers/controllerSms');
-const userAdmin = require('../models/adminModel');
 const contentIndex = require('../models/contentPageIndelModel');
-const messengers = controllerSms.getMessages()
+const MessageDB = require("../db/messageDB");
+const CertificateDB = require("../db/certificatesDB");
 const certificateGenerate = require('../models/modelCertificate.js');
-
 const myCertificates = certificateGenerate.containerCertificates()
+
+const adminModel = require("../models/adminModel.js");
+const Admin = require("../db/adminDB.js");
 
 module.exports = {
 
@@ -20,24 +23,34 @@ module.exports = {
   },
 
   //POST /admin
-  account: (req, res) => {
-    const { usuario, senha } = req.body;
-    const checkUser = userAdmin.find(user => user.username === usuario && user.password === senha);
+  account: async (req, res) => {
+    const { userAdmin, passAdmin } = req.body;
 
-    if (!checkUser) {
-      return res.status(404).render('alertUserIncorrect')
+    try {
+      const admin = await Admin.findOne({ userAdmin });
+
+      if (!admin) {
+        return { message: "Admin não encontrado!" }
+      }
+
+      if (passAdmin !== process.env.ADMIN_PASS) {
+        res.redirect("alertUserIncorrect");
+      }
+
+      req.session.authenticated = true;
+      req.session.currentUser = admin;
+      res.status(200).redirect('/admin/dashboard');
+    } catch (error) {
+
     }
-    req.session.authenticated = true;
-    req.session.currentUser = checkUser;
-    res.status(200).redirect('/admin/dashboard');
   },
 
   //GET /admin/dashboard/
-  dashboard: (req, res) => {
+  dashboard: async (req, res) => {
+    const resultMessage = await MessageDB.find();
+    const unreadMessage = await MessageDB.find({ completed: false });
 
-    const newMessages = messengers.filter(el => el.completed === false)
-
-    res.render('dashboard', { adminUser: req.session.currentUser, notes: messengers, msn: newMessages, projects: contentIndex.projects });
+    res.render('dashboard', { adminUser: req.session.currentUser, resultMessage, unreadMessage, projects: contentIndex.projects });
   },
 
   logout: (req, res) => {
@@ -45,67 +58,80 @@ module.exports = {
     res.redirect('/admin');
   },
 
-  unreadMessages: (req, res) => {
+  unreadMessages: async (req, res) => {
+    const resultMessage = await MessageDB.find({ completed: false });
 
-    const newMessages = messengers.filter(el => el.completed === false)
-
-    if (newMessages.length <= 0) {
+    if (resultMessage.length <= 0) {
       return res.render("alertNotMessages", { projects: contentIndex.projects })
     }
 
-    res.render("unread", { newMessages, projects: contentIndex.projects })
+    res.render("unread", { resultMessage, projects: contentIndex.projects })
   },
 
   //GET admin/dashboard/messages
-  showMessage: (req, res) => {
-    if (messengers.length === 0) {
+  showMessage: async (req, res) => {
+    const resultMessage = await MessageDB.find();
+    if (resultMessage.length === 0) {
       return res.render("alertNotMessages", { projects: contentIndex.projects })
     }
-    res.render("messages", { notes: messengers, projects: contentIndex.projects })
+    res.render("messages", { notes: await resultMessage, projects: contentIndex.projects })
   },
 
   //GET admin/dashboard/messages/:id
-  viewMessage: (req, res) => {
-    const id = req.params.id
+  viewMessage: async (req, res) => {
+    const { id } = req.params;
+    const resultMessage = await MessageDB.findOne({ _id: id });
 
-    const checkIndexId = messengers.findIndex(msg => msg.id == id);
-
-    if (checkIndexId === -1) {
+    if (!resultMessage) {
       return res.send("Nada de novo por aqui!")
     }
 
-    res.render("cardMessage", { notes: messengers[checkIndexId], projects: contentIndex.projects })
+    res.render("cardMessage", { resultMessage, projects: contentIndex.projects })
 
   },
 
   //DELETE admin/dashboard/messages/:id/delete
-  deletessage: (req, res) => {
-    const id = req.params.id
-
-    const checkIndexId = messengers.findIndex(msg => msg.id == id);
-
-    if (checkIndexId === -1) {
+  deletessage: async (req, res) => {
+    const { id } = req.params
+    const resultMessage = await MessageDB.findByIdAndDelete(id);
+    if (!resultMessage) {
       return res.render("/error")
     }
-
-    messengers.splice(checkIndexId, 1)
-
     res.redirect("/admin/dashboard/messages")
-
   },
 
-  completedMessage: (req, res) => {
-    const id = req.params.id
-    const checkMsg = messengers.find(msg => msg.id == id);
-    checkMsg.completed = true
-    res.redirect(`/admin/dashboard/messages/${id}`)
+  completedMessage: async (req, res) => {
+    try {
+      const { id } = req.params
+      const resultMessage = await MessageDB.findOne({ _id: id });
+      console.log(resultMessage.completed)
+      if (!resultMessage) {
+        res.send("Mensagem não emcontrada!")
+        return
+      }
+      resultMessage.completed = true
+      await resultMessage.save()
+      res.redirect(`/admin/dashboard/messages/${resultMessage.id}`)
+    } catch (error) {
+      res.send(error)
+    }
   },
 
-  incompletedMessage: (req, res) => {
-    const id = req.params.id
-    const checkMsg = messengers.find(msg => msg.id == id);
-    checkMsg.completed = false
-    res.redirect(`/admin/dashboard/messages/${id}`)
+  incompletedMessage: async (req, res) => {
+    try {
+      const { id } = req.params
+      const resultMessage = await MessageDB.findOne({ _id: id });
+
+      if (!resultMessage) {
+        res.send("Mensagem não emcontrada!")
+        return
+      }
+      resultMessage.completed = false
+      await resultMessage.save()
+      res.redirect(`/admin/dashboard/messages/${resultMessage.id}`)
+    } catch (error) {
+      res.send(error)
+    }
   },
 
   //GET /admin/dashboard/adminProfile
@@ -196,16 +222,9 @@ module.exports = {
   //GET /admin/dashboard/editPage/allProjects:id
 
   editProject: (req, res) => {
-    const { id } = req.params;
 
-    const pjID = contentIndex.projects.findIndex(pj => pj.id == id);
 
-    if (pjID === -1) {
-      res.status(404).send("Projeto não encontrado!");
-      return
-    }
-
-    res.status(200).render("editProject", { project: contentIndex.projects[pjID], projects: contentIndex.projects });
+    res.status(200).render("editProject", { project: 0, projects: contentIndex.projects });
 
   },
 
@@ -255,23 +274,29 @@ module.exports = {
   },
 
   //GET /admin/dashboard/editPage/certificates
-  formCertificates: (req, res) => {
+  formCertificates: async (req, res) => {
     res.status(201).render('certificates', { projects: contentIndex.projects })
   },
 
-  certificatesView: (req, res) => {
-    res.status(201).render('my-certificates', { myCertificates, projects: contentIndex.projects });
+  certificatesView: async (req, res) => {
+    const certificates = await CertificateDB.find();
+
+    if (!certificates) {
+      res.status(404).send("Projeto não encontrado!");
+      return
+    }
+    res.status(201).render('my-certificates', { certificates, projects: 0 });
   },
 
   //GET /admin/dashboard/editPage/certificates/:id
-  updateCertificate: (req, res) => {
+  updateCertificate: async (req, res) => {
 
     const { id } = req.params
 
-    const certificateID = myCertificates.findIndex(pj => pj.id == id);
+    const certificateID = await CertificateDB.findOne({ _id: id })
 
 
-    res.status(200).render('editCertificate', { certificate: myCertificates[certificateID], projects: contentIndex.projects });
+    res.status(200).render('editCertificate', { certificate: certificateID, projects: contentIndex.projects });
   },
 
   //GET /admin/dashboard/editPage/certificates/add-certificate/new
@@ -279,64 +304,55 @@ module.exports = {
     res.status(200).render("add-certificate", { projects: contentIndex.projects });
   },
 
-  createCertificate: (req, res) => {
-
+  createCertificate: async (req, res) => {
     const { image, title, url } = req.body;
 
-    const certificate = {
-      id: UUID(),
+    const certificate = new CertificateDB({
+      _id: UUID(),
       image,
       title,
       url
-    }
-      
-    myCertificates.push(certificate)
+    });
+
+    await certificate.save();
+    console.log(certificate)
     res.redirect("/admin/dashboard/editPage/my-certificates")
   },
 
   //PUT /admin/dashboard/editPage/certificates/:id/updated
-  editCertificate: (req, res) => {
-
-    const { id } = req.params; // Obter o ID do projeto a ser atualizado
+  editCertificate: async (req, res) => {
+    const { id } = req.params;
     const { imageEDIT, titleEDIT, urlEDIT } = req.body;
+    const certificateID = await CertificateDB.findOne({ _id: id })
 
-    // Encontrar o índice do projeto pelo ID
-    const certificateID = myCertificates.findIndex(pj => pj.id == id);
-
-    // Validar se o projeto existe
-    if (certificateID === -1) {
+    if (!certificateID) {
       return res.status(404).send("Projeto não encontrado!");
     }
-
-    // Validar os campos recebidos
     if (!imageEDIT || !titleEDIT || !urlEDIT) {
       return res.status(400).send("Todos os campos precisam ser preenchidos!");
     }
 
-    // Atualizar os dados do projeto
+    certificateID.image = imageEDIT;
+    certificateID.title = titleEDIT;
+    certificateID.url = urlEDIT;
 
-    myCertificates[certificateID].image = imageEDIT;
-    myCertificates[certificateID].title = titleEDIT;
-    myCertificates[certificateID].url = urlEDIT;
+    await certificateID.save();
 
-    console.log(myCertificates)
-
-    // Redirecionar ou renderizar uma página de confirmação
     res.status(200).redirect("/admin/dashboard/editPage/my-certificates");
   },
 
   //DELETE /admin/dashboard/editPage/my-certificates/:id
-  deleteCertificate: (req, res) => {
+  deleteCertificate: async (req, res) => {
     const { id } = req.params;
+    
+    const removeCertificate = await CertificateDB.findByIdAndDelete(id);
+    
+    console.log(removeCertificate)
 
-    const certificateID = myCertificates.findIndex(cf => cf.id == id)
-
-    if (certificateID === -1) {
+    if (!removeCertificate) {
       res.status(404).send("Certificado não encontrado!");
       return
     }
-
-    myCertificates.splice(certificateID, 1)
 
     res.status(201).redirect("/admin/dashboard/editPage/my-certificates");
   }
