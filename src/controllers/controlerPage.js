@@ -12,7 +12,7 @@ module.exports = {
   index: async (req, res) => {
     const certificates = await CertificateDB.find();
     const projects = await ProjectsDB.find();
-    res.render('index', { contentIndex, projects , certificates });
+    res.render('index', { contentIndex, projects, certificates });
   },
 
   //GET /admin
@@ -51,7 +51,7 @@ module.exports = {
 
     res.render('dashboard', { adminUser: req.session.currentUser, resultMessage, unreadMessage, projects });
   },
-  
+
   //POST DESTROY SESSION
   logout: (req, res) => {
     req.session.destroy();
@@ -74,7 +74,7 @@ module.exports = {
     const resultMessage = await MessageDB.find();
     const projects = await ProjectsDB.find()
     if (resultMessage.length === 0) {
-      return res.render("alertNotMessages", { projects: contentIndex.projects })
+      return res.render("alertNotMessages", { projects })
     }
     res.render("messages", { notes: await resultMessage, projects })
   },
@@ -89,7 +89,7 @@ module.exports = {
       return res.send("Nada de novo por aqui!")
     }
 
-    res.render("cardMessage", { resultMessage, projects})
+    res.render("cardMessage", { resultMessage, projects })
 
   },
 
@@ -143,7 +143,7 @@ module.exports = {
   },
 
   //POST /admin/dashboard/adminProfile
-  editProfile: (req, res) => {
+  editProfile: async (req, res) => {
     const { username, password, contact } = req.body;
 
 
@@ -177,12 +177,13 @@ module.exports = {
   },
 
   //GET /admin/dashboard/editPage
-  editPage: (req, res) => {
-    res.render("editPage", { contentIndex, projects: contentIndex.projects })
+  editPage: async (req, res) => {
+    const projects = await ProjectsDB.find();
+    res.render("editPage", { contentIndex, projects })
   },
 
   //POST /admin/dashboard/editPage/save
-  saveEditPage: (req, res) => {
+  saveEditPage: async (req, res) => {
     const { titleForm, subtitleForm, titleAboutMeForm, textAboutMeForm } = req.body;
 
     if (!titleForm || !subtitleForm || !titleAboutMeForm || !textAboutMeForm) {
@@ -291,7 +292,8 @@ module.exports = {
 
   //GET /admin/dashboard/editPage/certificates
   formCertificates: async (req, res) => {
-    res.status(201).render('certificates', { projects: contentIndex.projects })
+    const projects = await ProjectsDB.find();
+    res.status(201).render('certificates', { projects })
   },
 
   certificatesView: async (req, res) => {
@@ -306,18 +308,17 @@ module.exports = {
 
   //GET /admin/dashboard/editPage/certificates/:id
   updateCertificate: async (req, res) => {
-
     const { id } = req.params
-
     const certificateID = await CertificateDB.findOne({ _id: id })
+    const projects = await ProjectsDB.find();
 
-
-    res.status(200).render('editCertificate', { certificate: certificateID, projects: contentIndex.projects });
+    res.status(200).render('editCertificate', { certificate: certificateID, projects });
   },
 
   //GET /admin/dashboard/editPage/certificates/add-certificate/new
-  addCertificate: (req, res) => {
-    res.status(200).render("add-certificate", { projects: contentIndex.projects });
+  addCertificate: async (req, res) => {
+    const projects = await ProjectsDB.find();
+    res.status(200).render("add-certificate", { projects });
   },
 
   createCertificate: async (req, res) => {
