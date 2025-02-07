@@ -11,7 +11,8 @@ module.exports = {
   //GET /
   index: async (req, res) => {
     const certificates = await CertificateDB.find();
-    res.render('index', { contentIndex, projects: contentIndex.projects, certificates });
+    const projects = await ProjectsDB.find();
+    res.render('index', { contentIndex, projects , certificates });
   },
 
   //GET /admin
@@ -46,44 +47,49 @@ module.exports = {
   dashboard: async (req, res) => {
     const resultMessage = await MessageDB.find();
     const unreadMessage = await MessageDB.find({ completed: false });
+    const projects = await ProjectsDB.find();
 
-    res.render('dashboard', { adminUser: req.session.currentUser, resultMessage, unreadMessage, projects: contentIndex.projects });
+    res.render('dashboard', { adminUser: req.session.currentUser, resultMessage, unreadMessage, projects });
   },
-
+  
+  //POST DESTROY SESSION
   logout: (req, res) => {
     req.session.destroy();
     res.redirect('/admin');
   },
-
+  //GET
   unreadMessages: async (req, res) => {
     const resultMessage = await MessageDB.find({ completed: false });
+    const projects = await ProjectsDB.find()
 
     if (resultMessage.length <= 0) {
-      return res.render("alertNotMessages", { projects: contentIndex.projects })
+      return res.render("alertNotMessages", { projects })
     }
 
-    res.render("unread", { resultMessage, projects: contentIndex.projects })
+    res.render("unread", { resultMessage, projects })
   },
 
   //GET admin/dashboard/messages
   showMessage: async (req, res) => {
     const resultMessage = await MessageDB.find();
+    const projects = await ProjectsDB.find()
     if (resultMessage.length === 0) {
       return res.render("alertNotMessages", { projects: contentIndex.projects })
     }
-    res.render("messages", { notes: await resultMessage, projects: contentIndex.projects })
+    res.render("messages", { notes: await resultMessage, projects })
   },
 
   //GET admin/dashboard/messages/:id
   viewMessage: async (req, res) => {
     const { id } = req.params;
     const resultMessage = await MessageDB.findOne({ _id: id });
+    const projects = await ProjectsDB.find()
 
     if (!resultMessage) {
       return res.send("Nada de novo por aqui!")
     }
 
-    res.render("cardMessage", { resultMessage, projects: contentIndex.projects })
+    res.render("cardMessage", { resultMessage, projects})
 
   },
 
@@ -101,7 +107,6 @@ module.exports = {
     try {
       const { id } = req.params
       const resultMessage = await MessageDB.findOne({ _id: id });
-      console.log(resultMessage.completed)
       if (!resultMessage) {
         res.send("Mensagem não emcontrada!")
         return
@@ -132,8 +137,9 @@ module.exports = {
   },
 
   //GET /admin/dashboard/adminProfile
-  myProfile: (req, res) => {
-    res.render("adminProfile", { adminUser: req.session.currentUser, projects: contentIndex.projects })
+  myProfile: async (req, res) => {
+    const projects = await ProjectsDB.find();
+    res.render("adminProfile", { adminUser: req.session.currentUser, projects })
   },
 
   //POST /admin/dashboard/adminProfile
@@ -163,9 +169,9 @@ module.exports = {
       res.status(400).send("O contato precisa ser do tipo numero!")
     }
 
-    userAdmin[adminIndex].username = username
-    userAdmin[adminIndex].password = password
-    userAdmin[adminIndex].contact = contactNumber
+    process.env.ADMIN_USER = username
+    process.env.ADMIN_PASS = password
+    process.env.ADMIN_PASS = contact
     req.session.destroy()
     res.status(200).redirect("/admin")
   },
@@ -204,17 +210,24 @@ module.exports = {
   saveProject: async (req, res) => {
     const { imagePj, titlePj, descriptionPj, linkPj } = req.body;
 
-    const createProjectDB = new ProjectsDB({
-      id: UUID(),
-      imagePj,
-      titlePj,
-      descriptionPj,
-      linkPj
-    })
+    if (!imagePj || !titlePj || !descriptionPj || !linkPj) {
+      res.send("Preencha todos os campos corretamente!")
+      return
+    }
 
-    await createProjectDB.save();
-
-    res.redirect("/admin/dashboard/editPage/CreateProjects");
+    try {
+      const createProjectDB = new ProjectsDB({
+        _id: UUID(),
+        imagePj,
+        titlePj,
+        descriptionPj,
+        linkPj
+      })
+      await createProjectDB.save()
+      res.redirect("/admin/dashboard/editPage/CreateProjects/allProjects")
+    } catch (error) {
+      res.send("Um erro ocorreu: " + error)
+    }
   },
 
   //GET /admin/dashboard/editPage/allProjects
@@ -223,73 +236,57 @@ module.exports = {
     res.render("allProjects", { projects })
   },
 
-  //GET /admin/dashboard/editPage/allProjects:id
-
-  editProject: (req, res) => {
-    const { updateImagePj, updateTitlePj, updateDescriptionPj, updateLinkPj } = req.body;
-    
-    const { id } = req.params;
-    const projects = await ProjectsDB.findOne({ _id: id })
-
-    if(!projects) {
-      res.send("Id do projeto não identificado!")
-      return
-    }
-    
-    projects.imagePj = updateLinkPj;
-    projects.titlePj = updateTitlePj;
-    projects.descriptionPj = updateDescriptionPj;
-    projects.linkPj = updateLinkPj;
-    
-    await projects.save()
-
-    res.status(200).render("editProject", { projects });
-
-  },
-
   //DELETE /admin/dashboard/editPage/allProjects:id
-  deleteProject: (req, res) => {
-    const { id } = req.params;
+  deleteProject: async (req, res) => {
+    const { id } = req.params
+    const removeProject = await ProjectsDB.findByIdAndDelete(id)
 
-    const pjID = contentIndex.projects.findIndex(pj => pj.id == id)
-
-    if (pjID === -1) {
-      res.status(404).send("Projeto não encontrado!");
+    if (!removeProject) {
+      res.status(404).send("Certificado não encontrado!");
       return
     }
-
-    contentIndex.projects.splice(pjID, 1)
-
     res.status(201).redirect("/admin/dashboard/editPage/CreateProjects/allProjects");
   },
 
-  //GET /admin/dashboard/editPage/allProjects:id/updated
+  editProject: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const projects = await ProjectsDB.find()
+      const projectsID = await ProjectsDB.findOne({ _id: id })
+      if (!projectsID) {
+        res.send("Id do projeto não identificado!")
+        return
+      }
+      res.render("editProject", { projectsID, projects })
+    } catch (error) {
+      res.send(error)
+    }
+  },
 
-  updateProject: (req, res) => {
-    const { id } = req.params; // Obter o ID do projeto a ser atualizado
+  //PUT /admin/dashboard/editPage/allProjects/:id/updated
+  updateProject: async (req, res) => {
     const { updateImagePj, updateTitlePj, updateDescriptionPj, updateLinkPj } = req.body;
+    const { id } = req.params;
 
-    // Encontrar o índice do projeto pelo ID
-    const pjID = contentIndex.projects.findIndex(pj => pj.id == id);
+    try {
+      const projectsID = await ProjectsDB.findOne({ _id: id })
 
-    // Validar se o projeto existe
-    if (pjID === -1) {
-      return res.status(404).send("Projeto não encontrado!");
+      if (!projectsID) {
+        res.send("Id do projeto não identificado!")
+        return
+      }
+      projectsID.imagePj = updateLinkPj;
+      projectsID.titlePj = updateTitlePj;
+      projectsID.descriptionPj = updateDescriptionPj;
+      projectsID.linkPj = updateLinkPj;
+
+      await projectsID.save();
+
+      res.status(200).redirect("/admin/dashboard/editPage/CreateProjects/allProjects");
+
+    } catch (error) {
+      res.send("Um erro ocorreu: " + error)
     }
-
-    // Validar os campos recebidos
-    if (!updateImagePj || !updateTitlePj || !updateDescriptionPj || !updateLinkPj) {
-      return res.status(400).send("Todos os campos precisam ser preenchidos!");
-    }
-
-    // Atualizar os dados do projeto
-    contentIndex.projects[pjID].imagePj = updateImagePj;
-    contentIndex.projects[pjID].titlePj = updateTitlePj;
-    contentIndex.projects[pjID].descriptionPj = updateDescriptionPj;
-    contentIndex.projects[pjID].linkPj = updateLinkPj;
-
-    // Redirecionar ou renderizar uma página de confirmação
-    res.status(200).redirect("/admin/dashboard/editPage/CreateProjects/allProjects");
   },
 
   //GET /admin/dashboard/editPage/certificates
@@ -334,7 +331,6 @@ module.exports = {
     });
 
     await certificate.save();
-    console.log(certificate)
     res.redirect("/admin/dashboard/editPage/my-certificates")
   },
 
@@ -363,16 +359,11 @@ module.exports = {
   //DELETE /admin/dashboard/editPage/my-certificates/:id
   deleteCertificate: async (req, res) => {
     const { id } = req.params;
-
     const removeCertificate = await CertificateDB.findByIdAndDelete(id);
-
-    console.log(removeCertificate)
-
     if (!removeCertificate) {
       res.status(404).send("Certificado não encontrado!");
       return
     }
-
     res.status(201).redirect("/admin/dashboard/editPage/my-certificates");
   }
 }

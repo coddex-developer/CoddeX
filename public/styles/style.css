@@ -1,9 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+* {
+  font-family: "Montserrat", serif;
+  ;
+}
+
 body {
   transition: .6s;
 }
 
 .header {
-   background-image: linear-gradient(-160deg, dodgerblue, #108); 
+  background-image: linear-gradient(-160deg, dodgerblue, #108);
   /* background-image: url('https://wallpapers.com/images/high/orange-and-yellow-abstract-material-design-m0xouep018ig6qno.webp'); */
   background-size: cover;
   background-repeat: no-repeat;
@@ -62,30 +69,43 @@ body {
   display: block;
 }
 
+.sobre {
+  text-align: center;
+}
+
 .containerProjects {
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
+  padding: .5rem 0 2rem 0;
 }
 
 @media (min-width: 780px) {
   .containerProjects {
-  grid-template-columns: 1fr 1fr;
-}
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .sobre {
+    text-align: left;
+  }
 }
 
 @media (min-width: 1080px) {
   .containerProjects {
-  grid-template-columns: 1fr 1fr 1fr;
-}
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  
+  .sobre {
+    text-align: left;
+  }
 }
 
 .cardProject {
   border-radius: 20px;
-  max-height: 400px;
-  min-height: 400px;
-  max-width: 330px;
-  min-width: 330px;
+  max-height: 440px;
+  min-height: 440px;
+  max-width: 320px;
+  min-width: 320px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   margin: 0 auto;
   background-color: #333;
@@ -182,4 +202,41 @@ img[alt="CoddeX"] {
 
 form {
   width: 300px !important;
+  margin: 0 auto;
+}
+
+.formularyBox {
+  width: 100%;
+}
+
+.projetos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+}
+
+.warningBox {
+  margin: 2rem auto !important;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: .7rem !important;
+}
+
+.warningBox p {
+  padding: .5rem 3rem;
+  background-color: lightyellow;
+  color: #292929;
+  border-radius: 5px;
+  font-weight: 600;
+  text-align: center;
+}
+
+@media (min-width: 780px) {
+  form {
+    width: 600px !important;
+  }
 }

@@ -6,8 +6,8 @@
     <div class="d-flex align-items-center">
       <i class="bi bi-person-circle display-5 text-light me-3"></i>
       <div>
-        <h2 class="h5 text-light mb-1">Welcome back, <%= null %>Admin!</h2>
-        <p class="small text-light mb-0">See your options below:</p>
+        <h2 class="h5 text-light mb-1">Bem-vindo de volta, <%= adminUser.userAdmin %>!</h2>
+        <p class="small text-light mb-0">Veja suas opções abaixo:</p>
       </div>
     </div>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -20,9 +20,9 @@
       <div class="card shadow-lg border-0 text-center h-100 rounded-4">
         <div class="card-body">
           <i class="bi bi-exclamation-circle-fill display-4 text-warning mb-3"></i>
-          <h5 class="card-title text-white fw-bold">New messages</h5>
-          <p class="text-secondary"><%- unreadMessage.length %> pending</p>
-          <a href="/admin/dashboard/unread" class="btn btn-danger rounded-pill px-4">View new messages</a>
+          <h5 class="card-title text-white fw-bold">Novas mensagens</h5>
+          <p class="text-secondary"><%- unreadMessage.length %> pendente</p>
+          <a href="/admin/dashboard/unread" class="btn btn-danger rounded-pill px-4">Ver novas mensagens</a>
         </div>
       </div>
     </div>
@@ -32,9 +32,9 @@
       <div class="card shadow-lg border-0 text-center h-100 rounded-4">
         <div class="card-body">
           <i class="bi bi-list-task display-4 text-primary mb-3"></i>
-          <h5 class="card-title text-white fw-bold">All messages</h5>
-          <p class="text-secondary"><%- resultMessage.length %> messenger</p>
-          <a href="/admin/dashboard/messages" class="btn btn-danger rounded-pill px-4">View all messages</a>
+          <h5 class="card-title text-white fw-bold">Todas as mensagens</h5>
+          <p class="text-secondary"><%- resultMessage.length %> menssageiro</p>
+          <a href="/admin/dashboard/messages" class="btn btn-danger rounded-pill px-4">Ver todas as mensagens</a>
         </div>
       </div>
     </div>
@@ -44,9 +44,9 @@
       <div class="card shadow-lg border-0 text-center h-100 rounded-4">
         <div class="card-body">
           <i class="bi bi-pencil-square display-4 text-success mb-3"></i>
-          <h5 class="card-title text-white fw-bold">Edit Web Page</h5>
-          <p class="text-secondary">Manage website content</p>
-          <a href="/admin/dashboard/editPage" class="btn btn-danger rounded-pill px-4">Edit</a>
+          <h5 class="card-title text-white fw-bold">Editar página da Web</h5>
+          <p class="text-secondary">Gerenciar conteúdo do site</p>
+          <a href="/admin/dashboard/editPage" class="btn btn-danger rounded-pill px-4">Editar</a>
         </div>
       </div>
     </div>
@@ -56,9 +56,9 @@
       <div class="card shadow-lg border-0 text-center h-100 rounded-4">
         <div class="card-body">
           <i class="bi bi-gear-fill display-4 text-info mb-3"></i>
-          <h5 class="card-title text-white fw-bold">Settings</h5>
-          <p class="text-secondary">Update Admin information</p>
-          <a href="/admin/dashboard/adminProfile" class="btn btn-danger rounded-pill px-4">Config</a>
+          <h5 class="card-title text-white fw-bold">Configurações</h5>
+          <p class="text-secondary">Atualizar informações do administrador</p>
+          <a href="/admin/dashboard/adminProfile" class="btn btn-danger rounded-pill px-4">Configiração</a>
         </div>
       </div>
     </div>
