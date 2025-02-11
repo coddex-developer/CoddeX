@@ -1,62 +1,42 @@
 <%- include('fragments/header') %>
 
-<div class="container-fluid mt-5 px-4">
-  <!-- Botão de Voltar -->
-  <div class="text-center mb-4">
-    <a href="/admin/dashboard" class="btn btn-outline-danger rounded-pill px-4 py-2 shadow-sm">
-      <i class="bi bi-house me-2"></i>Voltar para Home
-    </a>
-  </div>
+<div class="container mt-5">
+  <h2 class="text-center text-white">Perfil do Administrador</h2>
 
-  <h2 class="text-white text-center mb-4">Perfil do Administrador</h2>
-
-  <div class="card bg-dark text-white shadow-lg p-4 mx-auto" style="max-width: 500px; border-radius: 12px;">
+  <div class="card bg-dark text-white p-4 mx-auto" style="max-width: 400px;">
     <form action="/admin/dashboard/adminProfile" enctype="multipart/form-data" method="post">
       
       <!-- Upload de Imagem -->
-      <label class="custum-file-upload d-flex flex-column align-items-center p-3 border rounded bg-secondary bg-opacity-25" for="file">
-        <div class="icon mb-2">
-          <i class="bi bi-cloud-upload fs-1"></i>
-        </div>
+      <label class="d-flex flex-column align-items-center p-3 border rounded bg-secondary bg-opacity-25" for="file">
+        <i class="bi bi-cloud-upload fs-1 mb-2"></i>
         <span>Upload da Logo</span>
         <input type="file" id="file" name="logo" hidden>
       </label>
 
       <!-- Nome de Usuário -->
-      <div class="form-floating mt-4">
-        <input type="text" class="form-control bg-dark border-white text-white rounded-3" id="username" name="username" value="<%= adminUser.userAdmin %>" required>
-        <label for="username" class="text-white"><i class="bi bi-person-fill me-2"></i>Nome de Usuário</label>
-      </div>
+      <input type="text" class="form-control mt-3" id="username" name="username" value="<%= adminUser.userAdmin %>" required placeholder="Nome de Usuário">
 
       <!-- Nova Senha -->
-      <div class="form-floating mt-3">
-        <input type="password" class="form-control bg-dark border-white text-white rounded-3" id="password" name="password" placeholder="Digite uma nova senha" value="<%= adminUser.passAdmin %>" required>
-        <label for="password" class="text-white"><i class="bi bi-lock-fill me-2"></i>Nova Senha</label>
-      </div>
+      <input type="password" class="form-control mt-3" id="password" name="password" value="<%= adminUser.passAdmin %>" placeholder="Nova Senha" required>
 
       <!-- Número de Contato -->
-      <div class="form-floating mt-3">
-        <input type="text" class="form-control bg-dark border-white text-white rounded-3" id="contact" name="contact" value="<%= adminUser.contact %>">
-        <label for="contact" class="text-white"><i class="bi bi-telephone-fill me-2"></i>Número de Contato</label>
-      </div>
+      <input type="text" class="form-control mt-3" id="contact" name="contact" value="<%= null %>" placeholder="Número de Contato">
 
-      <!-- Botão de Salvar -->
-      <div class="d-flex justify-content-center mt-4">
-        <button class="btn btn-primary btn-lg d-flex align-items-center rounded-pill shadow-sm px-4 py-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom">
-          <i class="bi bi-save me-2"></i>Salvar alterações
-        </button>
-      </div>
+      <!-- Botão para abrir o Offcanvas -->
+      <button class="btn btn-danger w-100 mt-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasConfirm">
+        <i class="bi bi-save me-2"></i>Salvar
+      </button>
 
       <!-- Offcanvas de Confirmação -->
-      <div class="offcanvas offcanvas-bottom bg-dark text-white" tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
+      <div class="offcanvas offcanvas-bottom bg-dark text-white" tabindex="-1" id="offcanvasConfirm">
         <div class="offcanvas-header">
-          <h5 class="offcanvas-title" id="offcanvasBottomLabel">AVISO!</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          <h5 class="offcanvas-title">Confirmação</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
         </div>
         <div class="offcanvas-body text-center">
-          <p>Após salvar as alterações, você será redirecionado para a página de Login.</p>
-          <button type="submit" class="btn btn-success btn-lg d-flex align-items-center rounded-pill shadow-sm px-4 py-2">
-            <i class="bi bi-check-circle-fill me-2"></i>Confirmar
+          <p>Tem certeza de que deseja salvar as alterações?</p>
+          <button type="submit" class="btn btn-danger w-100">
+            <i class="bi bi-check-circle me-2"></i>Confirmar
           </button>
         </div>
       </div>
@@ -66,3 +46,12 @@
 </div>
 
 <%- include('fragments/footer') %>
+
+<style>
+  .form-control {
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    border-radius: 8px;
+  }
+</style>

@@ -33,6 +33,7 @@ module.exports = {
 
       if (passAdmin !== process.env.ADMIN_PASS) {
         res.redirect("alertUserIncorrect");
+        return
       }
 
       req.session.authenticated = true;
@@ -146,7 +147,6 @@ module.exports = {
   editProfile: async (req, res) => {
     const { username, password, contact } = req.body;
 
-
     if (!username || !password || username.length < 2 || password < 2) {
       res.status(400).send("Todos os campos são obrigatórios!");
       return
@@ -156,23 +156,12 @@ module.exports = {
       res.status(400).send("Digite uma senha mais forte!");
       return
     }
-
-    const adminIndex = userAdmin.findIndex(dados => dados.username === username);
-
-    if (adminIndex === -1) {
-      return res.status(404).send("Dados de Admin não encontrado!")
-    }
-
-    const contactNumber = parseFloat(contact)
-
-    if (isNaN(contactNumber)) {
-      res.status(400).send("O contato precisa ser do tipo numero!")
-    }
-
+    
     process.env.ADMIN_USER = username
     process.env.ADMIN_PASS = password
-    process.env.ADMIN_PASS = contact
+    process.env.ADMIN_PHONE = contact
     req.session.destroy()
+    
     res.status(200).redirect("/admin")
   },
 
