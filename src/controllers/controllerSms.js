@@ -21,6 +21,14 @@ module.exports = {
     });
 
     await message.save();
-    res.status(201).render("alertSuccessMessage");
+    res.render("warning", {
+
+      title: "Sucesso!",
+
+      info: `Sua solicitação de contato foi enviada, em breve entraremos em contato!
+Atenciosamente CoddeX Developer.`,
+      textButton: "Ok",
+      url: "/"
+    })
   }
 }

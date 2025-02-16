@@ -10,9 +10,18 @@ module.exports = {
 
   //GET /
   index: async (req, res) => {
-    const certificates = await CertificateDB.find();
-    const projects = await ProjectsDB.find();
-    res.render('index', { contentIndex, projects, certificates });
+    try {
+      const certificates = await CertificateDB.find();
+      const projects = await ProjectsDB.find();
+      res.render('index', { contentIndex, projects, certificates });
+    } catch (error) {
+      res.render("warning", {
+        title: "Aviso!",
+        info: error.message,
+        textButton: "Tentar novamente",
+        url: "/"
+      })
+    }
   },
 
   //GET /admin
@@ -32,7 +41,12 @@ module.exports = {
       }
 
       if (passAdmin !== process.env.ADMIN_PASS) {
-        res.redirect("alertUserIncorrect");
+        res.render("warning", {
+          title: "Aviso!",
+          info: "Credenciais inválidas.",
+          textButton: "Voltar",
+          url: "/admin"
+        })
         return
       }
 
@@ -40,17 +54,31 @@ module.exports = {
       req.session.currentUser = admin;
       res.status(200).redirect('/admin/dashboard');
     } catch (error) {
-
+      res.render("warning", {
+        title: "Aviso!",
+        info: error.message,
+        textButton: "Tentar novamente",
+        url: "/"
+      })
     }
   },
 
   //GET /admin/dashboard/
   dashboard: async (req, res) => {
-    const resultMessage = await MessageDB.find();
-    const unreadMessage = await MessageDB.find({ completed: false });
-    const projects = await ProjectsDB.find();
+    try {
+      const resultMessage = await MessageDB.find();
+      const unreadMessage = await MessageDB.find({ completed: false });
+      const projects = await ProjectsDB.find();
 
-    res.render('dashboard', { adminUser: req.session.currentUser, resultMessage, unreadMessage, projects });
+      res.render('dashboard', { adminUser: req.session.currentUser, resultMessage, unreadMessage, projects });
+    } catch (error) {
+      res.render("warning", {
+        title: "Aviso!",
+        info: error.message,
+        textButton: "Tentar novamente",
+        url: "/"
+      })
+    }
   },
 
   //POST DESTROY SESSION
@@ -60,38 +88,81 @@ module.exports = {
   },
   //GET
   unreadMessages: async (req, res) => {
-    const resultMessage = await MessageDB.find({ completed: false });
-    const projects = await ProjectsDB.find()
+    try {
+      const resultMessage = await MessageDB.find({ completed: false });
+      const projects = await ProjectsDB.find()
+      if (resultMessage.length <= 0) {
+        res.render("warning", {
+          title: "Aviso!",
+          info: "Não temos mensagens no momento volte mais tarde.",
+          textButton: "Voltar",
+          url: "/admin/dashboard"
+        })
+        return
+      }
 
-    if (resultMessage.length <= 0) {
-      return res.render("alertNotMessages", { projects })
+      res.render("unread", { resultMessage, projects })
+    } catch (error) {
+      res.render("warning", {
+        title: "Aviso!",
+        info: error.message,
+        textButton: "Tentar novamente",
+        url: "/"
+      })
     }
-
-    res.render("unread", { resultMessage, projects })
   },
 
   //GET admin/dashboard/messages
   showMessage: async (req, res) => {
-    const resultMessage = await MessageDB.find();
-    const projects = await ProjectsDB.find()
-    if (resultMessage.length === 0) {
-      return res.render("alertNotMessages", { projects })
+    try {
+      const resultMessage = await MessageDB.find();
+      const projects = await ProjectsDB.find()
+      if (resultMessage.length === 0) {
+        res.render("warning", {
+          title: "Aviso!",
+          info: "Não temos mensagens no momento volte mais tarde.",
+          textButton: "Voltar",
+          url: "/admin/dashboard"
+        })
+        return
+      }
+      res.render("messages", { notes: await resultMessage, projects })
+    } catch (error) {
+      res.render("warning", {
+        title: "Aviso!",
+        info: error.message,
+        textButton: "Voltar",
+        url: "/"
+      })
     }
-    res.render("messages", { notes: await resultMessage, projects })
   },
 
   //GET admin/dashboard/messages/:id
   viewMessage: async (req, res) => {
-    const { id } = req.params;
-    const resultMessage = await MessageDB.findOne({ _id: id });
-    const projects = await ProjectsDB.find()
+    try {
+      const { id } = req.params;
+      const resultMessage = await MessageDB.findOne({ _id: id });
+      const projects = await ProjectsDB.find()
 
-    if (!resultMessage) {
-      return res.send("Nada de novo por aqui!")
+      if (!resultMessage) {
+        res.render("warning", {
+          title: "Oops!",
+          info: "Nenhum resultado encontrado.",
+          textButton: "Voltar",
+          url: "/admin/dashboard/messages"
+        })
+        return
+      }
+
+      res.render("cardMessage", { resultMessage, projects })
+    } catch (error) {
+      res.render("warning", {
+        title: "Aviso!",
+        info: error.message,
+        textButton: "Voltar",
+        url: "/admin"
+      })
     }
-
-    res.render("cardMessage", { resultMessage, projects })
-
   },
 
   //DELETE admin/dashboard/messages/:id/delete
@@ -99,7 +170,13 @@ module.exports = {
     const { id } = req.params
     const resultMessage = await MessageDB.findByIdAndDelete(id);
     if (!resultMessage) {
-      return res.render("/error")
+      res.render("warning", {
+        title: "Oops!",
+        info: "Não foi possível excluir esta mensagem pois não foi encontrada.",
+        textButton: "Voltar",
+        url: "/admin/dashboard/messages"
+      })
+      return
     }
     res.redirect("/admin/dashboard/messages")
   },
@@ -156,12 +233,12 @@ module.exports = {
       res.status(400).send("Digite uma senha mais forte!");
       return
     }
-    
+
     process.env.ADMIN_USER = username
     process.env.ADMIN_PASS = password
     process.env.ADMIN_PHONE = contact
     req.session.destroy()
-    
+
     res.status(200).redirect("/admin")
   },
 

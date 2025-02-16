@@ -13,6 +13,14 @@
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
 
+  <!-- Gráfico de Mensagens -->
+  <div class="card shadow-lg border-0 my-4 rounded-4">
+    <div class="card-body">
+      <h5 class="card-title text-white fw-bold">Gráfico de Mensagens</h5>
+      <canvas id="messageChart"></canvas>
+    </div>
+  </div>
+
   <!-- Cards de Opções -->
   <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
     <!-- Card 1: Ordens de Serviço -->
@@ -66,3 +74,36 @@
 </div>
 
 <%- include('fragments/footer') %>
+
+<!-- Script do Gráfico -->
+<script>
+  const ctx = document.getElementById('messageChart').getContext('2d');
+  const messageChart = new Chart(ctx, {
+    type: 'bar', // Tipo de gráfico (barra)
+    data: {
+      labels: ['Recebidas', 'Lidas', 'Não Lidas'],
+      datasets: [{
+        label: 'Quantidade de Mensagens <%= resultMessage.length %>',
+        data: [<%- resultMessage.length %>, <%- resultMessage.length - unreadMessage.length %>, <%- unreadMessage.length %>],
+        backgroundColor: [
+          'rgba(75, 192, 192, 0.4)', // Azul para mensagens recebidas
+          'rgba(54, 162, 235, 0.4)',  // Verde para mensagens lidas
+          'rgba(255, 206, 86, 0.4)'  // Amarelo para mensagens não lidas
+        ],
+        borderColor: [
+          'rgba(75, 192, 192, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
