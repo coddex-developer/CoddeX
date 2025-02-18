@@ -30,6 +30,7 @@ const connectDB = async () => {
       passAdmin: process.env.ADMIN_PASS,
       role: "Admin"
     });
+    
     await admin.save();
     console.log("Administrador criado com sucesso!");
     console.log("Conectado ao banco de dados!");
@@ -44,7 +45,7 @@ app.use(session({
   secret: process.env.SECRET_KEY,
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false }
+  cookie: { secure: true }
 }));
 
 app.use(router);

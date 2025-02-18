@@ -262,7 +262,12 @@ module.exports = {
     contentIndex.titleAboutMe = titleAboutMeForm;
     contentIndex.textAboutMe = textAboutMeForm;
 
-    res.status(201).render("alertSaveSuccess");
+    res.render("warning", {
+        title: "Boas noticias!",
+        info: "A pagina recebeu as mudancas com sucesso.",
+        textButton: "Ok",
+        url: "/admin/dashboard/editPage"
+      })
   },
 
   createProject: async (req, res) => {
