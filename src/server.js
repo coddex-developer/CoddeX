@@ -45,7 +45,12 @@ app.use(session({
   secret: process.env.SECRET_KEY,
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: true }
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // Somente HTTPS em produção
+    httpOnly: true, // Evita acesso da sessão via JavaScript no navegador
+    maxAge: 1000 * 60 * 60 * 24, // Tempo de expiração do cookie (1 dia)
+    sameSite: 'strict', // Melhora a segurança contra CSRF
+  }
 }));
 
 app.use(router);
