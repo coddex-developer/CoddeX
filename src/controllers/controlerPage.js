@@ -347,7 +347,7 @@ module.exports = {
         res.send("Id do projeto não identificado!")
         return
       }
-      projectsID.imagePj = updateLinkPj;
+      projectsID.imagePj = updateImagePj;
       projectsID.titlePj = updateTitlePj;
       projectsID.descriptionPj = updateDescriptionPj;
       projectsID.linkPj = updateLinkPj;
