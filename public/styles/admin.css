@@ -20,7 +20,8 @@ body {
 }
 
 .logo {
-  width: 120px;
+  width: 100%;
+  max-width: 120px;
 }
 
 /* From Uiverse.io by bociKond */ 
