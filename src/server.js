@@ -52,4 +52,4 @@ app.use(session({
 
 app.use(router);
 
-app.listen(PORT, () => { console.log(`BOAS NOVAS SEU SITE ESTÁ ATIVO`) });
+app.listen(PORT, () => { console.log(`BOAS NOVAS SEU SITE ESTÁ ATIVO http://localhost:${PORT}`) });

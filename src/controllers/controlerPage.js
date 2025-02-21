@@ -263,11 +263,11 @@ module.exports = {
     contentIndex.textAboutMe = textAboutMeForm;
 
     res.render("warning", {
-        title: "Boas noticias!",
-        info: "A pagina recebeu as mudancas com sucesso.",
-        textButton: "Ok",
-        url: "/admin/dashboard/editPage"
-      })
+      title: "Boas noticias!",
+      info: "A pagina recebeu as mudancas com sucesso.",
+      textButton: "Ok",
+      url: "/admin/dashboard/editPage"
+    })
   },
 
   createProject: async (req, res) => {
@@ -429,13 +429,23 @@ module.exports = {
   },
 
   //DELETE /admin/dashboard/editPage/my-certificates/:id
-  deleteCertificate: async (req, res) => {
-    const { id } = req.params;
-    const removeCertificate = await CertificateDB.findByIdAndDelete(id);
-    if (!removeCertificate) {
-      res.status(404).send("Certificado não encontrado!");
-      return
+  deleteCertificate: async function (req, res) {
+    try {
+      const { id } = req.params; const removeCertificate = await CertificateDB.findByIdAndDelete(id);
+      if (!removeCertificate) {
+        res.status(404).send("Certificado não encontrado!");
+        return;
+      }
+      res.status(201).redirect("/admin/dashboard/editPage/my-certificates");
+    } catch (error) {
+      res.render("warning", {
+        title: "Aviso!",
+        info: error,
+        textButton: "Voltar",
+        url: "/admin"
+      });
+      return;
     }
-    res.status(201).redirect("/admin/dashboard/editPage/my-certificates");
+
   }
 }
