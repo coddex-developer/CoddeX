@@ -28,7 +28,7 @@ const connectDB = async () => {
     const admin = new Admin({
       userAdmin: process.env.ADMIN_USER,
       passAdmin: process.env.ADMIN_PASS,
-      role: "Admin"
+      role: "admin"
     });
     
     await admin.save();
