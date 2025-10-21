@@ -37,22 +37,16 @@ module.exports = {
       const admin = await Admin.findOne({ userAdmin });
 
       if (!admin) {
-        return { message: "Admin não encontrado!" }
-      }
-
-      if (passAdmin !== process.env.ADMIN_PASS) {
-        res.render("warning", {
-          title: "Aviso!",
-          info: "Credenciais inválidas.",
-          textButton: "Voltar",
+        return res.status(401).render("warning", {
+          title: "Oops",
+          info: "Credenciais inválidas",
+          textButton: "Tentar novamente",
           url: "/admin"
         })
-        return
       }
-
-      req.session.authenticated = true;
-      req.session.currentUser = admin;
-      res.status(200).redirect('/admin/dashboard');
+        req.session.authenticated = true;
+        req.session.currentUser = admin;
+        res.status(200).redirect('/admin/dashboard');
     } catch (error) {
       res.render("warning", {
         title: "Aviso!",
