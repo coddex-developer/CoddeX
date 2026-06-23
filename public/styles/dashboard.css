@@ -1,49 +1,80 @@
-.card {
-  border-radius: 8px;
-  background-color: #353535 !important;
-  color: white !important;
-}
+/* ============================================================
+   Admin — estilos específicos (complementam theme.css)
+   ============================================================ */
 
-.custum-file-upload {
-  height: 120px;
-  width: 220px;
-  display: flex;
-  flex-direction: column;
-  align-items: space-between;
-  gap: 20px;
+/* Área de upload (perfil) */
+.upload-drop {
+  min-height: 130px;
+  gap: .25rem;
   cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  border: 2px dashed #cacaca;
-  background-color: #292929;
+  border: 2px dashed var(--border-strong);
+  background: var(--surface);
   padding: 1.5rem;
-  border-radius: 20px;
-  margin: 1rem auto 2rem auto;
-  box-shadow: 0px 48px 35px -48px rgba(0,0,0,0.1);
+  border-radius: var(--radius);
+  transition: border-color .2s ease, background .2s ease;
+}
+.upload-drop:hover { border-color: var(--accent-1); background: var(--surface-2); }
+
+/* Preview de imagem nos uploads */
+.img-preview {
+  max-height: 200px;
+  width: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+.upload-divider {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: .85rem;
+  margin: .5rem 0;
 }
 
-.custum-file-upload .icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Badge de contagem no menu */
+.navbar .badge { background: var(--gradient) !important; color: #fff; }
+
+/* Botões de grupo (filtro de mensagens) */
+.btn-group .btn-outline-warning {
+  border-color: var(--border-strong) !important;
+  color: var(--text) !important;
+}
+.btn-group .btn-outline-warning.active,
+.btn-group .btn-outline-warning:hover {
+  background: var(--gradient) !important;
+  border-color: transparent !important;
+  color: #fff !important;
 }
 
-.custum-file-upload .icon svg {
-  height: 50px;
-  fill: white;
+/* List group em fundo escuro */
+.list-group-item {
+  background: transparent !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
 }
 
-.custum-file-upload .text {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* ------------------- EasyMDE em tema escuro ------------------- */
+.EasyMDEContainer .CodeMirror {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
 }
-
-.custum-file-upload .text span {
-  font-weight: 400;
-  color: white;
+.EasyMDEContainer .CodeMirror-cursor { border-color: var(--accent-2); }
+.EasyMDEContainer .editor-toolbar {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
 }
-
-.custum-file-upload input {
-  display: none;
+.EasyMDEContainer .editor-toolbar button { color: var(--text) !important; }
+.EasyMDEContainer .editor-toolbar button:hover,
+.EasyMDEContainer .editor-toolbar button.active {
+  background: var(--surface);
+  border-color: var(--border);
 }
+.EasyMDEContainer .editor-toolbar i.separator { border-color: var(--border); }
+.EasyMDEContainer .editor-preview {
+  background: var(--bg-elev);
+  color: var(--text);
+}
+.editor-statusbar { color: var(--text-muted); }

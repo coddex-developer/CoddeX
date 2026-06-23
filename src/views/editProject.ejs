@@ -1,5 +1,8 @@
 <%- include('fragments/header') %>
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+<script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+
 <main class="container py-5">
   
   <!-- Botão de Voltar -->
@@ -11,7 +14,7 @@
   <h1 class="text-center mb-4 text-white">Editar Projeto</h1>
   <div class="card p-4 shadow-sm bg-dark border-0">
     
-    <form id="projects-form" action="/admin/dashboard/editPage/allprojects/<%= projectsID.id %>/updated" method="POST">
+    <form id="projects-form" action="/admin/dashboard/editPage/allProjects/<%= projectsID.id %>/updated" method="POST" enctype="multipart/form-data">
       <!-- Formulário Principal -->
       <div id="projectss-container">
         <div class="projects-fields card mb-2 p-3 shadow-sm bg-dark border-0 text-light">
@@ -28,18 +31,18 @@
           </div>
           <hr class="text-light">
           <div class="mb-3">
-            <label for="image" class="form-label d-flex align-items-center text-light">
-              <i class="bi bi-image-fill me-2"></i> Link da Imagem
+            <label class="form-label d-flex align-items-center text-light">
+              <i class="bi bi-image-fill me-2"></i> Imagem do projeto
             </label>
-            <input 
-              type="text" 
-              class="form-control input-bg shadow-sm bg-dark text-light" 
-              id="image"
-              placeholder="ex: https://imgur.com/suaimagem.jpg"
-              name="updateImagePj" 
-              value="<%= projectsID.imagePj %>"
-              
-            >
+            <label class="upload-drop d-flex flex-column align-items-center justify-content-center text-center" for="imageFile">
+              <i class="bi bi-cloud-arrow-up-fill fs-2 gradient-text"></i>
+              <span class="text-muted-2">Clique para trocar a imagem</span>
+              <input type="file" id="imageFile" name="imageFile" accept="image/*" hidden data-preview="#imgPreview">
+            </label>
+            <img id="imgPreview" class="img-preview mt-2" src="<%= projectsID.imagePj %>" alt="Imagem atual">
+            <div class="upload-divider">— ou cole uma URL —</div>
+            <input type="text" class="form-control" id="image" placeholder="https://exemplo.com/imagem.jpg"
+              name="updateImagePj" value="<%= projectsID.imagePj %>">
           </div>
 
           <div class="mb-3">
@@ -95,5 +98,15 @@
     </form>
   </div>
 </main>
+
+<script>
+  new EasyMDE({
+    element: document.getElementById("description"),
+    spellChecker: false,
+    minHeight: "150px",
+    status: false,
+    toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "preview", "guide"]
+  });
+</script>
 
 <%- include('fragments/footer') %>

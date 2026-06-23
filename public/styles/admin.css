@@ -1,109 +1,84 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+/* ============================================================
+   Login do admin — usa tokens de theme.css
+   ============================================================ */
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  width: 100%;
-  height: 100vh;
-  padding: 1rem;
+.login-page {
+  min-height: 100vh;
   display: flex;
-  flex-direction: column;
-  gap: .6rem;
+  align-items: center;
   justify-content: center;
-  align-items: center;
-  font-family: 'Inter', Sans-Serif;
-  background-color: #292929 !important;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
 }
 
-.logo {
+.login-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(35rem 30rem at 20% 10%, rgba(124, 58, 237, 0.3), transparent 60%),
+    radial-gradient(30rem 30rem at 90% 100%, rgba(34, 211, 238, 0.25), transparent 60%);
+  pointer-events: none;
+}
+
+.login-card {
+  position: relative;
+  z-index: 1;
   width: 100%;
-  max-width: 120px;
-}
-
-/* From Uiverse.io by bociKond */ 
-.form {
-  --bg-light: #efefef;
-  --bg-dark: #707070;
-  --clr: #58bc82;
-  --clr-alpha: #9c9c9c60;
+  max-width: 400px;
+  padding: 2.5rem 2rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 1rem;
-  width: 100%;
-  max-width: 360px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
-  padding: 2rem 1rem;
-  border-radius: 18px;
-}
-
-span {
-  color: var(--clr);
-  font-weight: 400;
-}
-
-.form .input-span {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.form input[type="text"],
-.form input[type="password"] {
-  border-radius: 0.5rem;
-  padding: 1rem 0.75rem;
-  width: 100%;
-  border: none;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background-color: var(--clr-alpha);
-  outline: 2px solid var(--bg-dark);
-}
-
-.form input[type="text"]:focus,
-.form input[type="password"]:focus {
-  outline: 2px solid var(--clr);
-}
-
-.label {
-  align-self: flex-start;
-  color: var(--clr);
-  font-weight: 600;
-}
-
-.form .submit {
-  padding: 1rem 0.75rem;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  border-radius: 3rem;
-  background-color: var(--bg-dark);
-  color: var(--bg-light);
-  border: none;
-  cursor: pointer;
-  transition: all 300ms;
-  font-weight: 600;
-  font-size: 0.9rem;
   text-align: center;
 }
 
-.form .submit:hover {
-  background-color: var(--clr);
-  color: var(--bg-dark);
+.login-logo {
+  width: 84px;
+  margin: 0 auto;
+  filter: drop-shadow(0 0 16px rgba(124, 58, 237, 0.6));
 }
 
-.span {
+.login-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.login-subtitle {
+  color: var(--text-muted);
+  margin-top: -.25rem;
+  margin-bottom: .5rem;
+  font-size: .95rem;
+}
+
+.field { text-align: left; }
+.field .form-label { font-size: .9rem; }
+
+.password-wrap { position: relative; }
+.password-wrap .form-control { padding-right: 3rem; }
+
+.toggle-pass {
+  position: absolute;
+  top: 50%;
+  right: .5rem;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color .2s ease, background .2s ease;
+}
+.toggle-pass:hover { color: var(--accent-2); background: var(--surface-2); }
+
+.back-link {
+  color: var(--text-muted);
   text-decoration: none;
-  color: var(--bg-dark);
+  font-size: .9rem;
+  margin-top: .25rem;
+  transition: color .2s ease;
 }
-
-.span a {
-  color: var(--clr);
-}
+.back-link:hover { color: var(--accent-2); }

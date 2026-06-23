@@ -1,0 +1,259 @@
+/* ============================================================
+   CoddeX — Design System (dark neon / dev)
+   Camada de tema sobre o Bootstrap 5. Importar em todas as páginas.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root {
+  /* Cores base */
+  --bg: #0a0a12;
+  --bg-elev: #12131d;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-2: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  /* Texto */
+  --text: #e8eaf2;
+  --text-muted: #9aa0b8;
+
+  /* Accent (violeta -> ciano) */
+  --accent-1: #7c3aed;
+  --accent-2: #22d3ee;
+  --accent-soft: rgba(124, 58, 237, 0.15);
+  --gradient: linear-gradient(135deg, #7c3aed 0%, #22d3ee 100%);
+  --gradient-soft: linear-gradient(135deg, rgba(124, 58, 237, 0.18), rgba(34, 211, 238, 0.18));
+
+  /* Feedback */
+  --danger: #f43f5e;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --info: #38bdf8;
+
+  /* Forma */
+  --radius-sm: 10px;
+  --radius: 16px;
+  --radius-lg: 22px;
+
+  /* Sombras / glow */
+  --shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.7);
+  --shadow-lg: 0 24px 60px -20px rgba(0, 0, 0, 0.8);
+  --glow: 0 0 0 1px rgba(124, 58, 237, 0.4), 0 12px 40px -8px rgba(124, 58, 237, 0.45);
+  --glow-cyan: 0 0 30px -6px rgba(34, 211, 238, 0.5);
+
+  --blur: 16px;
+}
+
+/* ----------------------------- Base ----------------------------- */
+* {
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body,
+body.bg-dark {
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+  background-image:
+    radial-gradient(60rem 60rem at 85% -10%, rgba(124, 58, 237, 0.18), transparent 60%),
+    radial-gradient(50rem 50rem at -10% 20%, rgba(34, 211, 238, 0.12), transparent 55%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, .display-1, .display-2, .display-3, .display-4, .display-5 {
+  font-family: "Space Grotesk", "Inter", sans-serif;
+  letter-spacing: -0.02em;
+}
+
+::selection { background: rgba(124, 58, 237, 0.4); color: #fff; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 20px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(124, 58, 237, 0.5); }
+
+/* ----------------------- Utilitários do tema -------------------- */
+.gradient-text {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.glass {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.glow { box-shadow: var(--glow); }
+.text-muted-2 { color: var(--text-muted) !important; }
+
+.gradient-border {
+  position: relative;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--bg-elev), var(--bg-elev)) padding-box,
+    var(--gradient) border-box;
+}
+
+/* Botão gradiente */
+.btn-gradient,
+.btn-danger,
+.btn-primary,
+.btn-success {
+  background: var(--gradient) !important;
+  border: none !important;
+  color: #fff !important;
+  font-weight: 600;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px -10px rgba(124, 58, 237, 0.7);
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+}
+.btn-gradient:hover,
+.btn-danger:hover,
+.btn-primary:hover,
+.btn-success:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  box-shadow: 0 14px 36px -10px rgba(34, 211, 238, 0.6);
+  color: #fff !important;
+}
+
+.btn-outline-danger,
+.btn-outline-primary,
+.btn-outline-light {
+  border: 1px solid var(--border-strong) !important;
+  color: var(--text) !important;
+  background: var(--surface) !important;
+  border-radius: 999px;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  transition: all .2s ease;
+}
+.btn-outline-danger:hover,
+.btn-outline-primary:hover,
+.btn-outline-light:hover {
+  border-color: var(--accent-2) !important;
+  color: #fff !important;
+  box-shadow: var(--glow-cyan);
+  background: var(--surface-2) !important;
+}
+
+.btn-secondary {
+  background: var(--surface-2) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+  border-radius: 999px;
+}
+.btn-secondary:hover { border-color: var(--accent-1) !important; color: #fff !important; }
+
+/* ----------------------- Componentes Bootstrap ------------------ */
+.navbar,
+.navbar.bg-dark {
+  background: rgba(10, 10, 18, 0.6) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+.navbar .nav-link {
+  color: var(--text-muted) !important;
+  font-weight: 500;
+  border-radius: 999px;
+  padding: .4rem .9rem !important;
+  transition: color .2s ease, background .2s ease;
+}
+.navbar .nav-link:hover { color: #fff !important; background: var(--surface); }
+.navbar-brand img { filter: drop-shadow(0 0 10px rgba(124, 58, 237, 0.5)); }
+
+.card,
+.card.bg-dark {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  color: var(--text) !important;
+  box-shadow: var(--shadow);
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+
+.card-footer { background: rgba(255, 255, 255, 0.02) !important; border-top: 1px solid var(--border) !important; }
+
+/* Formulários */
+.form-control,
+.form-control.bg-dark,
+.form-select,
+textarea.form-control {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: .8rem 1rem;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.form-control::placeholder { color: #707690; }
+.form-control:focus,
+.form-select:focus {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: var(--accent-1) !important;
+  box-shadow: 0 0 0 3px var(--accent-soft) !important;
+  color: var(--text) !important;
+}
+.form-label { color: var(--text); font-weight: 500; }
+
+/* Alertas */
+.alert {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(10px);
+}
+.alert.bg-danger { background: var(--gradient-soft) !important; border: 1px solid var(--border-strong); }
+.alert-warning { background: rgba(245, 158, 11, 0.12) !important; color: #fcd34d !important; }
+
+/* Offcanvas / modais escuros */
+.offcanvas { background: var(--bg-elev) !important; color: var(--text) !important; border-top: 1px solid var(--border); }
+
+/* Badges */
+.badge.bg-danger, .badge.bg-primary { background: var(--gradient) !important; }
+
+/* Footer */
+footer, footer.bg-dark {
+  background: rgba(10, 10, 18, 0.5) !important;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted) !important;
+}
+footer a { color: var(--accent-2) !important; text-decoration: none; }
+footer a:hover { color: #fff !important; }
+
+/* Texto auxiliar do Bootstrap dentro do tema */
+.text-secondary { color: var(--text-muted) !important; }
+
+/* Avatar (painel do usuário) */
+.account-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--gradient);
+  box-shadow: var(--glow);
+  flex-shrink: 0;
+}
+
+/* Acessibilidade: respeitar quem prefere menos movimento */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; scroll-behavior: auto; }
+}

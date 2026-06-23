@@ -1,83 +1,151 @@
 <%- include('fragments/header') %>
 
-<main class="container py-5">
-  
-  <!-- Botão de Voltar -->
-  <div class="text-center mb-4">
-    <a href="/admin/dashboard" class="btn btn-outline-danger rounded-pill px-4 py-2 shadow-sm">
-      <i class="bi bi-house-fill me-2"></i>Return Home</a>
-  </div>    
-  
-    <h1 class="text-center text-white mb-4">Edição da Página Web</h1>
-    <form action="/admin/dashboard/editPage/save" method="POST">
-        <!-- Campo Título -->
-        <div class="mb-4">
-            <label for="title" class="form-label text-white d-flex align-items-center">
-                <i class="bi bi-fonts me-2"></i> Título
-            </label>
-            <input 
-                type="text" 
-                class="form-control input-bg shadow-sm bg-dark text-light" 
-                id="title" 
-                name="titleForm" 
-                placeholder="Defina um título" 
-                value="<%= contentIndex.title %>" 
-                required
-            >
+<!-- EasyMDE (editor markdown com preview ao vivo) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+<script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+
+<div class="container py-5" style="max-width: 760px;">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Configurar site</h1>
+    <a href="/admin/dashboard" class="btn btn-outline-light btn-sm"><i class="bi bi-house-fill me-1"></i>Início</a>
+  </div>
+
+  <form action="/admin/dashboard/editPage/save" method="POST">
+
+    <!-- Conteúdo principal -->
+    <div class="glass p-4 mb-4">
+      <h2 class="h5 mb-3"><i class="bi bi-fonts me-2 gradient-text"></i>Conteúdo</h2>
+
+      <div class="mb-3">
+        <label for="title" class="form-label">Título</label>
+        <input type="text" class="form-control" id="title" name="titleForm" value="<%= site.title %>" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="subtitle" class="form-label">Subtítulo / slogan</label>
+        <textarea class="form-control" id="subtitle" name="subtitleForm" rows="2" required><%= site.subtitle %></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label for="aboutTitle" class="form-label">Título "Sobre mim"</label>
+        <input type="text" class="form-control" id="aboutTitle" name="titleAboutMeForm" value="<%= site.titleAboutMe %>" required>
+      </div>
+
+      <div class="mb-1">
+        <label for="aboutText" class="form-label">Texto "Sobre mim" <span class="text-muted-2">(suporta markdown)</span></label>
+        <textarea class="form-control" id="aboutText" name="textAboutMeForm" required><%= site.textAboutMe %></textarea>
+      </div>
+    </div>
+
+    <!-- Redes sociais e contato -->
+    <div class="glass p-4 mb-4">
+      <h2 class="h5 mb-3"><i class="bi bi-share-fill me-2 gradient-text"></i>Redes sociais e contato</h2>
+      <p class="text-muted-2 small mb-3">Os links preenchidos aparecem automaticamente no rodapé do site.</p>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label"><i class="bi bi-github me-1"></i>GitHub</label>
+          <input type="url" class="form-control" name="github" value="<%= site.social.github %>" placeholder="https://github.com/...">
         </div>
-
-        <!-- Campo Subtítulo -->
-        <div class="mb-4">
-            <label for="subtitle" class="form-label text-white d-flex align-items-center">
-                <i class="bi bi-card-text me-2"></i> Subtítulo
-            </label>
-            <textarea 
-                class="form-control mt-2 input-bg shadow-sm bg-dark text-light" 
-                id="subtitle" 
-                name="subtitleForm" 
-                rows="8" 
-                placeholder="Defina o subtítulo ou slogan" 
-                required
-            ><%= contentIndex.subtitle %></textarea>
+        <div class="col-md-6">
+          <label class="form-label"><i class="bi bi-linkedin me-1"></i>LinkedIn</label>
+          <input type="url" class="form-control" name="linkedin" value="<%= site.social.linkedin %>" placeholder="https://linkedin.com/in/...">
         </div>
+        <div class="col-md-6">
+          <label class="form-label"><i class="bi bi-instagram me-1"></i>Instagram</label>
+          <input type="url" class="form-control" name="instagram" value="<%= site.social.instagram %>" placeholder="https://instagram.com/...">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label"><i class="bi bi-whatsapp me-1"></i>WhatsApp</label>
+          <input type="url" class="form-control" name="whatsapp" value="<%= site.social.whatsapp %>" placeholder="https://wa.me/55...">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label"><i class="bi bi-envelope me-1"></i>E-mail de contato</label>
+          <input type="email" class="form-control" name="contactEmail" value="<%= site.contactEmail %>" placeholder="voce@email.com">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label"><i class="bi bi-telephone me-1"></i>Telefone</label>
+          <input type="text" class="form-control" name="contactPhone" value="<%= site.contactPhone %>" placeholder="(DDD) 9 9999-9999">
+        </div>
+      </div>
+    </div>
 
-        <!-- Campos Sobre Mim -->
-        <section class="mb-4">
-            <label for="input2" class="form-label text-white d-flex align-items-center">
-                <i class="bi bi-person-fill me-2"></i> Sobre Mim
-            </label>
-            <input 
-                type="text" 
-                class="form-control input-bg shadow-sm bg-dark text-light" 
-                id="input2" 
-                name="titleAboutMeForm" 
-                placeholder="Ex: Sobre Mim" 
-                value="<%= contentIndex.titleAboutMe %>" 
-                required
-            >
-            <textarea 
-                class="form-control mt-2 input-bg shadow-sm bg-dark text-light" 
-                id="textarea2" 
-                name="textAboutMeForm" 
-                rows="8" 
-                placeholder="Ex: Meu nome é Jhon, sou formado em..." 
-                required
-            ><%= contentIndex.textAboutMe %></textarea>
-        </section>
+    <!-- Configuração de e-mail -->
+    <div class="glass p-4 mb-4">
+      <h2 class="h5 mb-3"><i class="bi bi-envelope-at-fill me-2 gradient-text"></i>E-mail (SMTP)</h2>
+      <p class="text-muted-2 small mb-3">Usado para enviar códigos de verificação e notificações. Para Gmail, deixe o host vazio e use uma "senha de app".</p>
+      <div class="row g-3">
+        <div class="col-md-8">
+          <label class="form-label">Host <span class="text-muted-2">(vazio = Gmail)</span></label>
+          <input type="text" class="form-control" name="mailHost" value="<%= site.mail.host %>" placeholder="smtp.seuprovedor.com">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Porta</label>
+          <input type="text" class="form-control" name="mailPort" value="<%= site.mail.port %>" placeholder="587">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Usuário (e-mail)</label>
+          <input type="text" class="form-control" name="mailUser" value="<%= site.mail.user %>" placeholder="voce@gmail.com">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Senha <% if (site.mail.pass) { %><span class="text-muted-2">(configurada — deixe em branco para manter)</span><% } %></label>
+          <input type="password" class="form-control" name="mailPass" placeholder="<%= site.mail.pass ? '••••••••' : 'senha de app' %>">
+        </div>
+        <div class="col-md-8">
+          <label class="form-label">Remetente (From)</label>
+          <input type="text" class="form-control" name="mailFrom" value="<%= site.mail.from %>" placeholder="CoddeX <no-reply@coddex.store>">
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="mailSecure" name="mailSecure" <%= site.mail.secure ? 'checked' : '' %>>
+            <label class="form-check-label" for="mailSecure">SSL/TLS (secure)</label>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        <!-- Links para outras áreas -->
-        <section class="mb-4">
-            <a href="/admin/dashboard/editPage/CreateProjects/allProjects" class="btn btn-outline-danger w-100 mb-2 shadow-sm d-flex align-items-center">
-                <i class="bi bi-folder-fill me-2"></i> Acessar área Meus Projetos
-            </a>
-            <a href="/admin/dashboard/editPage/my-certificates" class="btn btn-outline-danger w-100 mb-2 shadow-sm d-flex align-items-center">
-                <i class="bi bi-award-fill me-2"></i> Acessar área Meus Certificados
-            </a>
-        </section>
+    <!-- Configuração do Cloudinary -->
+    <div class="glass p-4 mb-4">
+      <h2 class="h5 mb-3"><i class="bi bi-cloud-fill me-2 gradient-text"></i>Cloudinary (upload de imagens)</h2>
+      <p class="text-muted-2 small mb-3">Credenciais do seu painel Cloudinary (Dashboard → Account Details).</p>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Cloud name</label>
+          <input type="text" class="form-control" name="cloudName" value="<%= site.cloudinary.cloudName %>">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">API Key</label>
+          <input type="text" class="form-control" name="cloudApiKey" value="<%= site.cloudinary.apiKey %>">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">API Secret <% if (site.cloudinary.apiSecret) { %><span class="text-muted-2">(salvo)</span><% } %></label>
+          <input type="password" class="form-control" name="cloudApiSecret" placeholder="<%= site.cloudinary.apiSecret ? '••••••••' : 'sua api secret' %>">
+        </div>
+      </div>
+    </div>
 
-        <!-- Botão Salvar -->
-        <button type="submit" class="btn btn-primary w-100 rounded-pill shadow-sm">Salvar</button>
-    </form>
-</main>
+    <!-- Atalhos -->
+    <div class="d-grid gap-2 mb-4">
+      <a href="/admin/dashboard/editPage/CreateProjects/allProjects" class="btn btn-outline-light text-start">
+        <i class="bi bi-window-stack me-2"></i>Gerenciar projetos
+      </a>
+      <a href="/admin/dashboard/editPage/my-certificates" class="btn btn-outline-light text-start">
+        <i class="bi bi-award-fill me-2"></i>Gerenciar certificados
+      </a>
+    </div>
+
+    <button type="submit" class="btn btn-gradient w-100"><i class="bi bi-save me-2"></i>Salvar alterações</button>
+  </form>
+</div>
+
+<script>
+  new EasyMDE({
+    element: document.getElementById("aboutText"),
+    spellChecker: false,
+    minHeight: "160px",
+    status: false,
+    toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "preview", "guide"]
+  });
+</script>
 
 <%- include('fragments/footer') %>

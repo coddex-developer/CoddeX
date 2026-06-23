@@ -1,9 +1,9 @@
 const express = require('express');
-const multer = require("multer");
 const controlerPage = require('./controllers/controlerPage');
 const midlewareLogin = require('./middlewares/midlewareLogin');
 const controllerSms = require('./controllers/controllerSms');
 const uploadLogo = require("./middlewares/middlewareUpLogo.js");
+const imageUpload = require("./middlewares/middlewareImage.js");
 
 const router = express.Router();
 
@@ -34,7 +34,7 @@ router.post('/admin/dashboard/editPage/save', midlewareLogin, controlerPage.save
 
 //CreateProject
 router.get("/admin/dashboard/editPage/CreateProjects", midlewareLogin, controlerPage.createProject);
-router.post("/admin/dashboard/editPage", midlewareLogin, controlerPage.saveProject);
+router.post("/admin/dashboard/editPage", midlewareLogin, imageUpload.single("imageFile"), controlerPage.saveProject);
 
 router.get("/admin/dashboard/editPage/CreateProjects/allProjects", midlewareLogin, controlerPage.allProjects);
 
@@ -43,7 +43,7 @@ router.get("/admin/dashboard/editPage/CreateProjects/allProjects/:id", midleware
 
 //PUT Editar Projeto
 // Rota para atualizar o projeto
-router.post('/admin/dashboard/editPage/allProjects/:id/updated', midlewareLogin, controlerPage.updateProject);
+router.post('/admin/dashboard/editPage/allProjects/:id/updated', midlewareLogin, imageUpload.single("imageFile"), controlerPage.updateProject);
 
 //Excluir Projeto
 router.post("/admin/dashboard/editPage/CreateProjects/allProjects/:id", midlewareLogin, controlerPage.deleteProject);
@@ -54,13 +54,13 @@ router.get("/admin/dashboard/editPage/my-certificates", midlewareLogin, controle
 //GET /admin/dashboard/editPage/my-certificates/add-certificate
 router.get("/admin/dashboard/editPage/my-certificates/add-certificate", midlewareLogin, controlerPage.addCertificate);
 
-router.post("/admin/dashboard/editPage/certificates/add-certificate/new", midlewareLogin, controlerPage.createCertificate);
+router.post("/admin/dashboard/editPage/certificates/add-certificate/new", midlewareLogin, imageUpload.single("imageFile"), controlerPage.createCertificate);
 
 //GET /admin/dashboard/editPage/my-certificates/:id
 router.get("/admin/dashboard/editPage/my-certificates/:id", midlewareLogin, controlerPage.updateCertificate)
 
 //PUT /admin/dashboard/editPage/my-certificates/:id/updated
-router.post("/admin/dashboard/editPage/my-certificates/editCertificate/:id/update", midlewareLogin, controlerPage.editCertificate)
+router.post("/admin/dashboard/editPage/my-certificates/editCertificate/:id/update", midlewareLogin, imageUpload.single("imageFile"), controlerPage.editCertificate)
 
 //DELETE certificates
 router.post("/admin/dashboard/editPage/my-certificates/:id", midlewareLogin, controlerPage.deleteCertificate);

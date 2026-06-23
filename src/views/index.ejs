@@ -1,30 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="CoddeX Web Developer">
-  <meta name="keywords" content="Programador, coddex, CoddeX, CoddeX Developer, Programador">
-  <meta name="author" content="Gabriel Rodrigues Lima">
-  <meta property="og:title" content="CoddeX Developer">
-  <meta property="og:description" content="Bog for CoddeX Web Developer">
+  <%- include('fragments/head', { pageTitle: site.title + ' · Portfólio', pageDescription: site.subtitle }) %>
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="<%= site.title %>">
+  <meta property="og:description" content="<%= site.subtitle %>">
   <meta property="og:image" content="/assets/admin1.png">
   <meta property="og:url" content="https://coddex.store">
   <meta property="og:type" content="website">
 
-  <title>Blog - CoddeX</title>
+  <link rel="stylesheet" href="/styles/style.css">
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-    crossorigin="anonymous">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-  <link rel="stylesheet" href="./styles/style.css" type="text/css" media="all" />
-  <link rel="shortcut icon" href="/assets/admin1.png" type="image/x-icon">
-
-  <!--Start of Tawk.to Script-->
+  <!-- Tawk.to Chat -->
   <script type="text/javascript">
     var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
     (function () {
@@ -36,212 +25,218 @@
       s0.parentNode.insertBefore(s1, s0);
     })();
   </script>
-  <!--End of Tawk.to Script-->
 </head>
 
-<body class="bg-dark text-white">
+<body>
 
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="#">
-        <img src="/assets/admin1.png" alt="CoddeX" />
+  <nav class="navbar navbar-expand-lg sticky-top" data-bs-theme="dark">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="#top">
+        <img src="/assets/admin1.png" alt="CoddeX" style="max-height: 38px;" />
+        <span class="fw-bold gradient-text d-none d-sm-inline"><%= site.title %></span>
       </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
+        <ul class="navbar-nav ms-auto gap-1">
           <li class="nav-item"><a class="nav-link" href="#sobre"><i class="bi bi-person-circle me-1"></i>Sobre</a></li>
-          <li class="nav-item"><a class="nav-link" href="#projetos"><i class="bi bi-code-slash me-1"></i>Projetos</a>
-          </li>
-          <li class="nav-item"><a class="nav-link" href="#certificados"><i
-                class="bi bi-mortarboard me-1"></i>Certificados</a></li>
+          <li class="nav-item"><a class="nav-link" href="#projetos"><i class="bi bi-code-slash me-1"></i>Projetos</a></li>
+          <li class="nav-item"><a class="nav-link" href="#certificados"><i class="bi bi-mortarboard me-1"></i>Certificados</a></li>
           <li class="nav-item"><a class="nav-link" href="#contato"><i class="bi bi-envelope me-1"></i>Contato</a></li>
         </ul>
+        <div class="d-flex gap-2 ms-lg-3 mt-2 mt-lg-0">
+          <% if (currentUser) { %>
+            <a class="btn btn-gradient btn-sm" href="/account"><i class="bi bi-person-circle me-1"></i>Minha conta</a>
+          <% } else { %>
+            <a class="btn btn-outline-light btn-sm" href="/login"><i class="bi bi-box-arrow-in-right me-1"></i>Entrar</a>
+            <a class="btn btn-gradient btn-sm" href="/register"><i class="bi bi-person-plus me-1"></i>Criar conta</a>
+          <% } %>
+        </div>
       </div>
     </div>
   </nav>
 
-  <!-- Hero Section -->
-  <div class="text-center py-5 header">
-    <h1 data-animate>
-      <%= contentIndex.title %>
-    </h1>
-    <p data-animate>
-      <%= contentIndex.subtitle %>
-    </p>
-    <a style="border-radius:100px; padding: .5rem 2rem;" class="btn bg-outline-white mt-5" href="#contato"
-      data-animate>Entrar em contato</a>
-  </div>
+  <!-- Hero -->
+  <header id="top" class="hero">
+    <div class="hero-glow"></div>
+    <div class="container position-relative text-center">
+      <span class="hero-badge" data-animate-bottom><i class="bi bi-stars me-1"></i> Desenvolvimento web moderno</span>
+      <h1 class="hero-title mt-3" data-animate-bottom>
+        <span class="gradient-text"><%= site.title %></span>
+      </h1>
+      <p class="hero-subtitle mx-auto mt-3" data-animate-bottom><%= site.subtitle %></p>
+      <div class="d-flex gap-3 justify-content-center flex-wrap mt-4" data-animate-bottom>
+        <a class="btn btn-gradient px-4 py-2" href="#contato"><i class="bi bi-send me-2"></i>Entrar em contato</a>
+        <a class="btn btn-outline-light px-4 py-2" href="#projetos"><i class="bi bi-grid me-2"></i>Ver projetos</a>
+      </div>
+    </div>
+  </header>
 
-  <!-- Sobre mim -->
-  <section id="sobre" class="py-5 sobre">
+  <!-- Sobre -->
+  <section id="sobre" class="py-5">
     <div class="container">
-      <h2 class="text-center mb-4" data-animate-bottom>
-        <%= contentIndex.titleAboutMe %>
-      </h2>
-      <p data-animate-bottom>
-        <%= contentIndex.textAboutMe %>
-      </p>
+      <h2 class="section-title text-center" data-animate-bottom><%= site.titleAboutMe %></h2>
+      <div class="about-box glass p-4 p-md-5 mx-auto mt-4 markdown-body" data-animate-bottom>
+        <%- md(site.textAboutMe) %>
+      </div>
     </div>
   </section>
 
-  <!-- Projetos Section -->
-  <section id="projetos" class="projetos">
-    <div>
-      <h2 class="text-center mb-4" data-animate-bottom>Meus Projetos</h2>
-      <div class="containerProjects row g-4">
-
-        <% if (projects.length> 0) { %>
-
-          <% projects.forEach(project=> { %>
-            <div class="col-md-4" data-animate-bottom>
-              <div class="card cardProject">
-                <img src="<%= project.imagePj %>" class="imageCard card-img-top" alt="<%= project.title %>">
-                <div class="card-body contentCard">
-                  <h5 class="card-title">
-                    <%= project.titlePj %>
-                  </h5>
-                  <p class="card-text">
-                    <%= project.descriptionPj %>
-                  </p>
-                  <a href="<%= project.linkPj %>" class="btn btn-danger">View Live</a>
+  <!-- Projetos -->
+  <section id="projetos" class="py-5">
+    <div class="container">
+      <h2 class="section-title text-center mb-5" data-animate-bottom>Meus Projetos</h2>
+      <div class="row g-4 justify-content-center">
+        <% if (projects.length > 0) { %>
+          <% projects.forEach(project => { %>
+            <div class="col-12 col-sm-6 col-lg-4 col-xxl-3" data-animate-bottom>
+              <article class="project-card h-100">
+                <a href="/projeto/<%= project._id %>" class="project-thumb d-block">
+                  <img src="<%= project.imagePj %>" alt="<%= project.titlePj %>" loading="lazy">
+                </a>
+                <div class="project-body">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <a href="/projeto/<%= project._id %>" class="text-decoration-none">
+                      <h5 class="project-title mb-0"><%= project.titlePj %></h5>
+                    </a>
+                    <span class="like-pill" title="Curtidas"><i class="bi bi-heart-fill"></i> <%= project.likeCount %></span>
+                  </div>
+                  <div class="project-desc markdown-body"><%- md(project.descriptionPj) %></div>
+                  <div class="d-flex gap-2 mt-3">
+                    <a href="/projeto/<%= project._id %>" class="btn btn-gradient flex-grow-1">
+                      <i class="bi bi-chat-square-text me-1"></i>Detalhes
+                    </a>
+                    <a href="<%= project.linkPj %>" target="_blank" rel="noopener" class="btn btn-outline-light" title="Ver ao vivo">
+                      <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                  </div>
                 </div>
-              </div>
+              </article>
             </div>
-            <% }); %>
-
-              <% } else { %>
-
-                <!-- Mensagem Caso Não Haja Certificados -->
-                <div class="warningBox" data-animate-bottom>
-                  <p>
-                    Nenhum Projeto foi postado até o momento!
-                  </p>
-                </div>
-                <% } %>
-
+          <% }); %>
+        <% } else { %>
+          <div class="col-12">
+            <div class="empty-state glass mx-auto" data-animate-bottom>
+              <i class="bi bi-folder2-open"></i>
+              <p class="mb-0">Nenhum projeto foi postado até o momento!</p>
+            </div>
+          </div>
+        <% } %>
       </div>
     </div>
   </section>
 
   <!-- Certificados -->
-  <section id="certificados" class="py-5 certificados">
-    <h2 class="text-center mb-5" data-animate-bottom>Certificados</h2>
-
-    <div class="certificateContainer" data-animate-bottom>
-      <% if (certificates.length> 0) { %>
-        <% certificates.forEach(certificate=> { %>
-          <div class="cardCertificate">
-
-            <img src="<%= certificate.image %>" class="imageCerificate" alt="<%= certificate.title %>">
-
-            <div class="contentCertificate">
-              <h6 class="card-title"><i class="bi bi-patch-check"></i>
-                <%= certificate.title %>
-              </h6>
-              <a href="<%= certificate.url %>" class="btn btn-danger btnCertificate">
+  <section id="certificados" class="py-5">
+    <div class="container">
+      <h2 class="section-title text-center mb-5" data-animate-bottom>Certificados</h2>
+    </div>
+    <% if (certificates.length > 0) { %>
+      <div class="certificate-rail" data-animate-bottom>
+        <% certificates.forEach(certificate => { %>
+          <div class="certificate-card">
+            <img src="<%= certificate.image %>" alt="<%= certificate.title %>" loading="lazy">
+            <div class="certificate-body">
+              <h6><i class="bi bi-patch-check-fill me-1"></i><%= certificate.title %></h6>
+              <a href="<%= certificate.url %>" target="_blank" rel="noopener" class="btn btn-outline-light btn-sm w-100">
                 Visualizar
               </a>
             </div>
           </div>
-          <% }); %>
-            <% } else { %>
-              <div class="warningBox" data-animate-bottom>
-                <p>
-                  Nenhum Certificado foi postado até o momento!
-                </p>
-              </div>
-              <% } %>
-    </div>
-
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="container">
+        <div class="empty-state glass mx-auto" data-animate-bottom>
+          <i class="bi bi-mortarboard"></i>
+          <p class="mb-0">Nenhum certificado foi postado até o momento!</p>
+        </div>
+      </div>
+    <% } %>
   </section>
 
-  <!-- Linha do Tempo -->
+  <!-- Serviços / Timeline -->
   <section id="experiencia" class="py-5">
     <div class="container">
-      <h2 class="text-center mb-4" data-animate>Nosso trabalho</h2>
-      <p class="text-center mb-5" data-animate>A CoddeX Developer,trabalha investindo tempo e recursos para garantir a
-        mais moderna tecnologia para seu negócio!</p>
+      <h2 class="section-title text-center" data-animate-bottom>Nosso trabalho</h2>
+      <p class="text-center text-muted-2 mb-5 mx-auto" style="max-width: 640px;" data-animate-bottom>
+        A CoddeX Developer investe tempo e recursos para garantir a mais moderna tecnologia para o seu negócio.
+      </p>
       <div class="timeline">
-        <div class="timeline-item" data-animate>
-          <h5><i class="bi bi-cursor"></i> Páginas na web</h5>
-          <p>Desenvolvemos sites e páginas para aumentar a visibilidade da sua empresa, oferecendo uma equipe
-            especializada em desenvolvimento e mentoria. Com nosso suporte, você terá tudo o que precisa para crescer
-            online.</p>
+        <div class="timeline-item glass" data-animate-bottom>
+          <h5><i class="bi bi-cursor-fill me-2"></i>Páginas na web</h5>
+          <p class="mb-0">Sites e páginas para aumentar a visibilidade da sua empresa, com equipe especializada em desenvolvimento e mentoria.</p>
         </div>
-        <div class="timeline-item" data-animate>
-          <h5><i class="bi bi-diagram-3"></i> Sistemas claros e eficientes</h5>
-          <p>Trabalhamos para criar projetos claros e eficientes que atendam não apenas às necessidades de seus
-            clientes, mas também às expectativas dos usuários finais.</p>
+        <div class="timeline-item glass" data-animate-bottom>
+          <h5><i class="bi bi-diagram-3-fill me-2"></i>Sistemas claros e eficientes</h5>
+          <p class="mb-0">Projetos claros e eficientes que atendem às necessidades dos seus clientes e às expectativas dos usuários finais.</p>
         </div>
-        <div class="timeline-item" data-animate>
-          <h5><i class="bi bi-building-check"></i> Backup e relatórios</h5>
-          <p>Oferecemos relatórios detalhados, acompanhamento contínuo e mentoria especializada sobre as atividades do
-            site ou sistema desenvolvido para a sua empresa.</p>
+        <div class="timeline-item glass" data-animate-bottom>
+          <h5><i class="bi bi-shield-check me-2"></i>Backup e relatórios</h5>
+          <p class="mb-0">Relatórios detalhados, acompanhamento contínuo e mentoria especializada sobre o site ou sistema desenvolvido.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Formulário de Contato -->
+  <!-- Contato -->
   <section id="contato" class="py-5">
-    <div class="container d-flex justify-content-center">
-      <div class="formularyBox" data-animate-bottom>
-        <h2 class="text-center mb-4">Entre em Contato</h2>
+    <div class="container">
+      <div class="contact-box glass mx-auto p-4 p-md-5" data-animate-bottom>
+        <h2 class="section-title text-center mb-4">Entre em Contato</h2>
         <form id="contactForm" action="/sms/env" method="POST">
           <div class="mb-3">
-            <label for="nome" class="form-label">Nome</label>
-            <input type="text" class="form-control rounded-pill" name="name" id="name" placeholder="Digite seu nome"
-              required>
+            <label for="name" class="form-label">Nome</label>
+            <input type="text" class="form-control" name="name" id="name" placeholder="Digite seu nome" required>
           </div>
           <div class="mb-3">
-            <label for="zap" class="form-label">Whatsapp</label>
-            <input type="text" class="form-control rounded-pill" id="zap" name="phone" placeholder="(DDD) 9 9999-9999"
-              required>
-            <small id="phoneError" class="text-danger" style="display: none;">Por favor, insira um número de WhatsApp
-              válido com DDD.</small>
+            <label for="zap" class="form-label">WhatsApp</label>
+            <input type="text" class="form-control" id="zap" name="phone" placeholder="(DDD) 9 9999-9999" required>
+            <small id="phoneError" class="text-danger" style="display: none;">Insira um número de WhatsApp válido com DDD.</small>
           </div>
           <div class="mb-3">
             <label for="email" class="form-label">E-mail</label>
-            <input type="email" name="email" class="form-control rounded-pill" id="email"
-              placeholder="Digite seu e-mail" required>
+            <input type="email" name="email" class="form-control" id="email" placeholder="Digite seu e-mail" required>
           </div>
           <div class="mb-3">
             <label for="mensagem" class="form-label">Mensagem</label>
-            <textarea class="form-control rounded-3" id="mensagem" name="messenger" rows="4"
-              placeholder="Digite sua mensagem" required></textarea>
+            <textarea class="form-control" id="mensagem" name="messenger" rows="4" placeholder="Digite sua mensagem" required></textarea>
           </div>
-          <button type="submit" class="btn btn-danger w-100 rounded-pill">Enviar</button>
+          <button type="submit" class="btn btn-gradient w-100"><i class="bi bi-send me-2"></i>Enviar</button>
         </form>
       </div>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer class="bg-dark text-white py-4">
+  <footer class="py-4">
     <div class="container text-center">
-      <p>© <%= new Date().getFullYear() %> CoddeX Developer - Alguns os direitos reservados</p>
-      <div>
-        <a href="#" class="text-white mx-2"><i class="fab fa-github fa-lg"></i></a>
-        <a href="#" class="text-white mx-2"><i class="fab fa-linkedin fa-lg"></i></a>
-        <a href="#" class="text-white mx-2"><i class="fab fa-instagram fa-lg"></i></a>
+      <p class="mb-2">© <%= new Date().getFullYear() %> <%= site.title %> — Todos os direitos reservados</p>
+      <div class="social-links">
+        <% if (site.social && site.social.github) { %>
+          <a href="<%= site.social.github %>" target="_blank" rel="noopener" aria-label="GitHub"><i class="bi bi-github"></i></a>
+        <% } %>
+        <% if (site.social && site.social.linkedin) { %>
+          <a href="<%= site.social.linkedin %>" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+        <% } %>
+        <% if (site.social && site.social.instagram) { %>
+          <a href="<%= site.social.instagram %>" target="_blank" rel="noopener" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+        <% } %>
+        <% if (site.social && site.social.whatsapp) { %>
+          <a href="<%= site.social.whatsapp %>" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+        <% } %>
       </div>
     </div>
   </footer>
 
   <script>
     document.getElementById('zap').addEventListener('input', function (e) {
-      // Remove tudo que não é número
       let phone = e.target.value.replace(/\D/g, '');
-
-      // Formata o número no formato (DDD) 9 9999-9999
       if (phone.length > 2) {
         phone = `(${phone.substring(0, 2)}) ${phone.substring(2, 3)} ${phone.substring(3, 7)}-${phone.substring(7, 11)}`;
       }
-
-      // Atualiza o valor do campo
       e.target.value = phone;
     });
 
@@ -249,17 +244,12 @@
       const phoneInput = document.getElementById('zap');
       const phoneError = document.getElementById('phoneError');
       const phoneRegex = /^\(\d{2}\)\s?\d\s?\d{4}-\d{4}$/;
-
-      // Verifica se o número está no formato correto
       if (!phoneRegex.test(phoneInput.value)) {
         phoneError.style.display = 'block';
         e.preventDefault();
       } else {
         phoneError.style.display = 'none';
-
-        // Remove a formatação antes de enviar
-        const unformattedPhone = phoneInput.value.replace(/\D/g, '');
-        phoneInput.value = unformattedPhone;
+        phoneInput.value = phoneInput.value.replace(/\D/g, '');
       }
     });
   </script>

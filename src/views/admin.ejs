@@ -1,36 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin</title>
+  <%- include('fragments/head', { pageTitle: 'Login · CoddeX', pageDescription: 'Acesso ao painel administrativo' }) %>
   <link rel="stylesheet" href="/styles/admin.css">
-  <link rel="shortcut icon" href="/assets/admin1.png" type="image/x-icon">
 </head>
 
-<body style="background-color: #e5e5e5;">
+<body class="login-page">
+  <div class="login-glow"></div>
 
-<form class="form" action="/auth/access" method="post">
-  
-  <img src="/assets/admin1.png" class="logo">
-  
-  <span>Access your account</span>
-  <span class="input-span">
-    <label for="email" class="label">Username</label>
-    <input type="text" name="userAdmin" id="email"
-  required=""/></span>
-  <span class="input-span">
-    <label for="password" class="label">Password</label>
-    <input type="password" name="passAdmin" id="password"
-   required=""/></span>
+  <form class="login-card glass" action="/auth/access" method="post">
+    <img src="/assets/admin1.png" class="login-logo" alt="CoddeX">
+    <h1 class="login-title gradient-text">Bem-vindo de volta</h1>
+    <p class="login-subtitle">Acesse o painel administrativo</p>
 
-  <input class="submit" type="submit" value="Log in" />
-</form>
+    <div class="field">
+      <label for="user" class="form-label"><i class="bi bi-person me-1"></i>Usuário</label>
+      <input type="text" class="form-control" name="userAdmin" id="user" autocomplete="username" required>
+    </div>
 
+    <div class="field">
+      <label for="password" class="form-label"><i class="bi bi-lock me-1"></i>Senha</label>
+      <div class="password-wrap">
+        <input type="password" class="form-control" name="passAdmin" id="password" autocomplete="current-password" required>
+        <button type="button" id="togglePass" class="toggle-pass" aria-label="Mostrar senha">
+          <i class="bi bi-eye"></i>
+        </button>
+      </div>
+    </div>
+
+    <button class="btn btn-gradient w-100 mt-2" type="submit">
+      <i class="bi bi-box-arrow-in-right me-2"></i>Entrar
+    </button>
+
+    <a href="/" class="back-link"><i class="bi bi-arrow-left me-1"></i>Voltar ao site</a>
+  </form>
 
   <script>
-    document.getElementById("myPass").addEventListener("click", () => alert("Opção Indisponível no momento"));
+    const pass = document.getElementById("password");
+    const toggle = document.getElementById("togglePass");
+    toggle.addEventListener("click", () => {
+      const show = pass.type === "password";
+      pass.type = show ? "text" : "password";
+      toggle.innerHTML = show ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+    });
   </script>
 </body>
 

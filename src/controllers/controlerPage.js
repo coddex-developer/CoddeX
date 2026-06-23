@@ -1,11 +1,13 @@
 require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const UUID = require('uuid').v4;
-const contentIndex = require('../models/contentPageIndelModel');
 const MessageDB = require("../db/messageDB");
 const ProjectsDB = require("../db/projectsDB");
 const CertificateDB = require("../db/certificatesDB");
 const Admin = require("../db/adminDB.js");
+const SiteConfig = require("../db/siteConfigDB.js");
+const Like = require("../db/likeDB.js");
+const { resolveImage } = require("../utils/uploader.js");
 
 module.exports = {
 
@@ -13,8 +15,16 @@ module.exports = {
   index: async (req, res) => {
     try {
       const certificates = await CertificateDB.find();
-      const projects = await ProjectsDB.find();
-      res.render('index', { contentIndex, projects, certificates });
+      const projects = await ProjectsDB.find().lean();
+      const site = await SiteConfig.getSingleton();
+
+      // Anexa a contagem de curtidas a cada projeto
+      const likeAgg = await Like.aggregate([{ $group: { _id: "$project", count: { $sum: 1 } } }]);
+      const likeMap = {};
+      likeAgg.forEach(l => { likeMap[l._id] = l.count; });
+      projects.forEach(p => { p.likeCount = likeMap[p._id] || 0; });
+
+      res.render('index', { site, projects, certificates });
     } catch (error) {
       res.render("warning", {
         title: "Aviso!",
@@ -262,29 +272,71 @@ module.exports = {
   //GET /admin/dashboard/editPage
   editPage: async (req, res) => {
     const projects = await ProjectsDB.find();
-    res.render("editPage", { contentIndex, projects })
+    const site = await SiteConfig.getSingleton();
+    res.render("editPage", { site, projects })
   },
 
   //POST /admin/dashboard/editPage/save
   saveEditPage: async (req, res) => {
-    const { titleForm, subtitleForm, titleAboutMeForm, textAboutMeForm } = req.body;
+    const {
+      titleForm, subtitleForm, titleAboutMeForm, textAboutMeForm,
+      github, linkedin, instagram, whatsapp, contactEmail, contactPhone,
+      mailHost, mailPort, mailSecure, mailUser, mailPass, mailFrom,
+      cloudName, cloudApiKey, cloudApiSecret
+    } = req.body;
 
     if (!titleForm || !subtitleForm || !titleAboutMeForm || !textAboutMeForm) {
       return res.status(400).send("Todos os campos precisam ser preenchidos corretamente!");
     }
 
-    // Atualizar o conteúdo
-    contentIndex.title = titleForm;
-    contentIndex.subtitle = subtitleForm;
-    contentIndex.titleAboutMe = titleAboutMeForm;
-    contentIndex.textAboutMe = textAboutMeForm;
+    try {
+      const site = await SiteConfig.getSingleton();
 
-    res.render("warning", {
-      title: "Boas noticias!",
-      info: "A pagina recebeu as mudancas com sucesso.",
-      textButton: "Ok",
-      url: "/admin/dashboard/editPage"
-    })
+      // Conteúdo principal
+      site.title = titleForm;
+      site.subtitle = subtitleForm;
+      site.titleAboutMe = titleAboutMeForm;
+      site.textAboutMe = textAboutMeForm;
+
+      // Redes sociais e contatos (refletem na landing)
+      site.social = {
+        github: github || "",
+        linkedin: linkedin || "",
+        instagram: instagram || "",
+        whatsapp: whatsapp || ""
+      };
+      site.contactEmail = contactEmail || "";
+      site.contactPhone = contactPhone || "";
+
+      // Configuração de e-mail (a senha só é atualizada se um novo valor for enviado)
+      site.mail.host = mailHost || "";
+      site.mail.port = mailPort || "587";
+      site.mail.secure = mailSecure === "on" || mailSecure === "true";
+      site.mail.user = mailUser || "";
+      site.mail.from = mailFrom || "";
+      if (mailPass && mailPass.trim()) site.mail.pass = mailPass.trim();
+
+      // Configuração do Cloudinary (apiSecret só é atualizado se um novo valor for enviado)
+      site.cloudinary.cloudName = cloudName || "";
+      site.cloudinary.apiKey = cloudApiKey || "";
+      if (cloudApiSecret && cloudApiSecret.trim()) site.cloudinary.apiSecret = cloudApiSecret.trim();
+
+      await site.save();
+
+      res.render("warning", {
+        title: "Boas notícias!",
+        info: "A página recebeu as mudanças com sucesso.",
+        textButton: "Ok",
+        url: "/admin/dashboard/editPage"
+      })
+    } catch (error) {
+      res.status(500).render("warning", {
+        title: "Aviso!",
+        info: error.message,
+        textButton: "Tentar novamente",
+        url: "/admin/dashboard/editPage"
+      })
+    }
   },
 
   createProject: async (req, res) => {
@@ -299,15 +351,21 @@ module.exports = {
   saveProject: async (req, res) => {
     const { imagePj, titlePj, descriptionPj, linkPj } = req.body;
 
-    if (!imagePj || !titlePj || !descriptionPj || !linkPj) {
-      res.send("Preencha todos os campos corretamente!")
-      return
-    }
-
     try {
+      const finalImage = await resolveImage(req, imagePj, "coddex/projects");
+
+      if (!finalImage || !titlePj || !descriptionPj || !linkPj) {
+        return res.status(400).render("warning", {
+          title: "Campos incompletos",
+          info: "Preencha todos os campos e envie (ou informe a URL de) uma imagem.",
+          textButton: "Voltar",
+          url: "/admin/dashboard/editPage/CreateProjects"
+        });
+      }
+
       const createProjectDB = new ProjectsDB({
         _id: UUID(),
-        imagePj,
+        imagePj: finalImage,
         titlePj,
         descriptionPj,
         linkPj
@@ -315,7 +373,10 @@ module.exports = {
       await createProjectDB.save()
       res.redirect("/admin/dashboard/editPage/CreateProjects/allProjects")
     } catch (error) {
-      res.send("Um erro ocorreu: " + error)
+      res.status(500).render("warning", {
+        title: "Aviso!", info: error.message, textButton: "Voltar",
+        url: "/admin/dashboard/editPage/CreateProjects"
+      })
     }
   },
 
@@ -364,7 +425,7 @@ module.exports = {
         res.send("Id do projeto não identificado!")
         return
       }
-      projectsID.imagePj = updateImagePj;
+      projectsID.imagePj = await resolveImage(req, updateImagePj, "coddex/projects");
       projectsID.titlePj = updateTitlePj;
       projectsID.descriptionPj = updateDescriptionPj;
       projectsID.linkPj = updateLinkPj;
@@ -374,7 +435,10 @@ module.exports = {
       res.status(200).redirect("/admin/dashboard/editPage/CreateProjects/allProjects");
 
     } catch (error) {
-      res.send("Um erro ocorreu: " + error)
+      res.status(500).render("warning", {
+        title: "Aviso!", info: error.message, textButton: "Voltar",
+        url: "/admin/dashboard/editPage/CreateProjects/allProjects"
+      })
     }
   },
 
@@ -412,37 +476,63 @@ module.exports = {
   createCertificate: async (req, res) => {
     const { image, title, url } = req.body;
 
-    const certificate = new CertificateDB({
-      _id: UUID(),
-      image,
-      title,
-      url
-    });
+    try {
+      const finalImage = await resolveImage(req, image, "coddex/certificates");
 
-    await certificate.save();
-    res.redirect("/admin/dashboard/editPage/my-certificates")
+      if (!finalImage || !title || !url) {
+        return res.status(400).render("warning", {
+          title: "Campos incompletos",
+          info: "Envie (ou informe a URL de) uma imagem, o título e a URL do certificado.",
+          textButton: "Voltar",
+          url: "/admin/dashboard/editPage/my-certificates/add-certificate"
+        });
+      }
+
+      const certificate = new CertificateDB({ _id: UUID(), image: finalImage, title, url });
+      await certificate.save();
+      res.redirect("/admin/dashboard/editPage/my-certificates")
+    } catch (error) {
+      res.status(500).render("warning", {
+        title: "Aviso!", info: error.message, textButton: "Voltar",
+        url: "/admin/dashboard/editPage/my-certificates/add-certificate"
+      })
+    }
   },
 
   //PUT /admin/dashboard/editPage/certificates/:id/updated
   editCertificate: async (req, res) => {
     const { id } = req.params;
     const { imageEDIT, titleEDIT, urlEDIT } = req.body;
-    const certificateID = await CertificateDB.findOne({ _id: id })
 
-    if (!certificateID) {
-      return res.status(404).send("Projeto não encontrado!");
+    try {
+      const certificateID = await CertificateDB.findOne({ _id: id })
+
+      if (!certificateID) {
+        return res.status(404).send("Certificado não encontrado!");
+      }
+
+      const finalImage = await resolveImage(req, imageEDIT, "coddex/certificates");
+      if (!finalImage || !titleEDIT || !urlEDIT) {
+        return res.status(400).render("warning", {
+          title: "Campos incompletos",
+          info: "Todos os campos precisam ser preenchidos.",
+          textButton: "Voltar",
+          url: `/admin/dashboard/editPage/my-certificates/${id}`
+        });
+      }
+
+      certificateID.image = finalImage;
+      certificateID.title = titleEDIT;
+      certificateID.url = urlEDIT;
+      await certificateID.save();
+
+      res.status(200).redirect("/admin/dashboard/editPage/my-certificates");
+    } catch (error) {
+      res.status(500).render("warning", {
+        title: "Aviso!", info: error.message, textButton: "Voltar",
+        url: "/admin/dashboard/editPage/my-certificates"
+      })
     }
-    if (!imageEDIT || !titleEDIT || !urlEDIT) {
-      return res.status(400).send("Todos os campos precisam ser preenchidos!");
-    }
-
-    certificateID.image = imageEDIT;
-    certificateID.title = titleEDIT;
-    certificateID.url = urlEDIT;
-
-    await certificateID.save();
-
-    res.status(200).redirect("/admin/dashboard/editPage/my-certificates");
   },
 
   //DELETE /admin/dashboard/editPage/my-certificates/:id
