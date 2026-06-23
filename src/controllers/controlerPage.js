@@ -280,7 +280,7 @@ module.exports = {
       await admin.save();
 
       //req.session.destroy()
-      res.status(200).redirect("/admin/dashboard/adminProfile")
+      //res.status(200).redirect("/admin/dashboard/adminProfile")
     } catch (error) {
       res.status(500).send(error.message)
     }
