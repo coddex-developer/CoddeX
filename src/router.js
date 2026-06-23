@@ -22,7 +22,8 @@ router.get('/admin/dashboard/logout', midlewareLogin, controlerPage.logout);
 
 //AdminProfile
 router.get('/admin/dashboard/adminProfile', midlewareLogin, controlerPage.myProfile);
-router.post('/admin/dashboard/adminProfile', midlewareLogin, uploadLogo.single("logo"), controlerPage.editProfile);
+//Alteracao aqui removido as credenciais admin da atualizacao de logo
+router.post('/admin/dashboard/adminProfile', midlewareLogin, uploadLogo.single("logo"));
 router.post('/admin/dashboard/profile/social', midlewareLogin, controlerPage.saveSocial);
 router.post('/admin/dashboard/profile/mail', midlewareLogin, controlerPage.saveMail);
 router.post('/admin/dashboard/profile/mail/test', midlewareLogin, controlerPage.testMail);
