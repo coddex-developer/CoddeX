@@ -59,9 +59,9 @@
 
       <!-- Comentários -->
       <section id="comentarios" class="glass p-4 p-md-5">
-        <h2 class="h4 mb-4"><i class="bi bi-chat-left-text me-2 gradient-text"></i>Comentários (<%= comments.length %>)</h2>
+        <h2 class="h4 mb-4"><i class="bi bi-chat-left-text me-2 gradient-text"></i>Comentários (<%= commentCount %>)</h2>
 
-        <% if (currentUser) { %>
+        <% if (canInteract) { %>
           <form action="/projeto/<%= project.id %>/comment" method="post" class="mb-4">
             <textarea class="form-control mb-2" name="body" rows="3" maxlength="2000"
               placeholder="Escreva um comentário (suporta markdown)..." required></textarea>
@@ -73,28 +73,70 @@
           </div>
         <% } %>
 
+        <%
+          // Renderiza um comentário (e, se for raiz, suas respostas)
+          function commentBlock(c, isReply) {
+        %>
+          <div class="comment <%= isReply ? 'comment-reply' : '' %>" id="c-<%= c._id %>">
+            <div class="d-flex gap-2">
+              <span class="comment-avatar <%= c.isAuthor ? 'is-author' : '' %>"><%= c.userName.charAt(0).toUpperCase() %></span>
+              <div class="flex-grow-1 min-w-0">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <strong><%= c.userName %></strong>
+                  <% if (c.isAuthor) { %><span class="badge-author"><i class="bi bi-patch-check-fill me-1"></i>Autor</span><% } %>
+                  <small class="text-muted-2"><%= new Date(c.createdAt).toLocaleDateString('pt-BR') %></small>
+                </div>
+                <div class="markdown-body comment-body"><%- md(c.body) %></div>
+
+                <div class="comment-actions">
+                  <% if (canInteract) { %>
+                    <form action="/projeto/<%= project.id %>/comment/<%= c._id %>/like" method="post" class="d-inline m-0">
+                      <button class="c-action c-like <%= c.likedByMe ? 'liked' : '' %>" type="submit">
+                        <i class="bi <%= c.likedByMe ? 'bi-heart-fill' : 'bi-heart' %>"></i> <%= c.likeCount %>
+                      </button>
+                    </form>
+                  <% } else { %>
+                    <a href="/login" class="c-action c-like"><i class="bi bi-heart"></i> <%= c.likeCount %></a>
+                  <% } %>
+
+                  <% if (canInteract && !isReply) { %>
+                    <button type="button" class="c-action c-reply-toggle" data-target="reply-<%= c._id %>">
+                      <i class="bi bi-reply me-1"></i>Responder
+                    </button>
+                  <% } %>
+
+                  <% if (canInteract && (isAdmin || String(c.user) === String(actorId))) { %>
+                    <form action="/projeto/<%= project.id %>/comment/<%= c._id %>/delete" method="post" class="d-inline m-0"
+                      data-confirm="Excluir este comentário?" data-confirm-btn="Excluir">
+                      <button class="c-action text-danger" type="submit"><i class="bi bi-trash"></i></button>
+                    </form>
+                  <% } %>
+                </div>
+
+                <% if (canInteract && !isReply) { %>
+                  <form id="reply-<%= c._id %>" class="reply-form mt-2" style="display:none;"
+                    action="/projeto/<%= project.id %>/comment" method="post">
+                    <input type="hidden" name="parent" value="<%= c._id %>">
+                    <textarea class="form-control mb-2" name="body" rows="2" maxlength="2000" placeholder="Escreva uma resposta..." required></textarea>
+                    <button class="btn btn-gradient btn-sm" type="submit"><i class="bi bi-send me-1"></i>Responder</button>
+                  </form>
+                <% } %>
+
+                <% if (!isReply && c.replies && c.replies.length) { %>
+                  <div class="replies mt-2">
+                    <% c.replies.forEach(r => commentBlock(r, true)); %>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        <% } %>
+
         <% if (comments.length === 0) { %>
           <p class="text-muted-2 mb-0">Seja o primeiro a comentar!</p>
         <% } else { %>
           <div class="d-flex flex-column gap-3">
-            <% comments.forEach(c => { %>
-              <div class="comment">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                  <div class="d-flex align-items-center gap-2">
-                    <span class="comment-avatar"><%= c.userName.charAt(0).toUpperCase() %></span>
-                    <strong><%= c.userName %></strong>
-                    <small class="text-muted-2"><%= new Date(c.createdAt).toLocaleDateString('pt-BR') %></small>
-                  </div>
-                  <% if (currentUser && String(c.user) === String(currentUser.id)) { %>
-                    <form action="/projeto/<%= project.id %>/comment/<%= c._id %>/delete" method="post" class="m-0"
-                      data-confirm="Excluir seu comentário?" data-confirm-btn="Excluir">
-                      <button class="btn btn-sm btn-link text-danger p-0" title="Excluir"><i class="bi bi-trash"></i></button>
-                    </form>
-                  <% } %>
-                </div>
-                <div class="markdown-body comment-body"><%- md(c.body) %></div>
-              </div>
-            <% }); %>
+            <% comments.forEach(c => commentBlock(c, false)); %>
           </div>
         <% } %>
       </section>
@@ -105,6 +147,18 @@
   <footer class="text-center py-3 mt-auto">
     <small>&copy; <%= new Date().getFullYear() %> · CoddeX Developer</small>
   </footer>
+
+  <script>
+    document.querySelectorAll(".c-reply-toggle").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const f = document.getElementById(btn.dataset.target);
+        if (!f) return;
+        const open = f.style.display !== "none";
+        f.style.display = open ? "none" : "block";
+        if (!open) { const ta = f.querySelector("textarea"); if (ta) ta.focus(); }
+      });
+    });
+  </script>
 </body>
 
 </html>

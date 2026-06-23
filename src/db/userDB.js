@@ -13,6 +13,10 @@ const userSchema = new Schema({
   verifyCodeHash: { type: String, default: null },
   verifyCodeExpires: { type: Date, default: null },
   verifyAttempts: { type: Number, default: 0 },
+  // Recuperação de senha (código de 6 dígitos)
+  resetCodeHash: { type: String, default: null },
+  resetCodeExpires: { type: Date, default: null },
+  resetAttempts: { type: Number, default: 0 },
   role: { type: String, default: "user" }
 }, { timestamps: true });
 
@@ -57,6 +61,29 @@ userSchema.methods.checkVerificationCode = async function (code) {
   this.verifyCodeExpires = null;
   this.verifyAttempts = 0;
   await this.save();
+  return { ok: true };
+};
+
+// Recuperação de senha: gera código de 6 dígitos (hash, expira 15 min)
+userSchema.methods.setResetCode = async function () {
+  const code = String(crypto.randomInt(100000, 1000000));
+  this.resetCodeHash = await bcrypt.hash(code, 10);
+  this.resetCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
+  this.resetAttempts = 0;
+  return code;
+};
+
+// Valida o código de recuperação. Retorna { ok, reason }.
+userSchema.methods.checkResetCode = async function (code) {
+  if (!this.resetCodeHash || !this.resetCodeExpires) return { ok: false, reason: "no_code" };
+  if (this.resetCodeExpires < new Date()) return { ok: false, reason: "expired" };
+  if (this.resetAttempts >= 5) return { ok: false, reason: "too_many" };
+  const match = await bcrypt.compare(String(code), this.resetCodeHash);
+  if (!match) {
+    this.resetAttempts += 1;
+    await this.save();
+    return { ok: false, reason: "invalid" };
+  }
   return { ok: true };
 };
 

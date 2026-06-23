@@ -153,6 +153,9 @@
 }
 .ig-btn:hover { transform: scale(1.15); color: var(--accent-2); }
 .ig-btn .liked { color: var(--danger); animation: pop .3s ease; }
+.ig-comment-btn { font-size: 1.5rem; gap: .25rem; text-decoration: none; }
+.ig-count { font-size: .95rem; color: var(--text-muted); font-weight: 600; }
+.ig-comment-btn:hover .ig-count { color: var(--accent-2); }
 @keyframes pop { 0% { transform: scale(.6); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
 
 .ig-body { padding: .25rem 1rem 1rem; }
@@ -273,6 +276,27 @@
   flex-shrink: 0;
 }
 .comment-body p:last-child { margin-bottom: 0; }
+.comment-avatar.is-author { box-shadow: 0 0 0 2px var(--accent-2); }
+.badge-author {
+  font-size: .68rem; font-weight: 600;
+  background: var(--gradient); color: #fff;
+  padding: .08rem .5rem; border-radius: 999px;
+}
+.comment-actions { display: flex; align-items: center; gap: 1rem; margin-top: .4rem; }
+.c-action {
+  background: none; border: none; padding: 0;
+  color: var(--text-muted); font-size: .8rem; cursor: pointer;
+  display: inline-flex; align-items: center; gap: .25rem; text-decoration: none;
+  transition: color .15s ease, transform .15s ease;
+}
+.c-action:hover { color: var(--accent-2); }
+.c-like.liked, .c-like.liked i { color: var(--danger); }
+.c-like.liked i { animation: pop .3s ease; }
+.replies {
+  display: flex; flex-direction: column; gap: .6rem;
+  padding-left: 1rem; border-left: 2px solid var(--border); margin-top: .6rem;
+}
+.comment-reply { background: transparent !important; border: none !important; padding: 0 !important; }
 
 /* ----------------------------- Blog ----------------------------- */
 .blog-card {

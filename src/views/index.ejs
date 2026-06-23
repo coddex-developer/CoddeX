@@ -118,7 +118,9 @@
                 <% } else { %>
                   <a href="/login" class="ig-btn" title="Entre para curtir"><i class="bi bi-heart"></i></a>
                 <% } %>
-                <a href="/projeto/<%= project._id %>#comentarios" class="ig-btn" title="Comentar"><i class="bi bi-chat"></i></a>
+                <a href="/projeto/<%= project._id %>#comentarios" class="ig-btn ig-comment-btn" title="Comentários">
+                  <i class="bi bi-chat"></i><span class="ig-count"><%= project.commentCount %></span>
+                </a>
               </div>
 
               <!-- Corpo -->

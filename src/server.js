@@ -66,9 +66,10 @@ app.use(session({
   }
 }));
 
-// Expõe o usuário logado (visitante) para todas as views
+// Expõe o usuário logado (visitante) e o status de admin para todas as views
 app.use((req, res, next) => {
   res.locals.currentUser = req.session.user || null;
+  res.locals.isAdmin = Boolean(req.session && req.session.authenticated);
   next();
 });
 

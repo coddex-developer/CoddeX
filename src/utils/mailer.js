@@ -120,6 +120,22 @@ async function sendVerificationCode(to, name, code) {
   });
 }
 
+// E-mail com o código de recuperação de senha
+async function sendResetCode(to, name, code) {
+  const body = `
+    <p style="color:#9aa0b8;">Olá ${name || ""}, use o código abaixo para redefinir sua senha:</p>
+    <div style="text-align:center;margin:24px 0;">
+      <span style="display:inline-block;letter-spacing:10px;font-size:34px;font-weight:bold;color:#fff;background:rgba(34,211,238,.15);border:1px solid rgba(34,211,238,.4);border-radius:12px;padding:14px 24px;">${code}</span>
+    </div>
+    <p style="color:#9aa0b8;font-size:13px;">O código expira em 15 minutos. Se você não solicitou, ignore este e-mail.</p>`;
+  return sendMail({
+    to,
+    subject: "Recuperação de senha · CoddeX",
+    html: wrap("Redefinir senha", body),
+    text: `Seu código de recuperação é ${code}. Expira em 15 minutos.`
+  });
+}
+
 // Notifica o admin sobre um novo usuário verificado
 async function notifyAdminNewUser(adminEmail, newUser) {
   if (!adminEmail) return { skipped: true };
@@ -175,4 +191,4 @@ async function notifyUserReply(userEmail, subject, snippet, panelUrl) {
   });
 }
 
-module.exports = { sendMail, sendVerificationCode, notifyAdminNewUser, notifyAdminNewMessage, notifyUserReply, isMailConfigured, getMailConfig, verifyConnection, sendTestEmail };
+module.exports = { sendMail, sendVerificationCode, sendResetCode, notifyAdminNewUser, notifyAdminNewMessage, notifyUserReply, isMailConfigured, getMailConfig, verifyConnection, sendTestEmail };

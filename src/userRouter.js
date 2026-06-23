@@ -3,7 +3,7 @@ const rateLimit = require("express-rate-limit");
 const auth = require("./controllers/controllerAuth");
 const project = require("./controllers/controllerProject");
 const ticket = require("./controllers/controllerTicket");
-const { requireUser } = require("./middlewares/middlewareAuth");
+const { requireUser, requireUserOrAdmin } = require("./middlewares/middlewareAuth");
 
 const router = express.Router();
 
@@ -33,14 +33,21 @@ router.get("/login", auth.loginView);
 router.post("/login", authLimiter, auth.login);
 router.get("/logout", auth.logout);
 
+// Recuperação de senha
+router.get("/forgot", auth.forgotView);
+router.post("/forgot", authLimiter, auth.forgot);
+router.get("/reset", auth.resetView);
+router.post("/reset", verifyLimiter, auth.reset);
+
 // Painel do usuário
 router.get("/account", requireUser, auth.account);
 
 // Projetos: detalhe público + curtidas/comentários (exigem login)
 router.get("/projeto/:id", project.detail);
 router.post("/projeto/:id/like", requireUser, project.toggleLike);
-router.post("/projeto/:id/comment", requireUser, project.addComment);
-router.post("/projeto/:id/comment/:commentId/delete", requireUser, project.deleteComment);
+router.post("/projeto/:id/comment", requireUserOrAdmin, project.addComment);
+router.post("/projeto/:id/comment/:commentId/like", requireUserOrAdmin, project.likeComment);
+router.post("/projeto/:id/comment/:commentId/delete", requireUserOrAdmin, project.deleteComment);
 
 // Tickets (conversas) do usuário
 router.get("/account/tickets", requireUser, ticket.listMine);

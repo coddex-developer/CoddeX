@@ -3,7 +3,7 @@ const SiteConfig = require("../db/siteConfigDB");
 const Like = require("../db/likeDB");
 const ProjectsDB = require("../db/projectsDB");
 const Notification = require("../db/notificationDB");
-const { sendVerificationCode, notifyAdminNewUser } = require("../utils/mailer");
+const { sendVerificationCode, sendResetCode, notifyAdminNewUser } = require("../utils/mailer");
 
 // Regenera a sessão (anti session-fixation) e injeta o usuário logado.
 function loginSession(req, user) {
@@ -199,6 +199,63 @@ module.exports = {
       res.redirect("/account");
     } catch (error) {
       res.status(500).render("login", { error: error.message, values });
+    }
+  },
+
+  // GET /forgot
+  forgotView: (req, res) => {
+    res.render("forgot", { error: null, info: null });
+  },
+
+  // POST /forgot — envia código de recuperação se o e-mail existir
+  forgot: async (req, res) => {
+    const email = (req.body.email || "").toLowerCase().trim();
+    try {
+      const user = await User.findOne({ email });
+      if (user) {
+        const code = await user.setResetCode();
+        await user.save();
+        try { await sendResetCode(user.email, user.name, code); }
+        catch (e) { console.error("Falha ao enviar código de recuperação:", e.message); }
+      }
+      // Resposta idêntica exista ou não (evita enumeração de e-mails)
+      req.session.resetEmail = email;
+      res.redirect("/reset");
+    } catch (error) {
+      res.status(500).render("forgot", { error: error.message, info: null });
+    }
+  },
+
+  // GET /reset
+  resetView: (req, res) => {
+    const email = req.session.resetEmail || req.query.email || "";
+    res.render("reset", { error: null, info: "Se o e-mail existir, enviamos um código.", email });
+  },
+
+  // POST /reset — valida o código e define a nova senha
+  reset: async (req, res) => {
+    const email = (req.body.email || req.session.resetEmail || "").toLowerCase().trim();
+    const { code, password } = req.body;
+    try {
+      if (!password || password.length < 6) {
+        return res.status(400).render("reset", { error: "A nova senha deve ter pelo menos 6 caracteres.", info: null, email });
+      }
+      const user = await User.findOne({ email });
+      const result = user ? await user.checkResetCode(code) : { ok: false, reason: "invalid" };
+      if (!result.ok) {
+        const msg = { expired: "O código expirou. Solicite um novo.", too_many: "Muitas tentativas. Solicite um novo código.", no_code: "Nenhum código pendente. Solicite um novo.", invalid: "Código incorreto." };
+        return res.status(400).render("reset", { error: msg[result.reason] || "Falha ao redefinir.", info: null, email });
+      }
+      user.password = password;            // o hook gera o hash
+      user.resetCodeHash = null;
+      user.resetCodeExpires = null;
+      user.resetAttempts = 0;
+      if (!user.emailVerified) user.emailVerified = true; // recuperou via e-mail => e-mail válido
+      await user.save();
+      delete req.session.resetEmail;
+      res.render("warning", { title: "Senha alterada!", icon: "success", info: "Sua senha foi redefinida. Faça login.", textButton: "Entrar", url: "/login" });
+    } catch (error) {
+      res.status(500).render("reset", { error: error.message, info: null, email });
     }
   },
 
