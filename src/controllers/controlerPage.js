@@ -347,7 +347,7 @@ module.exports = {
 
   // POST /admin/dashboard/profile/mail — configuração SMTP
   saveMail: async (req, res) => {
-    const { mailHost, mailPort, mailSecure, mailUser, mailPass, mailFrom } = req.body;
+    const { mailHost, mailPort, mailSecure, mailUser, mailPass, mailFrom, requireVerification } = req.body;
     try {
       const site = await SiteConfig.getSingleton();
       site.mail.host = mailHost || "";
@@ -356,6 +356,7 @@ module.exports = {
       site.mail.user = mailUser || "";
       site.mail.from = mailFrom || "";
       if (mailPass && mailPass.trim()) site.mail.pass = mailPass.trim(); // só atualiza se enviada
+      site.requireEmailVerification = requireVerification === "on" || requireVerification === "true";
       await site.save();
       res.redirect("/admin/dashboard/adminProfile?toast=" + encodeURIComponent("Configuração de e-mail salva!") + "#mail");
     } catch (error) {

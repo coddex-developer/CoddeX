@@ -29,6 +29,19 @@ async function trySendCode(email, name, code) {
   }
 }
 
+// Notifica o admin (painel + e-mail) sobre um novo usuário. Nunca derruba o fluxo.
+async function notifyNewUser(site, user) {
+  try {
+    await Notification.create({
+      recipientType: "admin", recipientId: "admin", type: "new_user",
+      text: `Novo usuário cadastrado: ${user.name}`, link: "/admin/dashboard"
+    });
+    await notifyAdminNewUser(site.contactEmail, user);
+  } catch (e) {
+    console.error("Falha ao notificar novo usuário:", e.message);
+  }
+}
+
 module.exports = {
   // GET /register
   registerView: (req, res) => {
@@ -52,27 +65,44 @@ module.exports = {
       }
 
       const normalizedEmail = email.toLowerCase().trim();
+      const site = await SiteConfig.getSingleton();
+      const verifEnabled = site.requireEmailVerification !== false;
       const existing = await User.findOne({ email: normalizedEmail });
 
       if (existing) {
-        // Se já existe mas não verificou, reenvia o código em vez de bloquear.
         if (!existing.emailVerified) {
-          const code = await existing.setVerificationCode();
+          if (verifEnabled) {
+            const code = await existing.setVerificationCode();
+            await existing.save();
+            await trySendCode(existing.email, existing.name, code);
+            req.session.pendingEmail = existing.email;
+            return res.redirect("/verify");
+          }
+          // verificação desligada: ativa a conta e entra direto
+          existing.emailVerified = true;
           await existing.save();
-          await trySendCode(existing.email, existing.name, code);
-          req.session.pendingEmail = existing.email;
-          return res.redirect("/verify");
+          await notifyNewUser(site, existing);
+          await loginSession(req, existing);
+          return res.redirect("/account");
         }
         return res.status(400).render("register", { error: "Este e-mail já está cadastrado. Faça login.", values });
       }
 
-      const user = new User({ name: name.trim(), email: normalizedEmail, password });
-      const code = await user.setVerificationCode();
-      await user.save();
-      await trySendCode(user.email, user.name, code);
+      const user = new User({ name: name.trim(), email: normalizedEmail, password, emailVerified: !verifEnabled });
 
-      req.session.pendingEmail = user.email;
-      res.redirect("/verify");
+      if (verifEnabled) {
+        const code = await user.setVerificationCode();
+        await user.save();
+        await trySendCode(user.email, user.name, code);
+        req.session.pendingEmail = user.email;
+        return res.redirect("/verify");
+      }
+
+      // Sem verificação: conta já entra ativa e logada
+      await user.save();
+      await notifyNewUser(site, user);
+      await loginSession(req, user);
+      res.redirect("/account");
     } catch (error) {
       res.status(500).render("register", { error: error.message, values });
     }
@@ -108,14 +138,8 @@ module.exports = {
 
       // Conta verificada: notifica o admin e loga o usuário.
       delete req.session.pendingEmail;
-      try {
-        await Notification.create({
-          recipientType: "admin", recipientId: "admin", type: "new_user",
-          text: `Novo usuário cadastrado: ${user.name}`, link: "/admin/dashboard"
-        });
-        const site = await SiteConfig.getSingleton();
-        await notifyAdminNewUser(site.contactEmail, user);
-      } catch (_) { /* não bloqueia o fluxo se a notificação falhar */ }
+      const site = await SiteConfig.getSingleton();
+      await notifyNewUser(site, user);
 
       await loginSession(req, user);
       res.redirect("/account");
@@ -159,8 +183,11 @@ module.exports = {
         return res.status(401).render("login", { error: "E-mail ou senha incorretos.", values });
       }
 
-      if (!user.emailVerified) {
-        // Reenvia código e manda para a verificação
+      const site = await SiteConfig.getSingleton();
+      const verifEnabled = site.requireEmailVerification !== false;
+
+      if (!user.emailVerified && verifEnabled) {
+        // Verificação ligada e conta não confirmada: reenvia código
         const code = await user.setVerificationCode();
         await user.save();
         await trySendCode(user.email, user.name, code);

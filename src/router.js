@@ -5,11 +5,16 @@ const controllerSms = require('./controllers/controllerSms');
 const uploadLogo = require("./middlewares/middlewareUpLogo.js");
 const imageUpload = require("./middlewares/middlewareImage.js");
 const controllerTicket = require("./controllers/controllerTicket");
+const controllerBlog = require("./controllers/controllerBlog");
 
 const router = express.Router();
 
 router.get('/', controlerPage.index);
 router.get('/admin', controlerPage.admin);
+
+// Blog público
+router.get('/blog', controllerBlog.publicList);
+router.get('/blog/:slug', controllerBlog.publicPost);
 
 router.post('/auth/access', controlerPage.account);
 router.get('/admin/dashboard', midlewareLogin, controlerPage.dashboard);
@@ -37,6 +42,14 @@ router.post('/sms/env', controllerSms.submitMessage);
 router.get('/admin/dashboard/tickets', midlewareLogin, controllerTicket.adminList);
 router.get('/admin/dashboard/tickets/:id', midlewareLogin, controllerTicket.adminThread);
 router.post('/admin/dashboard/tickets/:id/reply', midlewareLogin, controllerTicket.adminReply);
+
+// Blog — admin (CRUD)
+router.get('/admin/dashboard/blog', midlewareLogin, controllerBlog.adminList);
+router.get('/admin/dashboard/blog/new', midlewareLogin, controllerBlog.newForm);
+router.post('/admin/dashboard/blog', midlewareLogin, imageUpload.single('imageFile'), controllerBlog.create);
+router.get('/admin/dashboard/blog/:id/edit', midlewareLogin, controllerBlog.editForm);
+router.post('/admin/dashboard/blog/:id/update', midlewareLogin, imageUpload.single('imageFile'), controllerBlog.update);
+router.post('/admin/dashboard/blog/:id/delete', midlewareLogin, controllerBlog.remove);
 
 //editPage
 router.get('/admin/dashboard/editPage', midlewareLogin, controlerPage.editPage);

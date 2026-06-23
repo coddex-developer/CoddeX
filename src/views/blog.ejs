@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <%- include('fragments/head', { pageTitle: 'Blog · ' + site.title, pageDescription: 'Artigos e novidades' }) %>
+  <link rel="stylesheet" href="/styles/style.css">
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+  <nav class="navbar sticky-top" data-bs-theme="dark">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+        <img src="/assets/admin1.png" alt="CoddeX" style="max-height: 38px;">
+        <span class="fw-bold gradient-text d-none d-sm-inline"><%= site.title %></span>
+      </a>
+      <div class="d-flex align-items-center gap-2">
+        <a href="/" class="btn btn-outline-light btn-sm"><i class="bi bi-house me-1"></i>Início</a>
+        <% if (currentUser) { %>
+          <a href="/account" class="btn btn-gradient btn-sm"><i class="bi bi-person-circle me-1"></i>Conta</a>
+        <% } else { %>
+          <a href="/login" class="btn btn-gradient btn-sm"><i class="bi bi-box-arrow-in-right me-1"></i>Entrar</a>
+        <% } %>
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-grow-1">
+    <div class="container py-5" style="max-width: 1000px;">
+      <h1 class="section-title gradient-text text-center mb-5">Blog</h1>
+
+      <% if (posts.length === 0) { %>
+        <div class="empty-state glass mx-auto"><i class="bi bi-journal-text"></i><p class="mb-0">Nenhum artigo publicado ainda.</p></div>
+      <% } else { %>
+        <div class="row g-4">
+          <% posts.forEach(post => { %>
+            <div class="col-12 col-md-6 col-lg-4">
+              <a href="/blog/<%= post.slug %>" class="blog-card glass h-100 d-block text-decoration-none">
+                <% if (post.coverImage) { %>
+                  <div class="blog-cover"><img src="<%= post.coverImage %>" alt="<%= post.title %>" loading="lazy"></div>
+                <% } %>
+                <div class="p-3">
+                  <small class="text-muted-2"><%= new Date(post.createdAt).toLocaleDateString('pt-BR') %></small>
+                  <h5 class="mt-1 mb-2"><%= post.title %></h5>
+                  <p class="text-muted-2 mb-0"><%= post.excerpt %></p>
+                </div>
+              </a>
+            </div>
+          <% }); %>
+        </div>
+      <% } %>
+    </div>
+  </main>
+
+  <footer class="text-center py-3 mt-auto"><small>&copy; <%= new Date().getFullYear() %> · <%= site.title %></small></footer>
+</body>
+
+</html>

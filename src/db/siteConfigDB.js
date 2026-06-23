@@ -40,6 +40,9 @@ const siteConfigSchema = new Schema({
     from: { type: String, default: "" }
   },
 
+  // Exige confirmação de e-mail (código) ao cadastrar. Se false, conta já entra ativa.
+  requireEmailVerification: { type: Boolean, default: true },
+
   // Configuração do Cloudinary (upload de imagens)
   cloudinary: {
     cloudName: { type: String, default: "" },

@@ -101,6 +101,15 @@
         </div>
       </div>
     </div>
+    <hr class="my-3" style="border-color:var(--border);">
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" role="switch" id="requireVerification" name="requireVerification"
+        <%= (site.requireEmailVerification !== false) ? 'checked' : '' %>>
+      <label class="form-check-label" for="requireVerification">
+        Exigir verificação de e-mail no cadastro
+        <span class="text-muted-2 d-block small">Se desligado, novas contas entram sem precisar confirmar o e-mail (não requer SMTP).</span>
+      </label>
+    </div>
     <button class="btn btn-gradient mt-3" type="submit"><i class="bi bi-save me-2"></i>Salvar e-mail</button>
    </form>
    <form action="/admin/dashboard/profile/mail/test" method="post" class="mt-2 d-inline">
