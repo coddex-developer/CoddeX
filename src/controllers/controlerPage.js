@@ -1,4 +1,5 @@
 require("dotenv").config();
+const bcrypt = require("bcryptjs");
 const UUID = require('uuid').v4;
 const contentIndex = require('../models/contentPageIndelModel');
 const MessageDB = require("../db/messageDB");
@@ -36,7 +37,11 @@ module.exports = {
     try {
       const admin = await Admin.findOne({ userAdmin });
 
-      if (!admin) {
+      const passwordMatches = admin
+        ? await bcrypt.compare(passAdmin, admin.passAdmin)
+        : false;
+
+      if (!admin || !passwordMatches) {
         return res.status(401).render("warning", {
           title: "Oops",
           info: "Credenciais inválidas",
@@ -44,9 +49,14 @@ module.exports = {
           url: "/admin"
         })
       }
-        req.session.authenticated = true;
-        req.session.currentUser = admin;
-        res.status(200).redirect('/admin/dashboard');
+
+      req.session.authenticated = true;
+      req.session.currentUser = {
+        id: admin.id,
+        userAdmin: admin.userAdmin,
+        role: admin.role
+      };
+      res.status(200).redirect('/admin/dashboard');
     } catch (error) {
       res.render("warning", {
         title: "Aviso!",
@@ -218,7 +228,7 @@ module.exports = {
   editProfile: async (req, res) => {
     const { username, password, contact } = req.body;
 
-    if (!username || !password || username.length < 2 || password < 2) {
+    if (!username || !password || username.length < 2 || password.length < 2) {
       res.status(400).send("Todos os campos são obrigatórios!");
       return
     }
@@ -228,12 +238,25 @@ module.exports = {
       return
     }
 
-    process.env.ADMIN_USER = username
-    process.env.ADMIN_PASS = password
-    process.env.ADMIN_PHONE = contact
-    req.session.destroy()
+    try {
+      const admin = await Admin.findById(req.session.currentUser.id);
 
-    res.status(200).redirect("/admin")
+      if (!admin) {
+        res.status(404).send("Administrador não encontrado!");
+        return
+      }
+
+      admin.userAdmin = username;
+      admin.passAdmin = password; // o hash é gerado automaticamente no model
+      await admin.save();
+
+      process.env.ADMIN_PHONE = contact;
+      req.session.destroy()
+
+      res.status(200).redirect("/admin")
+    } catch (error) {
+      res.status(500).send(error.message)
+    }
   },
 
   //GET /admin/dashboard/editPage

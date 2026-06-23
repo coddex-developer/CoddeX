@@ -11,6 +11,7 @@
   "description": "",
   "dependencies": {
     "@intercom/messenger-js-sdk": "^0.0.14",
+    "bcryptjs": "^3.0.3",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.0",
