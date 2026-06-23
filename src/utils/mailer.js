@@ -21,16 +21,55 @@ async function getMailConfig() {
 }
 
 function buildTransport(cfg) {
-  return nodemailer.createTransport(
-    cfg.host
-      ? { host: cfg.host, port: Number(cfg.port) || 587, secure: Boolean(cfg.secure), auth: { user: cfg.user, pass: cfg.pass } }
-      : { service: "gmail", auth: { user: cfg.user, pass: cfg.pass } } // sem host => Gmail (senha de app)
-  );
+  if (cfg.host) {
+    const port = Number(cfg.port) || 587;
+    // Regra robusta: porta 465 = SSL direto; demais (587/2525) = STARTTLS.
+    // Evita o erro comum de marcar "SSL" na porta 587 (Brevo, Mailtrap, etc.).
+    const secure = port === 465;
+    return nodemailer.createTransport({
+      host: cfg.host,
+      port,
+      secure,
+      requireTLS: !secure,
+      auth: { user: cfg.user, pass: cfg.pass }
+    });
+  }
+  // Sem host => Gmail com senha de app (SMTP SSL explícito)
+  return nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: { user: cfg.user, pass: cfg.pass }
+  });
 }
 
 async function isMailConfigured() {
   const cfg = await getMailConfig();
   return cfg.configured;
+}
+
+// Testa a conexão/credenciais SMTP. Retorna { ok, configured, error }.
+async function verifyConnection() {
+  const cfg = await getMailConfig();
+  if (!cfg.configured) {
+    return { ok: false, configured: false, error: "SMTP não configurado (usuário e/ou senha vazios)." };
+  }
+  try {
+    await buildTransport(cfg).verify();
+    return { ok: true, configured: true };
+  } catch (e) {
+    return { ok: false, configured: true, error: e.message };
+  }
+}
+
+// Envia um e-mail de teste
+async function sendTestEmail(to) {
+  return sendMail({
+    to,
+    subject: "Teste de SMTP · CoddeX",
+    html: wrap("Funciona! 🎉", "<p style=\"color:#9aa0b8;\">Se você recebeu este e-mail, seu SMTP está configurado corretamente.</p>"),
+    text: "Seu SMTP está configurado corretamente."
+  });
 }
 
 // Envia e-mail. Sem SMTP configurado, apenas loga no console (modo dev).
@@ -98,4 +137,42 @@ async function notifyAdminNewUser(adminEmail, newUser) {
   });
 }
 
-module.exports = { sendMail, sendVerificationCode, notifyAdminNewUser, isMailConfigured, getMailConfig };
+// Botão de link reutilizável nos e-mails
+function linkButton(url, label) {
+  return `<div style="text-align:center;margin:24px 0;">
+    <a href="${url}" style="display:inline-block;background:linear-gradient(135deg,#7c3aed,#22d3ee);color:#fff;text-decoration:none;padding:12px 22px;border-radius:999px;font-weight:bold;">${label}</a>
+  </div>
+  <p style="color:#9aa0b8;font-size:13px;">Ou acesse: <a href="${url}" style="color:#22d3ee;">${url}</a></p>`;
+}
+
+// Avisa o admin que um usuário enviou uma mensagem (com link para o painel da conversa)
+async function notifyAdminNewMessage(adminEmail, fromName, subject, snippet, panelUrl) {
+  if (!adminEmail) return { skipped: true };
+  const body = `
+    <p style="color:#9aa0b8;"><strong>${fromName}</strong> enviou uma mensagem${subject ? ` sobre "<strong>${subject}</strong>"` : ""}:</p>
+    <blockquote style="border-left:3px solid #7c3aed;padding-left:12px;color:#e8eaf2;">${snippet}</blockquote>
+    ${linkButton(panelUrl, "Ver conversa no painel")}`;
+  return sendMail({
+    to: adminEmail,
+    subject: `Nova mensagem de ${fromName} · CoddeX`,
+    html: wrap("Nova mensagem", body),
+    text: `${fromName} enviou: ${snippet}\nAbra: ${panelUrl}`
+  });
+}
+
+// Avisa o usuário que o admin respondeu (com link para o painel dele)
+async function notifyUserReply(userEmail, subject, snippet, panelUrl) {
+  if (!userEmail) return { skipped: true };
+  const body = `
+    <p style="color:#9aa0b8;">Você recebeu uma resposta${subject ? ` sobre "<strong>${subject}</strong>"` : ""}:</p>
+    <blockquote style="border-left:3px solid #22d3ee;padding-left:12px;color:#e8eaf2;">${snippet}</blockquote>
+    ${linkButton(panelUrl, "Ver resposta")}`;
+  return sendMail({
+    to: userEmail,
+    subject: "Você recebeu uma resposta · CoddeX",
+    html: wrap("Nova resposta", body),
+    text: `Resposta: ${snippet}\nAbra: ${panelUrl}`
+  });
+}
+
+module.exports = { sendMail, sendVerificationCode, notifyAdminNewUser, notifyAdminNewMessage, notifyUserReply, isMailConfigured, getMailConfig, verifyConnection, sendTestEmail };

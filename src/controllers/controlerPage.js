@@ -7,7 +7,9 @@ const CertificateDB = require("../db/certificatesDB");
 const Admin = require("../db/adminDB.js");
 const SiteConfig = require("../db/siteConfigDB.js");
 const Like = require("../db/likeDB.js");
+const Comment = require("../db/commentDB.js");
 const { resolveImage } = require("../utils/uploader.js");
+const { verifyConnection, sendTestEmail } = require("../utils/mailer.js");
 
 module.exports = {
 
@@ -18,11 +20,27 @@ module.exports = {
       const projects = await ProjectsDB.find().lean();
       const site = await SiteConfig.getSingleton();
 
-      // Anexa a contagem de curtidas a cada projeto
-      const likeAgg = await Like.aggregate([{ $group: { _id: "$project", count: { $sum: 1 } } }]);
-      const likeMap = {};
+      // Curtidas e comentários por projeto
+      const [likeAgg, commentAgg] = await Promise.all([
+        Like.aggregate([{ $group: { _id: "$project", count: { $sum: 1 } } }]),
+        Comment.aggregate([{ $group: { _id: "$project", count: { $sum: 1 } } }])
+      ]);
+      const likeMap = {}, commentMap = {};
       likeAgg.forEach(l => { likeMap[l._id] = l.count; });
-      projects.forEach(p => { p.likeCount = likeMap[p._id] || 0; });
+      commentAgg.forEach(c => { commentMap[c._id] = c.count; });
+
+      // Projetos curtidos pelo usuário logado (para marcar o coração)
+      let likedSet = new Set();
+      if (req.session.user) {
+        const myLikes = await Like.find({ user: req.session.user.id }).lean();
+        likedSet = new Set(myLikes.map(l => String(l.project)));
+      }
+
+      projects.forEach(p => {
+        p.likeCount = likeMap[p._id] || 0;
+        p.commentCount = commentMap[p._id] || 0;
+        p.likedByMe = likedSet.has(String(p._id));
+      });
 
       res.render('index', { site, projects, certificates });
     } catch (error) {
@@ -231,12 +249,13 @@ module.exports = {
   //GET /admin/dashboard/adminProfile
   myProfile: async (req, res) => {
     const projects = await ProjectsDB.find();
-    res.render("adminProfile", { adminUser: req.session.currentUser, projects })
+    const site = await SiteConfig.getSingleton();
+    res.render("adminProfile", { adminUser: req.session.currentUser, projects, site })
   },
 
   //POST /admin/dashboard/adminProfile
   editProfile: async (req, res) => {
-    const { username, password, contact } = req.body;
+    const { username, password } = req.body;
 
     if (!username || !password || username.length < 2 || password.length < 2) {
       res.status(400).send("Todos os campos são obrigatórios!");
@@ -260,9 +279,7 @@ module.exports = {
       admin.passAdmin = password; // o hash é gerado automaticamente no model
       await admin.save();
 
-      process.env.ADMIN_PHONE = contact;
       req.session.destroy()
-
       res.status(200).redirect("/admin")
     } catch (error) {
       res.status(500).send(error.message)
@@ -278,12 +295,7 @@ module.exports = {
 
   //POST /admin/dashboard/editPage/save
   saveEditPage: async (req, res) => {
-    const {
-      titleForm, subtitleForm, titleAboutMeForm, textAboutMeForm,
-      github, linkedin, instagram, whatsapp, contactEmail, contactPhone,
-      mailHost, mailPort, mailSecure, mailUser, mailPass, mailFrom,
-      cloudName, cloudApiKey, cloudApiSecret
-    } = req.body;
+    const { titleForm, subtitleForm, titleAboutMeForm, textAboutMeForm } = req.body;
 
     if (!titleForm || !subtitleForm || !titleAboutMeForm || !textAboutMeForm) {
       return res.status(400).send("Todos os campos precisam ser preenchidos corretamente!");
@@ -291,41 +303,15 @@ module.exports = {
 
     try {
       const site = await SiteConfig.getSingleton();
-
-      // Conteúdo principal
       site.title = titleForm;
       site.subtitle = subtitleForm;
       site.titleAboutMe = titleAboutMeForm;
       site.textAboutMe = textAboutMeForm;
-
-      // Redes sociais e contatos (refletem na landing)
-      site.social = {
-        github: github || "",
-        linkedin: linkedin || "",
-        instagram: instagram || "",
-        whatsapp: whatsapp || ""
-      };
-      site.contactEmail = contactEmail || "";
-      site.contactPhone = contactPhone || "";
-
-      // Configuração de e-mail (a senha só é atualizada se um novo valor for enviado)
-      site.mail.host = mailHost || "";
-      site.mail.port = mailPort || "587";
-      site.mail.secure = mailSecure === "on" || mailSecure === "true";
-      site.mail.user = mailUser || "";
-      site.mail.from = mailFrom || "";
-      if (mailPass && mailPass.trim()) site.mail.pass = mailPass.trim();
-
-      // Configuração do Cloudinary (apiSecret só é atualizado se um novo valor for enviado)
-      site.cloudinary.cloudName = cloudName || "";
-      site.cloudinary.apiKey = cloudApiKey || "";
-      if (cloudApiSecret && cloudApiSecret.trim()) site.cloudinary.apiSecret = cloudApiSecret.trim();
-
       await site.save();
 
       res.render("warning", {
         title: "Boas notícias!",
-        info: "A página recebeu as mudanças com sucesso.",
+        info: "O conteúdo do site foi atualizado com sucesso.",
         textButton: "Ok",
         url: "/admin/dashboard/editPage"
       })
@@ -336,6 +322,87 @@ module.exports = {
         textButton: "Tentar novamente",
         url: "/admin/dashboard/editPage"
       })
+    }
+  },
+
+  // POST /admin/dashboard/profile/social — redes sociais e contato
+  saveSocial: async (req, res) => {
+    const { github, linkedin, instagram, whatsapp, contactEmail, contactPhone } = req.body;
+    try {
+      const site = await SiteConfig.getSingleton();
+      site.social = {
+        github: github || "",
+        linkedin: linkedin || "",
+        instagram: instagram || "",
+        whatsapp: whatsapp || ""
+      };
+      site.contactEmail = contactEmail || "";
+      site.contactPhone = contactPhone || "";
+      await site.save();
+      res.redirect("/admin/dashboard/adminProfile?toast=" + encodeURIComponent("Redes sociais salvas!") + "#social");
+    } catch (error) {
+      res.status(500).render("warning", { title: "Aviso!", info: error.message, textButton: "Voltar", url: "/admin/dashboard/adminProfile" });
+    }
+  },
+
+  // POST /admin/dashboard/profile/mail — configuração SMTP
+  saveMail: async (req, res) => {
+    const { mailHost, mailPort, mailSecure, mailUser, mailPass, mailFrom } = req.body;
+    try {
+      const site = await SiteConfig.getSingleton();
+      site.mail.host = mailHost || "";
+      site.mail.port = mailPort || "587";
+      site.mail.secure = mailSecure === "on" || mailSecure === "true";
+      site.mail.user = mailUser || "";
+      site.mail.from = mailFrom || "";
+      if (mailPass && mailPass.trim()) site.mail.pass = mailPass.trim(); // só atualiza se enviada
+      await site.save();
+      res.redirect("/admin/dashboard/adminProfile?toast=" + encodeURIComponent("Configuração de e-mail salva!") + "#mail");
+    } catch (error) {
+      res.status(500).render("warning", { title: "Aviso!", info: error.message, textButton: "Voltar", url: "/admin/dashboard/adminProfile" });
+    }
+  },
+
+  // POST /admin/dashboard/profile/cloudinary — credenciais do Cloudinary
+  saveCloudinary: async (req, res) => {
+    const { cloudName, cloudApiKey, cloudApiSecret } = req.body;
+    try {
+      const site = await SiteConfig.getSingleton();
+      site.cloudinary.cloudName = cloudName || "";
+      site.cloudinary.apiKey = cloudApiKey || "";
+      if (cloudApiSecret && cloudApiSecret.trim()) site.cloudinary.apiSecret = cloudApiSecret.trim();
+      await site.save();
+      res.redirect("/admin/dashboard/adminProfile?toast=" + encodeURIComponent("Cloudinary salvo!") + "#cloudinary");
+    } catch (error) {
+      res.status(500).render("warning", { title: "Aviso!", info: error.message, textButton: "Voltar", url: "/admin/dashboard/adminProfile" });
+    }
+  },
+
+  // POST /admin/dashboard/profile/mail/test — valida a conexão e envia e-mail de teste
+  testMail: async (req, res) => {
+    try {
+      const result = await verifyConnection();
+      if (!result.ok) {
+        return res.status(400).render("warning", {
+          title: "SMTP falhou", icon: "error",
+          info: result.error,
+          textButton: "Voltar", url: "/admin/dashboard/adminProfile#mail"
+        });
+      }
+      const site = await SiteConfig.getSingleton();
+      const to = site.contactEmail || site.mail.user;
+      await sendTestEmail(to);
+      res.render("warning", {
+        title: "SMTP OK!", icon: "success",
+        info: "Conexão validada e e-mail de teste enviado para " + to + ".",
+        textButton: "Ok", url: "/admin/dashboard/adminProfile#mail"
+      });
+    } catch (error) {
+      res.status(500).render("warning", {
+        title: "SMTP falhou", icon: "error",
+        info: error.message,
+        textButton: "Voltar", url: "/admin/dashboard/adminProfile#mail"
+      });
     }
   },
 

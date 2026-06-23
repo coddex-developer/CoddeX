@@ -4,6 +4,7 @@ const midlewareLogin = require('./middlewares/midlewareLogin');
 const controllerSms = require('./controllers/controllerSms');
 const uploadLogo = require("./middlewares/middlewareUpLogo.js");
 const imageUpload = require("./middlewares/middlewareImage.js");
+const controllerTicket = require("./controllers/controllerTicket");
 
 const router = express.Router();
 
@@ -17,6 +18,10 @@ router.get('/admin/dashboard/logout', midlewareLogin, controlerPage.logout);
 //AdminProfile
 router.get('/admin/dashboard/adminProfile', midlewareLogin, controlerPage.myProfile);
 router.post('/admin/dashboard/adminProfile', midlewareLogin, uploadLogo.single("logo"), controlerPage.editProfile);
+router.post('/admin/dashboard/profile/social', midlewareLogin, controlerPage.saveSocial);
+router.post('/admin/dashboard/profile/mail', midlewareLogin, controlerPage.saveMail);
+router.post('/admin/dashboard/profile/mail/test', midlewareLogin, controlerPage.testMail);
+router.post('/admin/dashboard/profile/cloudinary', midlewareLogin, controlerPage.saveCloudinary);
 
 //SmS
 router.get('/admin/dashboard/unread/', midlewareLogin, controlerPage.unreadMessages);
@@ -27,6 +32,11 @@ router.post('/admin/dashboard/messages/:id/complete', midlewareLogin, controlerP
 router.post('/admin/dashboard/messages/:id/incomplete', midlewareLogin, controlerPage.incompletedMessage);
 
 router.post('/sms/env', controllerSms.submitMessage);
+
+// Tickets (conversas) — admin
+router.get('/admin/dashboard/tickets', midlewareLogin, controllerTicket.adminList);
+router.get('/admin/dashboard/tickets/:id', midlewareLogin, controllerTicket.adminThread);
+router.post('/admin/dashboard/tickets/:id/reply', midlewareLogin, controllerTicket.adminReply);
 
 //editPage
 router.get('/admin/dashboard/editPage', midlewareLogin, controlerPage.editPage);

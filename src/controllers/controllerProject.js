@@ -46,10 +46,10 @@ module.exports = {
       } else {
         await Like.create({ project: id, user: userId });
       }
-      res.redirect("/projeto/" + id);
+      res.redirect(req.get("Referer") || "/projeto/" + id);
     } catch (error) {
       // Em corrida de índice único, ignora duplicidade
-      if (error.code === 11000) return res.redirect("/projeto/" + req.params.id);
+      if (error.code === 11000) return res.redirect(req.get("Referer") || "/projeto/" + req.params.id);
       res.status(500).render("warning", {
         title: "Aviso!", info: error.message, textButton: "Voltar", url: "/projeto/" + req.params.id
       });

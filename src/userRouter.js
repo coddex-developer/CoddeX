@@ -2,6 +2,7 @@ const express = require("express");
 const rateLimit = require("express-rate-limit");
 const auth = require("./controllers/controllerAuth");
 const project = require("./controllers/controllerProject");
+const ticket = require("./controllers/controllerTicket");
 const { requireUser } = require("./middlewares/middlewareAuth");
 
 const router = express.Router();
@@ -40,5 +41,14 @@ router.get("/projeto/:id", project.detail);
 router.post("/projeto/:id/like", requireUser, project.toggleLike);
 router.post("/projeto/:id/comment", requireUser, project.addComment);
 router.post("/projeto/:id/comment/:commentId/delete", requireUser, project.deleteComment);
+
+// Tickets (conversas) do usuário
+router.get("/account/tickets", requireUser, ticket.listMine);
+router.post("/account/tickets", requireUser, ticket.create);
+router.get("/account/tickets/:id", requireUser, ticket.threadMine);
+router.post("/account/tickets/:id/reply", requireUser, ticket.replyMine);
+
+// Contador de notificações não lidas (admin ou usuário) — usado pelo sininho
+router.get("/notifications/unread-count", ticket.unreadCount);
 
 module.exports = router;

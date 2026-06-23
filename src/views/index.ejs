@@ -88,40 +88,59 @@
   <section id="projetos" class="py-5">
     <div class="container">
       <h2 class="section-title text-center mb-5" data-animate-bottom>Meus Projetos</h2>
-      <div class="row g-4 justify-content-center">
+      <div class="ig-feed">
         <% if (projects.length > 0) { %>
           <% projects.forEach(project => { %>
-            <div class="col-12 col-sm-6 col-lg-4 col-xxl-3" data-animate-bottom>
-              <article class="project-card h-100">
-                <a href="/projeto/<%= project._id %>" class="project-thumb d-block">
-                  <img src="<%= project.imagePj %>" alt="<%= project.titlePj %>" loading="lazy">
+            <article class="ig-card" data-animate-bottom>
+              <!-- Cabeçalho -->
+              <header class="ig-head">
+                <img class="ig-avatar" src="/assets/admin1.png" alt="<%= site.title %>">
+                <span class="ig-user"><%= site.title %></span>
+                <a href="<%= project.linkPj %>" target="_blank" rel="noopener" class="ig-live ms-auto" title="Ver ao vivo">
+                  <i class="bi bi-box-arrow-up-right"></i>
                 </a>
-                <div class="project-body">
-                  <div class="d-flex justify-content-between align-items-center mb-1">
-                    <a href="/projeto/<%= project._id %>" class="text-decoration-none">
-                      <h5 class="project-title mb-0"><%= project.titlePj %></h5>
-                    </a>
-                    <span class="like-pill" title="Curtidas"><i class="bi bi-heart-fill"></i> <%= project.likeCount %></span>
-                  </div>
-                  <div class="project-desc markdown-body"><%- md(project.descriptionPj) %></div>
-                  <div class="d-flex gap-2 mt-3">
-                    <a href="/projeto/<%= project._id %>" class="btn btn-gradient flex-grow-1">
-                      <i class="bi bi-chat-square-text me-1"></i>Detalhes
-                    </a>
-                    <a href="<%= project.linkPj %>" target="_blank" rel="noopener" class="btn btn-outline-light" title="Ver ao vivo">
-                      <i class="bi bi-box-arrow-up-right"></i>
-                    </a>
-                  </div>
+              </header>
+
+              <!-- Mídia -->
+              <a href="/projeto/<%= project._id %>" class="ig-media">
+                <img src="<%= project.imagePj %>" alt="<%= project.titlePj %>" loading="lazy">
+              </a>
+
+              <!-- Ações -->
+              <div class="ig-actions">
+                <% if (currentUser) { %>
+                  <form action="/projeto/<%= project._id %>/like" method="post" class="m-0">
+                    <button class="ig-btn" type="submit" title="<%= project.likedByMe ? 'Descurtir' : 'Curtir' %>">
+                      <i class="bi <%= project.likedByMe ? 'bi-heart-fill liked' : 'bi-heart' %>"></i>
+                    </button>
+                  </form>
+                <% } else { %>
+                  <a href="/login" class="ig-btn" title="Entre para curtir"><i class="bi bi-heart"></i></a>
+                <% } %>
+                <a href="/projeto/<%= project._id %>#comentarios" class="ig-btn" title="Comentar"><i class="bi bi-chat"></i></a>
+              </div>
+
+              <!-- Corpo -->
+              <div class="ig-body">
+                <div class="ig-likes"><%= project.likeCount %> curtida<%= project.likeCount === 1 ? '' : 's' %></div>
+                <div class="ig-caption">
+                  <a href="/projeto/<%= project._id %>" class="ig-user text-decoration-none"><%= project.titlePj %></a>
+                  <span class="ig-desc markdown-body"><%- md(project.descriptionPj) %></span>
                 </div>
-              </article>
-            </div>
+                <a href="/projeto/<%= project._id %>#comentarios" class="ig-comments-link">
+                  <% if (project.commentCount > 0) { %>
+                    Ver todos os <%= project.commentCount %> comentário<%= project.commentCount === 1 ? '' : 's' %>
+                  <% } else { %>
+                    Seja o primeiro a comentar
+                  <% } %>
+                </a>
+              </div>
+            </article>
           <% }); %>
         <% } else { %>
-          <div class="col-12">
-            <div class="empty-state glass mx-auto" data-animate-bottom>
-              <i class="bi bi-folder2-open"></i>
-              <p class="mb-0">Nenhum projeto foi postado até o momento!</p>
-            </div>
+          <div class="empty-state glass mx-auto" data-animate-bottom>
+            <i class="bi bi-folder2-open"></i>
+            <p class="mb-0">Nenhum projeto foi postado até o momento!</p>
           </div>
         <% } %>
       </div>

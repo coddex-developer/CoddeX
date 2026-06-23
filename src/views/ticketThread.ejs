@@ -1,0 +1,65 @@
+<% if (isAdmin) { %>
+  <%- include('fragments/header') %>
+<% } else { %>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <%- include('fragments/head', { pageTitle: ticket.subject + ' · CoddeX' }) %>
+</head>
+<body class="d-flex flex-column min-vh-100">
+  <nav class="navbar sticky-top" data-bs-theme="dark">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+        <img src="/assets/admin1.png" alt="CoddeX" style="max-height: 38px;">
+        <span class="fw-bold gradient-text d-none d-sm-inline">CoddeX</span>
+      </a>
+      <a href="/account" class="btn btn-outline-light btn-sm"><i class="bi bi-person-circle me-1"></i>Conta</a>
+    </div>
+  </nav>
+  <div class="flex-grow-1">
+<% } %>
+
+  <div class="container py-5" style="max-width: 720px;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <a href="<%= backUrl %>" class="text-muted-2 text-decoration-none small"><i class="bi bi-arrow-left me-1"></i>Conversas</a>
+        <h1 class="h4 mb-0"><%= ticket.subject %></h1>
+        <% if (isAdmin) { %><small class="text-muted-2"><%= ticket.userName %> · <%= ticket.userEmail %></small><% } %>
+      </div>
+      <% if (ticket.status === 'closed') { %><span class="badge bg-secondary align-self-start">fechado</span><% } %>
+    </div>
+
+    <!-- Mensagens -->
+    <div class="chat glass p-3 p-md-4 mb-3">
+      <% if (messages.length === 0) { %>
+        <p class="text-muted-2 mb-0 text-center">Sem mensagens.</p>
+      <% } %>
+      <% messages.forEach(m => { %>
+        <% const mine = (isAdmin && m.senderType === 'admin') || (!isAdmin && m.senderType === 'user'); %>
+        <div class="chat-row <%= mine ? 'mine' : 'theirs' %>">
+          <div class="chat-bubble">
+            <div class="markdown-body"><%- md(m.body) %></div>
+            <div class="chat-meta">
+              <%= m.senderType === 'admin' ? 'Suporte' : (isAdmin ? ticket.userName : 'Você') %>
+              · <%= new Date(m.createdAt).toLocaleString('pt-BR') %>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+
+    <!-- Responder -->
+    <form action="<%= replyUrl %>" method="post" class="glass p-3">
+      <textarea class="form-control mb-2" name="body" rows="3" placeholder="Escreva uma mensagem (suporta markdown)..." required></textarea>
+      <button class="btn btn-gradient" type="submit"><i class="bi bi-send me-1"></i>Enviar</button>
+    </form>
+  </div>
+
+<% if (isAdmin) { %>
+  <%- include('fragments/footer') %>
+<% } else { %>
+  </div>
+  <footer class="text-center py-3 mt-auto"><small>&copy; <%= new Date().getFullYear() %> · CoddeX Developer</small></footer>
+</body>
+</html>
+<% } %>

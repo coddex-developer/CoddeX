@@ -37,90 +37,12 @@
       </div>
     </div>
 
-    <!-- Redes sociais e contato -->
-    <div class="glass p-4 mb-4">
-      <h2 class="h5 mb-3"><i class="bi bi-share-fill me-2 gradient-text"></i>Redes sociais e contato</h2>
-      <p class="text-muted-2 small mb-3">Os links preenchidos aparecem automaticamente no rodapé do site.</p>
-
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label"><i class="bi bi-github me-1"></i>GitHub</label>
-          <input type="url" class="form-control" name="github" value="<%= site.social.github %>" placeholder="https://github.com/...">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label"><i class="bi bi-linkedin me-1"></i>LinkedIn</label>
-          <input type="url" class="form-control" name="linkedin" value="<%= site.social.linkedin %>" placeholder="https://linkedin.com/in/...">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label"><i class="bi bi-instagram me-1"></i>Instagram</label>
-          <input type="url" class="form-control" name="instagram" value="<%= site.social.instagram %>" placeholder="https://instagram.com/...">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label"><i class="bi bi-whatsapp me-1"></i>WhatsApp</label>
-          <input type="url" class="form-control" name="whatsapp" value="<%= site.social.whatsapp %>" placeholder="https://wa.me/55...">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label"><i class="bi bi-envelope me-1"></i>E-mail de contato</label>
-          <input type="email" class="form-control" name="contactEmail" value="<%= site.contactEmail %>" placeholder="voce@email.com">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label"><i class="bi bi-telephone me-1"></i>Telefone</label>
-          <input type="text" class="form-control" name="contactPhone" value="<%= site.contactPhone %>" placeholder="(DDD) 9 9999-9999">
-        </div>
-      </div>
-    </div>
-
-    <!-- Configuração de e-mail -->
-    <div class="glass p-4 mb-4">
-      <h2 class="h5 mb-3"><i class="bi bi-envelope-at-fill me-2 gradient-text"></i>E-mail (SMTP)</h2>
-      <p class="text-muted-2 small mb-3">Usado para enviar códigos de verificação e notificações. Para Gmail, deixe o host vazio e use uma "senha de app".</p>
-      <div class="row g-3">
-        <div class="col-md-8">
-          <label class="form-label">Host <span class="text-muted-2">(vazio = Gmail)</span></label>
-          <input type="text" class="form-control" name="mailHost" value="<%= site.mail.host %>" placeholder="smtp.seuprovedor.com">
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Porta</label>
-          <input type="text" class="form-control" name="mailPort" value="<%= site.mail.port %>" placeholder="587">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Usuário (e-mail)</label>
-          <input type="text" class="form-control" name="mailUser" value="<%= site.mail.user %>" placeholder="voce@gmail.com">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Senha <% if (site.mail.pass) { %><span class="text-muted-2">(configurada — deixe em branco para manter)</span><% } %></label>
-          <input type="password" class="form-control" name="mailPass" placeholder="<%= site.mail.pass ? '••••••••' : 'senha de app' %>">
-        </div>
-        <div class="col-md-8">
-          <label class="form-label">Remetente (From)</label>
-          <input type="text" class="form-control" name="mailFrom" value="<%= site.mail.from %>" placeholder="CoddeX <no-reply@coddex.store>">
-        </div>
-        <div class="col-md-4 d-flex align-items-end">
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="mailSecure" name="mailSecure" <%= site.mail.secure ? 'checked' : '' %>>
-            <label class="form-check-label" for="mailSecure">SSL/TLS (secure)</label>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Configuração do Cloudinary -->
-    <div class="glass p-4 mb-4">
-      <h2 class="h5 mb-3"><i class="bi bi-cloud-fill me-2 gradient-text"></i>Cloudinary (upload de imagens)</h2>
-      <p class="text-muted-2 small mb-3">Credenciais do seu painel Cloudinary (Dashboard → Account Details).</p>
-      <div class="row g-3">
-        <div class="col-md-4">
-          <label class="form-label">Cloud name</label>
-          <input type="text" class="form-control" name="cloudName" value="<%= site.cloudinary.cloudName %>">
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">API Key</label>
-          <input type="text" class="form-control" name="cloudApiKey" value="<%= site.cloudinary.apiKey %>">
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">API Secret <% if (site.cloudinary.apiSecret) { %><span class="text-muted-2">(salvo)</span><% } %></label>
-          <input type="password" class="form-control" name="cloudApiSecret" placeholder="<%= site.cloudinary.apiSecret ? '••••••••' : 'sua api secret' %>">
-        </div>
+    <!-- Aviso: configurações movidas -->
+    <div class="glass p-3 mb-4 d-flex align-items-center gap-3">
+      <i class="bi bi-info-circle fs-4 gradient-text"></i>
+      <div class="flex-grow-1 small text-muted-2">
+        Redes sociais, e-mail (SMTP) e Cloudinary agora ficam em
+        <a href="/admin/dashboard/adminProfile" style="color:var(--accent-2);">Perfil & Configurações</a>.
       </div>
     </div>
 

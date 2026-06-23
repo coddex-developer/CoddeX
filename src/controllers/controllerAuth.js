@@ -2,6 +2,7 @@ const User = require("../db/userDB");
 const SiteConfig = require("../db/siteConfigDB");
 const Like = require("../db/likeDB");
 const ProjectsDB = require("../db/projectsDB");
+const Notification = require("../db/notificationDB");
 const { sendVerificationCode, notifyAdminNewUser } = require("../utils/mailer");
 
 // Regenera a sessão (anti session-fixation) e injeta o usuário logado.
@@ -108,6 +109,10 @@ module.exports = {
       // Conta verificada: notifica o admin e loga o usuário.
       delete req.session.pendingEmail;
       try {
+        await Notification.create({
+          recipientType: "admin", recipientId: "admin", type: "new_user",
+          text: `Novo usuário cadastrado: ${user.name}`, link: "/admin/dashboard"
+        });
         const site = await SiteConfig.getSingleton();
         await notifyAdminNewUser(site.contactEmail, user);
       } catch (_) { /* não bloqueia o fluxo se a notificação falhar */ }

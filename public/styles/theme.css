@@ -237,6 +237,37 @@ footer a:hover { color: #fff !important; }
 /* Texto auxiliar do Bootstrap dentro do tema */
 .text-secondary { color: var(--text-muted) !important; }
 
+/* Linha de ticket (lista) */
+.ticket-row { color: var(--text) !important; transition: border-color .2s ease, transform .15s ease; }
+.ticket-row:hover { border-color: var(--accent-2) !important; transform: translateX(2px); }
+.min-w-0 { min-width: 0; }
+
+/* Chat (thread de ticket) */
+.chat { display: flex; flex-direction: column; gap: .75rem; max-height: 60vh; overflow-y: auto; }
+.chat-row { display: flex; }
+.chat-row.mine { justify-content: flex-end; }
+.chat-row.theirs { justify-content: flex-start; }
+.chat-bubble {
+  max-width: 80%;
+  padding: .6rem .9rem;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.chat-row.mine .chat-bubble {
+  background: linear-gradient(135deg, rgba(124,58,237,.25), rgba(34,211,238,.18));
+  border-color: rgba(124,58,237,.4);
+}
+.chat-meta { font-size: .72rem; color: var(--text-muted); margin-top: .3rem; }
+.chat-bubble .markdown-body p:last-child { margin-bottom: 0; }
+
+/* Sininho de notificações */
+.notif-bell { position: relative; }
+.notif-bell .badge {
+  position: absolute; top: -4px; right: -6px;
+  background: var(--danger) !important; font-size: .65rem;
+}
+
 /* Avatar (painel do usuário) */
 .account-avatar {
   width: 60px;
