@@ -235,7 +235,7 @@
   <!-- Footer -->
   <footer class="py-4">
     <div class="container text-center">
-      <p class="mb-2">© <%= new Date().getFullYear() %> <%= site.title %> — Todos os direitos reservados</p>
+      
       <div class="social-links">
         <% if (site.social && site.social.github) { %>
           <a href="<%= site.social.github %>" target="_blank" rel="noopener" aria-label="GitHub"><i class="bi bi-github"></i></a>
@@ -250,6 +250,8 @@
           <a href="<%= site.social.whatsapp %>" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
         <% } %>
       </div>
+      
+      <p class="mb-2">© <%= new Date().getFullYear() %> <%= site.title %> — Todos os direitos reservados</p>
     </div>
   </footer>
 
