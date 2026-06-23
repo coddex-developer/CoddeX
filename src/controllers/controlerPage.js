@@ -257,7 +257,7 @@ module.exports = {
   editProfile: async (req, res) => {
     const { username, password } = req.body;
 
-    if (!username || !password || username.length < 2 || password.length < 2) {
+    /*if (!username || !password || username.length < 2 || password.length < 2) {
       res.status(400).send("Todos os campos são obrigatórios!");
       return
     }
@@ -265,7 +265,7 @@ module.exports = {
     if (password === "1234") {
       res.status(400).send("Digite uma senha mais forte!");
       return
-    }
+    }*/
 
     try {
       const admin = await Admin.findById(req.session.currentUser.id);
@@ -279,8 +279,8 @@ module.exports = {
       admin.passAdmin = password; // o hash é gerado automaticamente no model
       await admin.save();
 
-      req.session.destroy()
-      res.status(200).redirect("/admin")
+      //req.session.destroy()
+      res.status(200).redirect("/admin/dashboard/adminProfile")
     } catch (error) {
       res.status(500).send(error.message)
     }
