@@ -7,7 +7,7 @@
   </div>
 
   <!-- 1. Credenciais do administrador -->
-  <form class="glass p-4 mb-4" action="/admin/dashboard/adminProfile" enctype="multipart/form-data" method="post"
+  <form class="ajax-form glass p-4 mb-4" action="/admin/dashboard/adminProfile" enctype="multipart/form-data" method="post"
     data-confirm="Salvar novas credenciais? Você será deslogado." data-confirm-title="Salvar credenciais" data-confirm-btn="Salvar">
     <h2 class="h5 mb-3"><i class="bi bi-person-badge-fill me-2 gradient-text"></i>Credenciais</h2>
 
@@ -36,7 +36,7 @@
   </form>
 
   <!-- 2. Redes sociais e contato -->
-  <form id="social" class="glass p-4 mb-4" action="/admin/dashboard/profile/social" method="post">
+  <form id="social" class="ajax-form glass p-4 mb-4" action="/admin/dashboard/profile/social" method="post">
     <h2 class="h5 mb-3"><i class="bi bi-share-fill me-2 gradient-text"></i>Redes sociais e contato</h2>
     <p class="text-muted-2 small mb-3">Os links preenchidos aparecem no rodapé do site.</p>
     <div class="row g-3">
@@ -70,7 +70,7 @@
 
   <!-- 3. E-mail (SMTP) -->
   <div id="mail" class="glass p-4 mb-4">
-   <form action="/admin/dashboard/profile/mail" method="post">
+   <form class="ajax-form" action="/admin/dashboard/profile/mail" method="post">
     <h2 class="h5 mb-3"><i class="bi bi-envelope-at-fill me-2 gradient-text"></i>E-mail (SMTP)</h2>
     <p class="text-muted-2 small mb-3">Para Gmail, deixe o host vazio e use uma <strong>senha de app</strong> (não a senha normal).</p>
     <div class="row g-3">
@@ -112,14 +112,14 @@
     </div>
     <button class="btn btn-gradient mt-3" type="submit"><i class="bi bi-save me-2"></i>Salvar e-mail</button>
    </form>
-   <form action="/admin/dashboard/profile/mail/test" method="post" class="mt-2 d-inline">
+   <form action="/admin/dashboard/profile/mail/test" method="post" class="ajax-form mt-2 d-inline">
      <button class="btn btn-outline-light" type="submit"><i class="bi bi-send-check me-2"></i>Testar conexão</button>
    </form>
    <p class="text-muted-2 small mt-2 mb-0">Salve primeiro, depois teste. O teste valida as credenciais e envia um e-mail de teste.</p>
   </div>
 
   <!-- 4. Cloudinary -->
-  <form id="cloudinary" class="glass p-4 mb-4" action="/admin/dashboard/profile/cloudinary" method="post">
+  <form id="cloudinary" class="ajax-form glass p-4 mb-4" action="/admin/dashboard/profile/cloudinary" method="post">
     <h2 class="h5 mb-3"><i class="bi bi-cloud-fill me-2 gradient-text"></i>Cloudinary (upload de imagens)</h2>
     <p class="text-muted-2 small mb-3">Credenciais do painel Cloudinary (Dashboard → Account Details).</p>
     <div class="row g-3">

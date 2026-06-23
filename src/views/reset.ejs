@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <%- include('fragments/head', { pageTitle: 'Redefinir Senha · CoddeX', pageDescription: 'Crie uma nova senha' }) %>
+  <link rel="stylesheet" href="/styles/admin.css">
+</head>
+
+<body class="login-page">
+  <div class="login-glow"></div>
+
+  <form class="ajax-form login-card glass" action="/reset" method="post">
+    <img src="/assets/admin1.png" class="login-logo" alt="CoddeX">
+    <h1 class="login-title gradient-text">Nova Senha</h1>
+    <p class="login-subtitle">Informe o código recebido no e-mail</p>
+
+    <% if (error) { %>
+      <div class="alert alert-warning py-2 mb-0"><i class="bi bi-exclamation-triangle me-1"></i><%= error %></div>
+    <% } %>
+    <% if (info) { %>
+      <div class="alert alert-info py-2 mb-0"><i class="bi bi-info-circle me-1"></i><%= info %></div>
+    <% } %>
+
+    <div class="field">
+      <label for="email" class="form-label"><i class="bi bi-envelope me-1"></i>E-mail</label>
+      <input type="email" class="form-control text-muted" name="email" id="email" value="<%= email || '' %>" readonly required>
+    </div>
+
+    <div class="field">
+      <label for="code" class="form-label"><i class="bi bi-123 me-1"></i>Código de 6 dígitos</label>
+      <input type="text" class="form-control text-center fs-4 letter-spacing-2" name="code" id="code" maxlength="6" pattern="[0-9]{6}" autocomplete="off" required>
+    </div>
+
+    <div class="field">
+      <label for="password" class="form-label"><i class="bi bi-lock me-1"></i>Nova Senha</label>
+      <div class="password-wrap">
+        <input type="password" class="form-control" name="password" id="password" required minlength="6">
+        <button type="button" id="togglePass" class="toggle-pass" aria-label="Mostrar senha"><i class="bi bi-eye"></i></button>
+      </div>
+    </div>
+
+    <button class="btn btn-gradient w-100 mt-2" type="submit"><i class="bi bi-check-circle me-2"></i>Salvar Nova Senha</button>
+
+    <a href="/login" class="back-link mt-3"><i class="bi bi-arrow-left me-1"></i>Voltar ao login</a>
+  </form>
+
+  <script>
+    const pass = document.getElementById("password");
+    const toggle = document.getElementById("togglePass");
+    toggle.addEventListener("click", () => {
+      const show = pass.type === "password";
+      pass.type = show ? "text" : "password";
+      toggle.innerHTML = show ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+    });
+  </script>
+</body>
+
+</html>

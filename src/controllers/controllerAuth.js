@@ -1,3 +1,4 @@
+const { sendError, sendSuccess } = require("../utils/responseHelper");
 const User = require("../db/userDB");
 const SiteConfig = require("../db/siteConfigDB");
 const Like = require("../db/likeDB");
@@ -55,13 +56,13 @@ module.exports = {
 
     try {
       if (!name || !email || !password) {
-        return res.status(400).render("register", { error: "Preencha todos os campos.", values });
+        return sendError(req, res, "Preencha todos os campos.", "register", values, 400);
       }
       if (!EMAIL_RE.test(email)) {
-        return res.status(400).render("register", { error: "E-mail inválido.", values });
+        return sendError(req, res, "E-mail inválido.", "register", values, 400);
       }
       if (password.length < 6) {
-        return res.status(400).render("register", { error: "A senha deve ter pelo menos 6 caracteres.", values });
+        return sendError(req, res, "A senha deve ter pelo menos 6 caracteres.", "register", values, 400);
       }
 
       const normalizedEmail = email.toLowerCase().trim();
@@ -76,16 +77,16 @@ module.exports = {
             await existing.save();
             await trySendCode(existing.email, existing.name, code);
             req.session.pendingEmail = existing.email;
-            return res.redirect("/verify");
+            return sendSuccess(req, res, "Código enviado para o seu e-mail.", "/verify");
           }
           // verificação desligada: ativa a conta e entra direto
           existing.emailVerified = true;
           await existing.save();
           await notifyNewUser(site, existing);
           await loginSession(req, existing);
-          return res.redirect("/account");
+          return sendSuccess(req, res, "Bem-vindo!", "/account");
         }
-        return res.status(400).render("register", { error: "Este e-mail já está cadastrado. Faça login.", values });
+        return sendError(req, res, "Este e-mail já está cadastrado. Faça login.", "register", values, 400);
       }
 
       const user = new User({ name: name.trim(), email: normalizedEmail, password, emailVerified: !verifEnabled });
@@ -95,16 +96,16 @@ module.exports = {
         await user.save();
         await trySendCode(user.email, user.name, code);
         req.session.pendingEmail = user.email;
-        return res.redirect("/verify");
+        return sendSuccess(req, res, "Código enviado para o seu e-mail.", "/verify");
       }
 
       // Sem verificação: conta já entra ativa e logada
       await user.save();
       await notifyNewUser(site, user);
       await loginSession(req, user);
-      res.redirect("/account");
+      sendSuccess(req, res, "Bem-vindo!", "/account");
     } catch (error) {
-      res.status(500).render("register", { error: error.message, values });
+      sendError(req, res, error.message, "register", values, 500);
     }
   },
 
@@ -112,7 +113,7 @@ module.exports = {
   verifyView: (req, res) => {
     const email = req.session.pendingEmail || req.query.email || "";
     if (!email) return res.redirect("/register");
-    res.render("verify", { error: null, info: null, email });
+    sendSuccess(req, res, null, "/verify");
   },
 
   // POST /verify
@@ -122,7 +123,7 @@ module.exports = {
 
     try {
       const user = await User.findOne({ email });
-      if (!user) return res.status(404).render("verify", { error: "Conta não encontrada.", info: null, email });
+      if (!user) return sendError(req, res, "Conta não encontrada.", "verify", { email }, 404);
 
       const result = await user.checkVerificationCode(code);
 
@@ -133,7 +134,7 @@ module.exports = {
           no_code: "Nenhum código pendente. Solicite um novo.",
           invalid: "Código incorreto. Tente novamente."
         };
-        return res.status(400).render("verify", { error: messages[result.reason] || "Falha na verificação.", info: null, email });
+        return sendError(req, res, messages[result.reason] || "Falha na verificação.", "verify", { email }, 400);
       }
 
       // Conta verificada: notifica o admin e loga o usuário.
@@ -142,9 +143,9 @@ module.exports = {
       await notifyNewUser(site, user);
 
       await loginSession(req, user);
-      res.redirect("/account");
+      sendSuccess(req, res, "Bem-vindo!", "/account");
     } catch (error) {
-      res.status(500).render("verify", { error: error.message, info: null, email });
+      sendError(req, res, error.message, "verify", { email }, 500);
     }
   },
 
@@ -159,9 +160,9 @@ module.exports = {
         await trySendCode(user.email, user.name, code);
       }
       // Mesma resposta mesmo se não existir (evita enumeração de e-mails)
-      res.render("verify", { error: null, info: "Enviamos um novo código para o seu e-mail.", email });
+      sendSuccess(req, res, "Enviamos um novo código para o seu e-mail.", "/verify");
     } catch (error) {
-      res.status(500).render("verify", { error: error.message, info: null, email });
+      sendError(req, res, error.message, "verify", { email }, 500);
     }
   },
 
@@ -180,7 +181,7 @@ module.exports = {
       const matches = user ? await user.comparePassword(password) : false;
 
       if (!user || !matches) {
-        return res.status(401).render("login", { error: "E-mail ou senha incorretos.", values });
+        return sendError(req, res, "E-mail ou senha incorretos.", "login", values, 401);
       }
 
       const site = await SiteConfig.getSingleton();
@@ -192,13 +193,13 @@ module.exports = {
         await user.save();
         await trySendCode(user.email, user.name, code);
         req.session.pendingEmail = user.email;
-        return res.redirect("/verify");
+        return sendSuccess(req, res, "Código enviado para o seu e-mail.", "/verify");
       }
 
       await loginSession(req, user);
-      res.redirect("/account");
+      sendSuccess(req, res, "Bem-vindo!", "/account");
     } catch (error) {
-      res.status(500).render("login", { error: error.message, values });
+      sendError(req, res, error.message, "login", values, 500);
     }
   },
 
@@ -220,9 +221,9 @@ module.exports = {
       }
       // Resposta idêntica exista ou não (evita enumeração de e-mails)
       req.session.resetEmail = email;
-      res.redirect("/reset");
+      sendSuccess(req, res, "Se o e-mail existir, enviamos o código.", "/reset");
     } catch (error) {
-      res.status(500).render("forgot", { error: error.message, info: null });
+      sendError(req, res, error.message, "forgot", {}, 500);
     }
   },
 
@@ -238,13 +239,13 @@ module.exports = {
     const { code, password } = req.body;
     try {
       if (!password || password.length < 6) {
-        return res.status(400).render("reset", { error: "A nova senha deve ter pelo menos 6 caracteres.", info: null, email });
+        return sendError(req, res, "A nova senha deve ter pelo menos 6 caracteres.", "reset", { email }, 400);
       }
       const user = await User.findOne({ email });
       const result = user ? await user.checkResetCode(code) : { ok: false, reason: "invalid" };
       if (!result.ok) {
         const msg = { expired: "O código expirou. Solicite um novo.", too_many: "Muitas tentativas. Solicite um novo código.", no_code: "Nenhum código pendente. Solicite um novo.", invalid: "Código incorreto." };
-        return res.status(400).render("reset", { error: msg[result.reason] || "Falha ao redefinir.", info: null, email });
+        return sendError(req, res, msg[result.reason] || "Falha ao redefinir.", "reset", { email }, 400);
       }
       user.password = password;            // o hook gera o hash
       user.resetCodeHash = null;
@@ -253,9 +254,9 @@ module.exports = {
       if (!user.emailVerified) user.emailVerified = true; // recuperou via e-mail => e-mail válido
       await user.save();
       delete req.session.resetEmail;
-      res.render("warning", { title: "Senha alterada!", icon: "success", info: "Sua senha foi redefinida. Faça login.", textButton: "Entrar", url: "/login" });
+      sendSuccess(req, res, "Sua senha foi redefinida. Faça login.", "/login");
     } catch (error) {
-      res.status(500).render("reset", { error: error.message, info: null, email });
+      sendError(req, res, error.message, "reset", { email }, 500);
     }
   },
 
@@ -281,12 +282,7 @@ module.exports = {
 
       res.render("account", { user, likedProjects });
     } catch (error) {
-      res.status(500).render("warning", {
-        title: "Aviso!",
-        info: error.message,
-        textButton: "Voltar",
-        url: "/"
-      });
+      sendError(req, res, error.message, "warning", {}, 500, "/");
     }
   }
 };

@@ -19,6 +19,11 @@
   <div class="flex-grow-1">
 <% } %>
 
+  <script>
+    window.currentTicketId = "<%= ticket._id %>";
+    window.currentUserType = "<%= isAdmin ? 'admin' : 'user' %>";
+  </script>
+
   <div class="container py-5" style="max-width: 720px;">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div>
@@ -30,7 +35,7 @@
     </div>
 
     <!-- Mensagens -->
-    <div class="chat glass p-3 p-md-4 mb-3">
+    <div id="chatContainer" class="chat glass p-3 p-md-4 mb-3">
       <% if (messages.length === 0) { %>
         <p class="text-muted-2 mb-0 text-center">Sem mensagens.</p>
       <% } %>
@@ -49,7 +54,7 @@
     </div>
 
     <!-- Responder -->
-    <form action="<%= replyUrl %>" method="post" class="glass p-3">
+    <form action="<%= replyUrl %>" method="post" class="glass p-3 ajax-form">
       <textarea class="form-control mb-2" name="body" rows="3" placeholder="Escreva uma mensagem (suporta markdown)..." required></textarea>
       <button class="btn btn-gradient" type="submit"><i class="bi bi-send me-1"></i>Enviar</button>
     </form>

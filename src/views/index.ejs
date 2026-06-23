@@ -47,7 +47,10 @@
           <li class="nav-item"><a class="nav-link" href="/blog"><i class="bi bi-journal-text me-1"></i>Blog</a></li>
           <li class="nav-item"><a class="nav-link" href="#contato"><i class="bi bi-envelope me-1"></i>Contato</a></li>
         </ul>
-        <div class="d-flex gap-2 ms-lg-3 mt-2 mt-lg-0">
+        <div class="d-flex gap-2 ms-lg-3 mt-2 mt-lg-0 align-items-center">
+          <button id="themeToggle" class="btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; padding: 0;" title="Alternar Tema">
+            <i class="bi bi-moon-fill"></i>
+          </button>
           <% if (currentUser) { %>
             <a class="btn btn-gradient btn-sm" href="/account"><i class="bi bi-person-circle me-1"></i>Minha conta</a>
           <% } else { %>
@@ -110,7 +113,7 @@
               <!-- Ações -->
               <div class="ig-actions">
                 <% if (currentUser) { %>
-                  <form action="/projeto/<%= project._id %>/like" method="post" class="m-0">
+                  <form action="/projeto/<%= project._id %>/like" method="post" class="m-0 ajax-form">
                     <button class="ig-btn" type="submit" title="<%= project.likedByMe ? 'Descurtir' : 'Curtir' %>">
                       <i class="bi <%= project.likedByMe ? 'bi-heart-fill liked' : 'bi-heart' %>"></i>
                     </button>
@@ -119,13 +122,13 @@
                   <a href="/login" class="ig-btn" title="Entre para curtir"><i class="bi bi-heart"></i></a>
                 <% } %>
                 <a href="/projeto/<%= project._id %>#comentarios" class="ig-btn ig-comment-btn" title="Comentários">
-                  <i class="bi bi-chat"></i><span class="ig-count"><%= project.commentCount %></span>
+                  <i class="bi bi-chat"></i><span class="ig-count comment-count" data-project-id="<%= project._id %>"><%= project.commentCount %></span>
                 </a>
               </div>
 
               <!-- Corpo -->
               <div class="ig-body">
-                <div class="ig-likes"><%= project.likeCount %> curtida<%= project.likeCount === 1 ? '' : 's' %></div>
+                <div class="ig-likes like-count" data-project-id="<%= project._id %>"><%= project.likeCount %> curtida<%= project.likeCount === 1 ? '' : 's' %></div>
                 <div class="ig-caption">
                   <a href="/projeto/<%= project._id %>" class="ig-user text-decoration-none"><%= project.titlePj %></a>
                   <span class="ig-desc markdown-body"><%- md(project.descriptionPj) %></span>
@@ -208,7 +211,7 @@
     <div class="container">
       <div class="contact-box glass mx-auto p-4 p-md-5" data-animate-bottom>
         <h2 class="section-title text-center mb-4">Entre em Contato</h2>
-        <form id="contactForm" action="/sms/env" method="POST">
+        <form id="contactForm" action="/sms/env" method="POST" class="ajax-form">
           <div class="mb-3">
             <label for="name" class="form-label">Nome</label>
             <input type="text" class="form-control" name="name" id="name" placeholder="Digite seu nome" required>

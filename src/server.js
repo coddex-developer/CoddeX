@@ -11,13 +11,52 @@ const router = require('./router');
 const userRouter = require('./userRouter');
 const session = require('express-session');
 const MongoStore = require('connect-mongo').default;
+const http = require('http');
+const { Server } = require('socket.io');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+const server = http.createServer(app);
+const io = new Server(server);
+app.set('io', io);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); // Add json parser for AJAX requests
+
+// AJAX response interceptor
+app.use((req, res, next) => {
+  const originalRender = res.render;
+  const originalRedirect = res.redirect;
+
+  res.render = function (view, options, callback) {
+    if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+      if (view === 'warning') {
+        const msg = (options && options.info) ? options.info : 'Aviso do sistema.';
+        return res.status(400).json({ error: msg, redirect: options && options.url ? options.url : undefined });
+      }
+    }
+    originalRender.call(this, view, options, callback);
+  };
+
+  res.redirect = function (status, url) {
+    let redirectUrl = url;
+    let statusCode = status;
+    if (typeof status === 'string') {
+      redirectUrl = status;
+      statusCode = 302;
+    }
+    if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+      return res.json({ success: true, message: 'Operação realizada com sucesso!', redirect: redirectUrl });
+    }
+    originalRedirect.call(this, statusCode, redirectUrl);
+  };
+
+  next();
+});
 
 // Helper de markdown disponível em todas as views: <%- md(texto) %>
 app.locals.md = renderMarkdown;
@@ -53,7 +92,7 @@ const connectDB = async () => {
 };
 connectDB();
 
-app.use(session({
+const sessionMiddleware = session({
   secret: process.env.SECRET_KEY,
   resave: false,
   saveUninitialized: false,
@@ -64,7 +103,13 @@ app.use(session({
     secure: process.env.NODE_ENV === 'production',
     maxAge: 1000 * 60 * 60 * 24 * 7 // 7 dias
   }
-}));
+});
+
+app.use(sessionMiddleware);
+io.engine.use(sessionMiddleware);
+
+// Initialize sockets handlers
+require('./socket')(io);
 
 // Expõe o usuário logado (visitante) e o status de admin para todas as views
 app.use((req, res, next) => {
@@ -107,4 +152,4 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => { console.log(`BOAS NOVAS SEU SITE ESTÁ ATIVO http://localhost:${PORT}`) });
+server.listen(PORT, () => { console.log(`BOAS NOVAS SEU SITE ESTÁ ATIVO http://localhost:${PORT}`) });

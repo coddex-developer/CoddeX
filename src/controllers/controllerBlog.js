@@ -20,8 +20,9 @@ async function uniqueSlug(title, excludeId) {
   return slug;
 }
 
-const warn = (res, info, url, status = 500) =>
-  res.status(status).render("warning", { title: "Aviso!", info, textButton: "Voltar", url, icon: "error" });
+const { sendError } = require("../utils/responseHelper");
+const warn = (req, res, info, url, status = 500) =>
+  sendError(req, res, info, "warning", {}, status, url);
 
 module.exports = {
   // ---------------- PÚBLICO ----------------
@@ -33,17 +34,17 @@ module.exports = {
       posts.forEach(p => { p.excerpt = excerptOf(p.body); });
       const site = await SiteConfig.getSingleton();
       res.render("blog", { posts, site });
-    } catch (e) { warn(res, e.message, "/"); }
+    } catch (e) { warn(req, res, e.message, "/"); }
   },
 
   // GET /blog/:slug
   publicPost: async (req, res) => {
     try {
       const post = await Post.findOne({ slug: req.params.slug, published: true }).lean();
-      if (!post) return warn(res, "Artigo não encontrado.", "/blog", 404);
+      if (!post) return warn(req, res, "Artigo não encontrado.", "/blog", 404);
       const site = await SiteConfig.getSingleton();
       res.render("blogPost", { post, site });
-    } catch (e) { warn(res, e.message, "/blog"); }
+    } catch (e) { warn(req, res, e.message, "/blog"); }
   },
 
   // ---------------- ADMIN ----------------
@@ -53,7 +54,7 @@ module.exports = {
     try {
       const posts = await Post.find().sort({ createdAt: -1 }).lean();
       res.render("adminBlogList", { posts });
-    } catch (e) { warn(res, e.message, "/admin/dashboard"); }
+    } catch (e) { warn(req, res, e.message, "/admin/dashboard"); }
   },
 
   // GET /admin/dashboard/blog/new
@@ -66,7 +67,7 @@ module.exports = {
     try {
       const { title, body, coverUrl, published } = req.body;
       if (!title || !body) {
-        return warn(res, "Título e conteúdo são obrigatórios.", "/admin/dashboard/blog/new", 400);
+        return warn(req, res, "Título e conteúdo são obrigatórios.", "/admin/dashboard/blog/new", 400);
       }
       const coverImage = await resolveImage(req, coverUrl, "coddex/blog");
       await Post.create({
@@ -77,16 +78,16 @@ module.exports = {
         published: published === "on" || published === "true"
       });
       res.redirect("/admin/dashboard/blog");
-    } catch (e) { warn(res, e.message, "/admin/dashboard/blog/new"); }
+    } catch (e) { warn(req, res, e.message, "/admin/dashboard/blog/new"); }
   },
 
   // GET /admin/dashboard/blog/:id/edit
   editForm: async (req, res) => {
     try {
       const post = await Post.findById(req.params.id).lean();
-      if (!post) return warn(res, "Artigo não encontrado.", "/admin/dashboard/blog", 404);
+      if (!post) return warn(req, res, "Artigo não encontrado.", "/admin/dashboard/blog", 404);
       res.render("blogForm", { post });
-    } catch (e) { warn(res, e.message, "/admin/dashboard/blog"); }
+    } catch (e) { warn(req, res, e.message, "/admin/dashboard/blog"); }
   },
 
   // POST /admin/dashboard/blog/:id/update
@@ -94,9 +95,9 @@ module.exports = {
     try {
       const { title, body, coverUrl, published } = req.body;
       const post = await Post.findById(req.params.id);
-      if (!post) return warn(res, "Artigo não encontrado.", "/admin/dashboard/blog", 404);
+      if (!post) return warn(req, res, "Artigo não encontrado.", "/admin/dashboard/blog", 404);
       if (!title || !body) {
-        return warn(res, "Título e conteúdo são obrigatórios.", `/admin/dashboard/blog/${post._id}/edit`, 400);
+        return warn(req, res, "Título e conteúdo são obrigatórios.", `/admin/dashboard/blog/${post._id}/edit`, 400);
       }
       if (title.trim() !== post.title) post.slug = await uniqueSlug(title, post._id);
       post.title = title.trim();
@@ -105,7 +106,7 @@ module.exports = {
       post.published = published === "on" || published === "true";
       await post.save();
       res.redirect("/admin/dashboard/blog");
-    } catch (e) { warn(res, e.message, "/admin/dashboard/blog"); }
+    } catch (e) { warn(req, res, e.message, "/admin/dashboard/blog"); }
   },
 
   // POST /admin/dashboard/blog/:id/delete
@@ -113,6 +114,6 @@ module.exports = {
     try {
       await Post.findByIdAndDelete(req.params.id);
       res.redirect("/admin/dashboard/blog");
-    } catch (e) { warn(res, e.message, "/admin/dashboard/blog"); }
+    } catch (e) { warn(req, res, e.message, "/admin/dashboard/blog"); }
   }
 };

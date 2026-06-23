@@ -16,8 +16,9 @@ function getActor(req) {
   return null;
 }
 
-const warn = (res, info, url, status = 500) =>
-  res.status(status).render("warning", { title: "Aviso!", info, textButton: "Voltar", url, icon: "error" });
+const { sendError } = require("../utils/responseHelper");
+const warn = (req, res, info, url, status = 500) =>
+  sendError(req, res, info, "warning", {}, status, url);
 
 module.exports = {
   // GET /projeto/:id — detalhe com curtidas e comentários (com respostas e curtidas)
@@ -25,7 +26,7 @@ module.exports = {
     try {
       const { id } = req.params;
       const project = await ProjectsDB.findById(id);
-      if (!project) return warn(res, "Projeto não encontrado.", "/", 404);
+      if (!project) return warn(req, res, "Projeto não encontrado.", "/", 404);
 
       const actor = getActor(req);
       const actorId = actor ? actor.id : null;
@@ -77,7 +78,7 @@ module.exports = {
         canInteract: Boolean(actor),
         actorId
       });
-    } catch (e) { warn(res, e.message, "/"); }
+    } catch (e) { warn(req, res, e.message, "/"); }
   },
 
   // POST /projeto/:id/like — curtir projeto (somente usuário)
@@ -88,10 +89,23 @@ module.exports = {
       const existing = await Like.findOne({ project: id, user: userId });
       if (existing) await existing.deleteOne();
       else await Like.create({ project: id, user: userId });
+      
+      const likeCount = await Like.countDocuments({ project: id });
+      if (req.app.get('io')) {
+        req.app.get('io').emit('project:like:updated', { projectId: id, likeCount });
+      }
+
+      if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+        return res.json({ success: true, likeCount, likedByMe: !existing });
+      }
+
       res.redirect(req.get("Referer") || "/projeto/" + id);
     } catch (error) {
       if (error.code === 11000) return res.redirect(req.get("Referer") || "/projeto/" + req.params.id);
-      warn(res, error.message, "/projeto/" + req.params.id);
+      if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+        return res.status(500).json({ error: error.message });
+      }
+      warn(req, res, error.message, "/projeto/" + req.params.id);
     }
   },
 
@@ -107,7 +121,7 @@ module.exports = {
       if (!body) return res.redirect("/projeto/" + id + "#comentarios");
 
       const project = await ProjectsDB.findById(id);
-      if (!project) return warn(res, "Projeto não encontrado.", "/", 404);
+      if (!project) return warn(req, res, "Projeto não encontrado.", "/", 404);
 
       let parent = null;
       if (parentId) {
@@ -115,7 +129,7 @@ module.exports = {
         if (!parent || String(parent.project) !== String(id)) parent = null;
       }
 
-      await Comment.create({
+      const newComment = await Comment.create({
         project: id,
         user: actor.id,
         userName: actor.name,
@@ -134,8 +148,22 @@ module.exports = {
         }
       }
 
+      const commentCount = await Comment.countDocuments({ project: id });
+      if (req.app.get('io')) {
+        req.app.get('io').emit('project:comment:added', { projectId: id, comment: newComment, commentCount });
+      }
+
+      if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+        return res.json({ success: true, comment: newComment, commentCount });
+      }
+
       res.redirect("/projeto/" + id + "#comentarios");
-    } catch (e) { warn(res, e.message, "/projeto/" + req.params.id); }
+    } catch (e) {
+      if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+        return res.status(500).json({ error: e.message });
+      }
+      warn(req, res, e.message, "/projeto/" + req.params.id); 
+    }
   },
 
   // POST /projeto/:id/comment/:commentId/like — curtir comentário (usuário ou autor)
@@ -150,7 +178,7 @@ module.exports = {
       res.redirect("/projeto/" + id + "#comentarios");
     } catch (error) {
       if (error.code === 11000) return res.redirect("/projeto/" + req.params.id + "#comentarios");
-      warn(res, error.message, "/projeto/" + req.params.id);
+      warn(req, res, error.message, "/projeto/" + req.params.id);
     }
   },
 
@@ -171,6 +199,6 @@ module.exports = {
         }
       }
       res.redirect("/projeto/" + id + "#comentarios");
-    } catch (e) { warn(res, e.message, "/projeto/" + req.params.id); }
+    } catch (e) { warn(req, res, e.message, "/projeto/" + req.params.id); }
   }
 };

@@ -1,83 +1,171 @@
 <%- include('fragments/header') %>
 
-<div class="container my-5">
-  <!-- Boas-vindas -->
-  <div class="glass p-4 mb-4 d-flex align-items-center gap-3">
-    <i class="bi bi-person-circle display-5 gradient-text"></i>
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h1 class="h4 mb-1">Bem-vindo de volta, <%= adminUser.userAdmin %>!</h1>
-      <p class="text-muted-2 mb-0">Gerencie seu site a partir do painel abaixo.</p>
+      <h1 class="h3 fw-bold mb-1">Olá, <%= adminUser.userAdmin %>!</h1>
+      <p class="text-muted-2 mb-0">Visão geral e relatórios do sistema.</p>
     </div>
   </div>
 
-  <!-- Cards de opções -->
-  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-    <div class="col">
-      <div class="card text-center h-100 p-2">
+  <div class="row g-4 mb-5">
+    <!-- Chart -->
+    <div class="col-lg-8">
+      <div class="card h-100 shadow-sm border-0 glass">
         <div class="card-body">
-          <i class="bi bi-envelope-exclamation-fill display-5 mb-3" style="color: var(--warning);"></i>
-          <h5 class="card-title fw-bold">Novas mensagens</h5>
-          <p class="text-secondary"><%= unreadMessage.length %> pendente(s)</p>
-          <a href="/admin/dashboard/unread" class="btn btn-gradient w-100">Ver mensagens</a>
+          <h5 class="card-title fw-bold mb-4">Métricas Principais</h5>
+          <canvas id="overviewChart" style="max-height: 280px;"></canvas>
         </div>
       </div>
     </div>
-
-    <div class="col">
-      <div class="card text-center h-100 p-2">
-        <div class="card-body">
-          <i class="bi bi-chat-left-text-fill display-5 mb-3" style="color: var(--info);"></i>
-          <h5 class="card-title fw-bold">Todas as mensagens</h5>
-          <p class="text-secondary"><%= resultMessage.length %> no total</p>
-          <a href="/admin/dashboard/messages" class="btn btn-gradient w-100">Ver todas</a>
+    
+    <!-- Quick Stats -->
+    <div class="col-lg-4 d-flex flex-column gap-3">
+      <div class="card bg-gradient text-white border-0 shadow-sm flex-grow-1" style="background: var(--gradient);">
+        <div class="card-body d-flex align-items-center">
+          <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center me-3" style="width: 56px; height: 56px;">
+            <i class="bi bi-envelope-exclamation fs-3"></i>
+          </div>
+          <div>
+            <h6 class="mb-1 text-uppercase fw-bold opacity-75" style="font-size: 0.75rem; letter-spacing: 1px;">Mensagens Pendentes</h6>
+            <h2 class="mb-0 fw-bold"><%= unreadMessage.length %></h2>
+          </div>
+        </div>
+      </div>
+      <div class="card glass border-0 shadow-sm flex-grow-1">
+        <div class="card-body d-flex align-items-center">
+          <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 56px; height: 56px; background: var(--surface-2); color: var(--accent-1);">
+            <i class="bi bi-window-stack fs-3"></i>
+          </div>
+          <div>
+            <h6 class="mb-1 text-uppercase fw-bold text-muted-2" style="font-size: 0.75rem; letter-spacing: 1px;">Projetos Totais</h6>
+            <h2 class="mb-0 fw-bold text-text"><%= projects.length %></h2>
+          </div>
+        </div>
+      </div>
+      <div class="card glass border-0 shadow-sm flex-grow-1">
+        <div class="card-body d-flex align-items-center">
+          <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 56px; height: 56px; background: var(--surface-2); color: var(--success);">
+            <i class="bi bi-chat-left-text fs-3"></i>
+          </div>
+          <div>
+            <h6 class="mb-1 text-uppercase fw-bold text-muted-2" style="font-size: 0.75rem; letter-spacing: 1px;">Mensagens Totais</h6>
+            <h2 class="mb-0 fw-bold text-text"><%= resultMessage.length %></h2>
+          </div>
         </div>
       </div>
     </div>
+  </div>
 
+  <h5 class="fw-bold mb-4">Acesso Rápido</h5>
+  <div class="row row-cols-2 row-cols-lg-4 g-3 mb-4">
     <div class="col">
-      <div class="card text-center h-100 p-2">
-        <div class="card-body">
-          <i class="bi bi-chat-dots-fill display-5 mb-3" style="color: var(--accent-2, #22d3ee);"></i>
-          <h5 class="card-title fw-bold">Conversas</h5>
-          <p class="text-secondary">Tickets dos usuários</p>
-          <a href="/admin/dashboard/tickets" class="btn btn-gradient w-100">Abrir</a>
+      <a href="/admin/dashboard/unread" class="text-decoration-none">
+        <div class="card h-100 shadow-sm border-0 glass card-hover">
+          <div class="card-body text-center p-4">
+            <i class="bi bi-envelope-open fs-2 mb-2 d-block" style="color: var(--warning);"></i>
+            <span class="fw-bold text-text">Caixa de Entrada</span>
+          </div>
         </div>
-      </div>
+      </a>
     </div>
-
     <div class="col">
-      <div class="card text-center h-100 p-2">
-        <div class="card-body">
-          <i class="bi bi-pencil-square display-5 mb-3" style="color: var(--success);"></i>
-          <h5 class="card-title fw-bold">Editar o site</h5>
-          <p class="text-secondary">Conteúdo, projetos e redes</p>
-          <a href="/admin/dashboard/editPage" class="btn btn-gradient w-100">Editar</a>
+      <a href="/admin/dashboard/tickets" class="text-decoration-none">
+        <div class="card h-100 shadow-sm border-0 glass card-hover">
+          <div class="card-body text-center p-4">
+            <i class="bi bi-chat-dots fs-2 mb-2 d-block" style="color: var(--accent-1);"></i>
+            <span class="fw-bold text-text">Suporte (Tickets)</span>
+          </div>
         </div>
-      </div>
+      </a>
     </div>
-
     <div class="col">
-      <div class="card text-center h-100 p-2">
-        <div class="card-body">
-          <i class="bi bi-journal-text display-5 mb-3" style="color: var(--warning);"></i>
-          <h5 class="card-title fw-bold">Blog</h5>
-          <p class="text-secondary">Escrever e gerenciar artigos</p>
-          <a href="/admin/dashboard/blog" class="btn btn-gradient w-100">Gerenciar</a>
+      <a href="/admin/dashboard/blog" class="text-decoration-none">
+        <div class="card h-100 shadow-sm border-0 glass card-hover">
+          <div class="card-body text-center p-4">
+            <i class="bi bi-journal-richtext fs-2 mb-2 d-block" style="color: var(--success);"></i>
+            <span class="fw-bold text-text">Postar no Blog</span>
+          </div>
         </div>
-      </div>
+      </a>
     </div>
-
     <div class="col">
-      <div class="card text-center h-100 p-2">
-        <div class="card-body">
-          <i class="bi bi-gear-fill display-5 mb-3 gradient-text"></i>
-          <h5 class="card-title fw-bold">Perfil</h5>
-          <p class="text-secondary">Credenciais do administrador</p>
-          <a href="/admin/dashboard/adminProfile" class="btn btn-gradient w-100">Configurar</a>
+      <a href="/admin/dashboard/editPage" class="text-decoration-none">
+        <div class="card h-100 shadow-sm border-0 glass card-hover">
+          <div class="card-body text-center p-4">
+            <i class="bi bi-pencil-square fs-2 mb-2 d-block text-danger"></i>
+            <span class="fw-bold text-text">Editar o Site</span>
+          </div>
         </div>
-      </div>
+      </a>
     </div>
   </div>
 </div>
+
+<style>
+.card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.card-hover:hover { transform: translateY(-4px); box-shadow: var(--shadow-2) !important; }
+</style>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const ctx = document.getElementById('overviewChart').getContext('2d');
+    
+    // Obtendo as cores do tema pelo CSS vars (se disponíveis) ou fallback
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || 
+                   (!document.documentElement.hasAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    
+    const textColor = isDark ? '#e8eaed' : '#202124';
+    const gridColor = isDark ? '#334155' : '#e0e0e0';
+
+    const data = {
+      labels: ['Projetos', 'Mensagens de Contato', 'Mensagens Pendentes'],
+      datasets: [{
+        label: 'Quantidades',
+        data: [<%= projects.length %>, <%= resultMessage.length %>, <%= unreadMessage.length %>],
+        backgroundColor: [
+          'rgba(59, 130, 246, 0.7)',
+          'rgba(16, 185, 129, 0.7)',
+          'rgba(245, 158, 11, 0.7)'
+        ],
+        borderColor: [
+          'rgb(59, 130, 246)',
+          'rgb(16, 185, 129)',
+          'rgb(245, 158, 11)'
+        ],
+        borderWidth: 1,
+        borderRadius: 6,
+        maxBarThickness: 48
+      }]
+    };
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: data,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { color: textColor, precision: 0 },
+            grid: { color: gridColor, drawBorder: false },
+            border: { display: false }
+          },
+          x: {
+            ticks: { color: textColor },
+            grid: { display: false },
+            border: { display: false }
+          }
+        }
+      }
+    });
+  });
+</script>
 
 <%- include('fragments/footer') %>

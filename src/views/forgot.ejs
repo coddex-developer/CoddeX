@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <%- include('fragments/head', { pageTitle: 'Recuperar Senha · CoddeX', pageDescription: 'Recupere sua conta' }) %>
+  <link rel="stylesheet" href="/styles/admin.css">
+</head>
+
+<body class="login-page">
+  <div class="login-glow"></div>
+
+  <form class="ajax-form login-card glass" action="/forgot" method="post">
+    <img src="/assets/admin1.png" class="login-logo" alt="CoddeX">
+    <h1 class="login-title gradient-text">Recuperar Senha</h1>
+    <p class="login-subtitle">Enviaremos um código para o seu e-mail</p>
+
+    <% if (error) { %>
+      <div class="alert alert-warning py-2 mb-0"><i class="bi bi-exclamation-triangle me-1"></i><%= error %></div>
+    <% } %>
+    <% if (info) { %>
+      <div class="alert alert-info py-2 mb-0"><i class="bi bi-info-circle me-1"></i><%= info %></div>
+    <% } %>
+
+    <div class="field">
+      <label for="email" class="form-label"><i class="bi bi-envelope me-1"></i>E-mail da sua conta</label>
+      <input type="email" class="form-control" name="email" id="email" required>
+    </div>
+
+    <button class="btn btn-gradient w-100 mt-2" type="submit"><i class="bi bi-send me-2"></i>Enviar Código</button>
+
+    <p class="login-subtitle mb-0 mt-3">Lembrou a senha? <a href="/login" style="color:var(--accent-2);">Entrar</a></p>
+    <a href="/" class="back-link"><i class="bi bi-arrow-left me-1"></i>Voltar ao site</a>
+  </form>
+
+</body>
+
+</html>

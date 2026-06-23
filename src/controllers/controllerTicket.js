@@ -11,8 +11,9 @@ async function trySend(fn) {
   try { await fn(); } catch (e) { console.error("Falha ao enviar e-mail de notificação:", e.message); }
 }
 
-const warn = (res, info, url, status = 500) =>
-  res.status(status).render("warning", { title: "Aviso!", info, textButton: "Voltar", url, icon: "error" });
+const { sendError } = require("../utils/responseHelper");
+const warn = (req, res, info, url, status = 500) =>
+  sendError(req, res, info, "warning", {}, status, url);
 
 module.exports = {
   // ---------------- USUÁRIO ----------------
@@ -26,7 +27,7 @@ module.exports = {
         t.unread = await TicketMessage.countDocuments({ ticket: t._id, senderType: "admin", read: false });
       }
       res.render("ticketsList", { tickets, isAdmin: false });
-    } catch (e) { warn(res, e.message, "/account"); }
+    } catch (e) { warn(req, res, e.message, "/account"); }
   },
 
   // POST /account/tickets  (abre novo ticket)
@@ -50,14 +51,14 @@ module.exports = {
       await trySend(() => notifyAdminNewMessage(site.contactEmail, u.name, subject, snippet(body), abs(req, link)));
 
       res.redirect(`/account/tickets/${ticket._id}`);
-    } catch (e) { warn(res, e.message, "/account/tickets"); }
+    } catch (e) { warn(req, res, e.message, "/account/tickets"); }
   },
 
   // GET /account/tickets/:id
   threadMine: async (req, res) => {
     try {
       const ticket = await Ticket.findOne({ _id: req.params.id, user: req.session.user.id }).lean();
-      if (!ticket) return warn(res, "Conversa não encontrada.", "/account/tickets", 404);
+      if (!ticket) return warn(req, res, "Conversa não encontrada.", "/account/tickets", 404);
 
       const messages = await TicketMessage.find({ ticket: ticket._id }).sort({ createdAt: 1 }).lean();
       // mensagens do admin viram lidas + limpa notificações deste ticket
@@ -69,7 +70,7 @@ module.exports = {
         replyUrl: `/account/tickets/${ticket._id}/reply`,
         backUrl: "/account/tickets"
       });
-    } catch (e) { warn(res, e.message, "/account/tickets"); }
+    } catch (e) { warn(req, res, e.message, "/account/tickets"); }
   },
 
   // POST /account/tickets/:id/reply
@@ -77,10 +78,10 @@ module.exports = {
     try {
       const body = (req.body.body || "").trim();
       const ticket = await Ticket.findOne({ _id: req.params.id, user: req.session.user.id });
-      if (!ticket) return warn(res, "Conversa não encontrada.", "/account/tickets", 404);
+      if (!ticket) return warn(req, res, "Conversa não encontrada.", "/account/tickets", 404);
       if (!body) return res.redirect(`/account/tickets/${ticket._id}`);
 
-      await TicketMessage.create({ ticket: ticket._id, senderType: "user", body: body.slice(0, 4000) });
+      const newMessage = await TicketMessage.create({ ticket: ticket._id, senderType: "user", body: body.slice(0, 4000) });
       ticket.lastMessageAt = new Date();
       if (ticket.status === "closed") ticket.status = "open";
       await ticket.save();
@@ -90,8 +91,21 @@ module.exports = {
       const site = await SiteConfig.getSingleton();
       await trySend(() => notifyAdminNewMessage(site.contactEmail, ticket.userName, ticket.subject, snippet(body), abs(req, link)));
 
+      if (req.app.get('io')) {
+        req.app.get('io').to(`ticket_${ticket._id}`).emit('ticket:message:added', { ticketId: ticket._id, message: newMessage });
+      }
+
+      if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+        return res.json({ success: true, message: newMessage });
+      }
+
       res.redirect(`/account/tickets/${ticket._id}`);
-    } catch (e) { warn(res, e.message, "/account/tickets"); }
+    } catch (e) {
+      if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+        return res.status(500).json({ error: e.message });
+      }
+      warn(req, res, e.message, "/account/tickets"); 
+    }
   },
 
   // ---------------- ADMIN ----------------
@@ -104,14 +118,14 @@ module.exports = {
         t.unread = await TicketMessage.countDocuments({ ticket: t._id, senderType: "user", read: false });
       }
       res.render("ticketsList", { tickets, isAdmin: true });
-    } catch (e) { warn(res, e.message, "/admin/dashboard"); }
+    } catch (e) { warn(req, res, e.message, "/admin/dashboard"); }
   },
 
   // GET /admin/dashboard/tickets/:id
   adminThread: async (req, res) => {
     try {
       const ticket = await Ticket.findById(req.params.id).lean();
-      if (!ticket) return warn(res, "Conversa não encontrada.", "/admin/dashboard/tickets", 404);
+      if (!ticket) return warn(req, res, "Conversa não encontrada.", "/admin/dashboard/tickets", 404);
 
       const messages = await TicketMessage.find({ ticket: ticket._id }).sort({ createdAt: 1 }).lean();
       await TicketMessage.updateMany({ ticket: ticket._id, senderType: "user", read: false }, { read: true });
@@ -122,7 +136,7 @@ module.exports = {
         replyUrl: `/admin/dashboard/tickets/${ticket._id}/reply`,
         backUrl: "/admin/dashboard/tickets"
       });
-    } catch (e) { warn(res, e.message, "/admin/dashboard/tickets"); }
+    } catch (e) { warn(req, res, e.message, "/admin/dashboard/tickets"); }
   },
 
   // POST /admin/dashboard/tickets/:id/reply
@@ -130,10 +144,10 @@ module.exports = {
     try {
       const body = (req.body.body || "").trim();
       const ticket = await Ticket.findById(req.params.id);
-      if (!ticket) return warn(res, "Conversa não encontrada.", "/admin/dashboard/tickets", 404);
+      if (!ticket) return warn(req, res, "Conversa não encontrada.", "/admin/dashboard/tickets", 404);
       if (!body) return res.redirect(`/admin/dashboard/tickets/${ticket._id}`);
 
-      await TicketMessage.create({ ticket: ticket._id, senderType: "admin", body: body.slice(0, 4000) });
+      const newMessage = await TicketMessage.create({ ticket: ticket._id, senderType: "admin", body: body.slice(0, 4000) });
       ticket.lastMessageAt = new Date();
       await ticket.save();
 
@@ -141,8 +155,21 @@ module.exports = {
       await Notification.create({ recipientType: "user", recipientId: ticket.user, type: "reply", text: "Você recebeu uma resposta do suporte", link });
       await trySend(() => notifyUserReply(ticket.userEmail, ticket.subject, snippet(body), abs(req, link)));
 
+      if (req.app.get('io')) {
+        req.app.get('io').to(`ticket_${ticket._id}`).emit('ticket:message:added', { ticketId: ticket._id, message: newMessage });
+      }
+
+      if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+        return res.json({ success: true, message: newMessage });
+      }
+
       res.redirect(`/admin/dashboard/tickets/${ticket._id}`);
-    } catch (e) { warn(res, e.message, "/admin/dashboard/tickets"); }
+    } catch (e) {
+      if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+        return res.status(500).json({ error: e.message });
+      }
+      warn(req, res, e.message, "/admin/dashboard/tickets"); 
+    }
   },
 
   // ---------------- NOTIFICAÇÕES ----------------

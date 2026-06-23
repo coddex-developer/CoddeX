@@ -21,7 +21,7 @@
       <div class="alert py-2 mb-0" style="background:rgba(34,211,238,.12);border-color:rgba(34,211,238,.3);color:#a5f3fc;"><i class="bi bi-check-circle me-1"></i><%= info %></div>
     <% } %>
 
-    <form action="/verify" method="post">
+    <form class="ajax-form" action="/verify" method="post">
       <input type="hidden" name="email" value="<%= email %>">
       <div class="field">
         <label for="code" class="form-label text-center w-100"><i class="bi bi-shield-lock me-1"></i>Código de verificação</label>
@@ -32,7 +32,7 @@
       <button class="btn btn-gradient w-100 mt-2" type="submit"><i class="bi bi-check2-circle me-2"></i>Verificar</button>
     </form>
 
-    <form action="/verify/resend" method="post" class="mt-1">
+    <form action="/verify/resend" method="post" class="ajax-form mt-1">
       <input type="hidden" name="email" value="<%= email %>">
       <button type="submit" class="btn btn-link p-0 back-link" style="text-decoration:none;">
         <i class="bi bi-arrow-clockwise me-1"></i>Reenviar código
