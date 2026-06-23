@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="/styles/style.css">
 
   <!-- Tawk.to Chat -->
-  <script type="text/javascript">
+<!--  <script type="text/javascript">
     var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
     (function () {
       var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
@@ -25,6 +25,7 @@
       s0.parentNode.insertBefore(s1, s0);
     })();
   </script>
+-->
 </head>
 
 <body>
@@ -66,7 +67,6 @@
   <header id="top" class="hero">
     <div class="hero-glow"></div>
     <div class="container position-relative text-center">
-      <span class="hero-badge" data-animate-bottom><i class="bi bi-stars me-1"></i> Desenvolvimento web moderno</span>
       <h1 class="hero-title mt-3" data-animate-bottom>
         <span class="gradient-text"><%= site.title %></span>
       </h1>
@@ -91,7 +91,7 @@
   <!-- Projetos -->
   <section id="projetos" class="py-5">
     <div class="container">
-      <h2 class="section-title text-center mb-5" data-animate-bottom>Meus Projetos</h2>
+      <h2 class="section-title text-center mb-5" data-animate-bottom>Projetos</h2>
       <div class="ig-feed">
         <% if (projects.length > 0) { %>
           <% projects.forEach(project => { %>
@@ -238,8 +238,8 @@
   <!-- Footer -->
   <footer class="py-4">
     <div class="container text-center">
-      <p class="mb-2">© <%= new Date().getFullYear() %> <%= site.title %> — Todos os direitos reservados</p>
-      <div class="social-links">
+      
+      <div class="social-links mb-4">
         <% if (site.social && site.social.github) { %>
           <a href="<%= site.social.github %>" target="_blank" rel="noopener" aria-label="GitHub"><i class="bi bi-github"></i></a>
         <% } %>
@@ -253,6 +253,8 @@
           <a href="<%= site.social.whatsapp %>" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
         <% } %>
       </div>
+      
+      <p class="mb-2">© <%= new Date().getFullYear() %> <%= site.title %> — Todos os direitos reservados</p>
     </div>
   </footer>
 

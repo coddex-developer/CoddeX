@@ -279,8 +279,8 @@ module.exports = {
       admin.passAdmin = password; // o hash é gerado automaticamente no model
       await admin.save();
 
-      req.session.destroy()
-      res.status(200).redirect("/admin")
+      //req.session.destroy()
+      //res.status(200).redirect("/admin/dashboard/adminProfile")
     } catch (error) {
       res.status(500).send(error.message)
     }
