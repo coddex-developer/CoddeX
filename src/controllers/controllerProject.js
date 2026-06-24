@@ -77,7 +77,8 @@ module.exports = {
         comments: roots,
         commentCount: allComments.length,
         canInteract: Boolean(actor),
-        actorId
+        actorId,
+        user: req.session.user || null
       });
     } catch (e) { warn(req, res, e.message, "/"); }
   },
