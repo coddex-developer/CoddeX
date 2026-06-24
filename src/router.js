@@ -20,7 +20,11 @@ router.get('/admin/dashboard/logout', midlewareLogin, controlerPage.logout);
 //AdminProfile
 router.get('/admin/dashboard/adminProfile', midlewareLogin, controlerPage.myProfile);
 //Alteracao aqui removido as credenciais admin da atualizacao de logo
-router.post('/admin/dashboard/adminProfile', midlewareLogin, uploadLogo.single("logo"));
+router.post('/admin/dashboard/adminProfile', midlewareLogin, uploadLogo.single("logo"), (req, res) => {
+  res.json({ success: true, message: 'Logo atualizada com sucesso!' });
+});
+router.post('/admin/dashboard/profile/logo/remove', midlewareLogin, controlerPage.removeLogo);
+router.post('/admin/dashboard/profile/password', midlewareLogin, controlerPage.saveAdminPassword);
 router.post('/admin/dashboard/profile/social', midlewareLogin, controlerPage.saveSocial);
 router.post('/admin/dashboard/profile/mail', midlewareLogin, controlerPage.saveMail);
 router.post('/admin/dashboard/profile/mail/test', midlewareLogin, controlerPage.testMail);

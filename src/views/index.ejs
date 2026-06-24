@@ -63,10 +63,10 @@
   <header id="top" class="hero">
     <div class="hero-glow"></div>
     <div class="container position-relative text-center">
-      <h1 class="hero-title mt-3" data-animate-bottom style="font-size: clamp(24px, 8vw, <%= site.titleSize || 56 %>px); line-height: 1.1;">
+      <h1 class="hero-title mt-3" data-animate-bottom style="font-size: min(<%= site.titleSize || 56 %>px, 12vw); line-height: 1.1;">
         <span class="gradient-text"><%= site.title %></span>
       </h1>
-      <p class="hero-subtitle mx-auto mt-3" data-animate-bottom style="font-size: clamp(16px, 4vw, <%= site.subtitleSize || 20 %>px);"><%= site.subtitle %></p>
+      <p class="hero-subtitle mx-auto mt-3" data-animate-bottom style="font-size: min(<%= site.subtitleSize || 20 %>px, 6vw);"><%= site.subtitle %></p>
       <div class="d-flex gap-3 justify-content-center flex-wrap mt-4" data-animate-bottom>
         <a class="btn btn-gradient px-4 py-2" href="#contato"><i class="bi bi-send me-2"></i>Entrar em contato</a>
         <a class="btn btn-outline-light px-4 py-2" href="#projetos"><i class="bi bi-grid me-2"></i>Ver projetos</a>
@@ -78,8 +78,8 @@
   <% if (site.showAbout !== false) { %>
   <section id="sobre" class="py-5">
     <div class="container">
-      <h2 class="section-title text-center" data-animate-bottom style="font-size: clamp(20px, 5vw, <%= site.titleAboutMeSize || 32 %>px);"><%= site.titleAboutMe %></h2>
-      <div class="about-box glass p-4 p-md-5 mx-auto mt-4 markdown-body" data-animate-bottom style="font-size: clamp(14px, 3vw, <%= site.textAboutMeSize || 16 %>px);">
+      <h2 class="section-title text-center" data-animate-bottom style="font-size: min(<%= site.titleAboutMeSize || 32 %>px, 8vw);"><%= site.titleAboutMe %></h2>
+      <div class="about-box glass p-4 p-md-5 mx-auto mt-4 markdown-body" data-animate-bottom style="font-size: min(<%= site.textAboutMeSize || 16 %>px, 5vw);">
         <%- md(site.textAboutMe) %>
       </div>
     </div>
@@ -212,16 +212,16 @@
   <% if (site.showServices !== false) { %>
   <section id="experiencia" class="py-5">
     <div class="container">
-      <h2 class="section-title text-center" data-animate-bottom style="font-size: clamp(20px, 5vw, <%= site.servicesTitleSize || 32 %>px);"><%= site.servicesTitle || 'Nosso trabalho' %></h2>
-      <p class="text-center text-muted-2 mb-5 mx-auto" style="max-width: 640px; font-size: clamp(14px, 3vw, <%= site.servicesSubtitleSize || 16 %>px);" data-animate-bottom>
+      <h2 class="section-title text-center" data-animate-bottom style="font-size: min(<%= site.servicesTitleSize || 32 %>px, 8vw);"><%= site.servicesTitle || 'Nosso trabalho' %></h2>
+      <p class="text-center text-muted-2 mb-5 mx-auto" style="max-width: 640px; font-size: min(<%= site.servicesSubtitleSize || 16 %>px, 5vw);" data-animate-bottom>
         <%= site.servicesSubtitle || 'A CoddeX Developer investe tempo e recursos para garantir a mais moderna tecnologia para o seu negócio.' %>
       </p>
       <div class="timeline">
         <% if (site.services && site.services.length > 0) { %>
           <% site.services.forEach(s => { %>
             <div class="timeline-item glass" data-animate-bottom>
-              <h5 style="font-size: clamp(16px, 4vw, <%= s.titleSize || 20 %>px);"><i data-lucide="<%= s.icon %>" class="me-2" style="color: var(--accent-1);"></i><%= s.title %></h5>
-              <p class="mb-0" style="font-size: clamp(14px, 3vw, <%= s.descriptionSize || 16 %>px);"><%= s.description %></p>
+              <h5 style="font-size: min(<%= s.titleSize || 20 %>px, 6vw);"><i data-lucide="<%= s.icon %>" class="me-2" style="color: var(--accent-1);"></i><%= s.title %></h5>
+              <p class="mb-0" style="font-size: min(<%= s.descriptionSize || 16 %>px, 5vw);"><%= s.description %></p>
             </div>
           <% }); %>
         <% } else { %>

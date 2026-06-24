@@ -188,7 +188,10 @@ document.addEventListener('DOMContentLoaded', () => {
              return; // Curtidas não precisam de alerta visual grande
           }
 
-          if (json.message) {
+          if (json.redirect && json.message) {
+            const sep = json.redirect.includes('?') ? '&' : '?';
+            window.location.href = json.redirect + sep + 'toast=' + encodeURIComponent(json.message);
+          } else if (json.message) {
             Swal.fire({
               icon: 'success',
               title: 'Sucesso!',

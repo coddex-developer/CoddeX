@@ -1,4 +1,5 @@
 <%- include('fragments/header') %>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
 
 <div class="container py-5" style="max-width: 800px;">
   <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
@@ -12,8 +13,8 @@
   </div>
 
   <!-- 1. Logo do Sistema -->
-  <form class="ajax-form glass-panel p-4 mb-4 border-0" action="/admin/dashboard/adminProfile" enctype="multipart/form-data" method="post"
-    data-confirm="Atualizar a logo do sistema?" data-confirm-title="Salvar Logo" data-confirm-btn="Atualizar">
+  <!-- 1. Logo do Sistema -->
+  <div class="glass-panel p-4 mb-4 border-0">
     <h2 class="h5 mb-4 text-white fw-bold"><i class="bi bi-image me-2 gradient-text"></i>Logo do Sistema</h2>
 
     <label class="upload-drop d-flex flex-column align-items-center justify-content-center text-center mb-4" for="file" style="min-height: 160px; background: rgba(0, 0, 0, 0.4); border: 1px dashed rgba(0, 240, 255, 0.3); border-radius: var(--radius); cursor: pointer; transition: all 0.3s ease;">
@@ -26,9 +27,34 @@
     <div class="text-center">
       <img id="logoPreview" class="img-preview mb-4 rounded-4 shadow-sm" style="display:none; max-width: 200px;" alt="Pré-visualização da logo">
     </div>
+    
+    <div class="d-flex justify-content-end gap-2">
+      <button class="btn btn-outline-danger px-4" id="removeLogoBtn" type="button"><i class="bi bi-trash3 me-2"></i>Remover Logo</button>
+    </div>
 
-    <div class="d-flex justify-content-end">
-      <button class="btn btn-gradient px-4" type="submit"><i class="bi bi-cloud-arrow-up-fill me-2"></i>Fazer Upload</button>
+    </div>
+  </div>
+
+  <!-- Alterar Senha Admin -->
+  <form class="ajax-form glass-panel p-4 mb-4 border-0" action="/admin/dashboard/profile/password" method="post">
+    <div class="mb-4">
+      <h2 class="h5 text-white fw-bold"><i class="bi bi-key-fill me-2" style="color: var(--warning);"></i>Alterar Senha do Administrador</h2>
+      <p class="text-muted small mb-0">Atualize sua senha de acesso ao painel de administração.</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6">
+        <label class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Nova Senha</label>
+        <input type="password" class="form-control" name="newPassword" placeholder="Digite a nova senha" required minlength="6">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Confirmar Nova Senha</label>
+        <input type="password" class="form-control" name="confirmPassword" placeholder="Confirme a nova senha" required minlength="6">
+      </div>
+    </div>
+    
+    <div class="d-flex justify-content-end mt-4">
+      <button class="btn btn-warning px-4" type="submit"><i class="bi bi-save-fill me-2"></i>Salvar Senha</button>
     </div>
   </form>
 
@@ -156,3 +182,136 @@
 </div>
 
 <%- include('fragments/footer') %>
+
+<!-- Modal do Cropper para Logo -->
+<div class="modal fade" id="cropperModalLogo" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content glass" style="background: var(--surface-1);">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title text-white">Ajustar Logo do Sistema</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <div class="img-container d-inline-block w-100">
+          <img id="cropperImageLogo" src="" alt="Logo">
+        </div>
+      </div>
+      <div class="modal-footer border-secondary">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-gradient" id="cropLogoBtn">Salvar Logo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    let cropper;
+    const logoInput = document.getElementById('file');
+    const cropperImage = document.getElementById('cropperImageLogo');
+    const cropperModal = new bootstrap.Modal(document.getElementById('cropperModalLogo'));
+    
+    logoInput.addEventListener('change', function (e) {
+      const files = e.target.files;
+      if (files && files.length > 0) {
+        const file = files[0];
+        const url = URL.createObjectURL(file);
+        cropperImage.src = url;
+        cropperModal.show();
+      }
+    });
+
+    document.getElementById('cropperModalLogo').addEventListener('shown.bs.modal', function () {
+      cropper = new Cropper(cropperImage, {
+        aspectRatio: NaN, // Logo can be any aspect ratio, or user can choose
+        viewMode: 1,
+        dragMode: 'move',
+        autoCropArea: 1,
+        restore: false,
+        guides: true,
+        center: true,
+        highlight: false,
+        cropBoxMovable: true,
+        cropBoxResizable: true,
+        toggleDragModeOnDblclick: false,
+      });
+    });
+
+    document.getElementById('cropperModalLogo').addEventListener('hidden.bs.modal', function () {
+      if (cropper) {
+        cropper.destroy();
+        cropper = null;
+      }
+      logoInput.value = '';
+    });
+
+    document.getElementById('cropLogoBtn').addEventListener('click', function () {
+      if (!cropper) return;
+      
+      const btn = this;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Salvando...';
+      btn.disabled = true;
+
+      const canvas = cropper.getCroppedCanvas();
+
+      canvas.toBlob(async function (blob) {
+        const formData = new FormData();
+        formData.append('logo', blob, 'logo.png');
+        
+        try {
+          const res = await fetch('/admin/dashboard/adminProfile', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' },
+            body: formData
+          });
+          const json = await res.json();
+          if (res.ok) {
+            window.location.href = window.location.pathname + '?toast=' + encodeURIComponent('Logo atualizada com sucesso!'); 
+          } else {
+            alert(json.error || 'Erro ao salvar a logo.');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+          }
+        } catch (err) {
+          alert('Erro de conexão.');
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }
+      });
+    });
+
+    // Remover Logo
+    const removeLogoBtn = document.getElementById('removeLogoBtn');
+    if (removeLogoBtn) {
+      removeLogoBtn.addEventListener('click', async function() {
+        if (!confirm('Deseja realmente remover a logo do sistema?')) return;
+        const btn = this;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = 'Removendo...';
+        btn.disabled = true;
+
+        try {
+          const res = await fetch('/admin/dashboard/profile/logo/remove', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' }
+          });
+          const json = await res.json();
+          if (res.ok) {
+            window.location.href = window.location.pathname + '?toast=' + encodeURIComponent('Logo removida com sucesso!');
+          } else {
+            alert(json.error || 'Erro ao remover a logo.');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+          }
+        } catch (err) {
+          alert('Erro de conexão.');
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }
+      });
+    }
+  });
+</script>

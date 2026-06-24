@@ -619,7 +619,7 @@ module.exports = {
   //PUT /admin/dashboard/editPage/certificates/:id/updated
   editCertificate: async (req, res) => {
     const { id } = req.params;
-    const { imageEDIT, titleEDIT, urlEDIT } = req.body;
+    const { title, url } = req.body;
 
     try {
       const certificateID = await CertificateDB.findOne({ _id: id })
@@ -628,8 +628,9 @@ module.exports = {
         return res.status(404).send("Certificado não encontrado!");
       }
 
-      const finalImage = await resolveImage(req, imageEDIT, "coddex/certificates");
-      if (!finalImage || !titleEDIT || !urlEDIT) {
+      // Se enviou nova imagem, resolveImage usa; se não, fallback para certificateID.image
+      const finalImage = await resolveImage(req, certificateID.image, "coddex/certificates");
+      if (!finalImage || !title || !url) {
         return res.status(400).render("warning", {
           title: "Campos incompletos",
           info: "Todos os campos precisam ser preenchidos.",
@@ -639,8 +640,8 @@ module.exports = {
       }
 
       certificateID.image = finalImage;
-      certificateID.title = titleEDIT;
-      certificateID.url = urlEDIT;
+      certificateID.title = title;
+      certificateID.url = url;
       await certificateID.save();
 
       res.status(200).redirect("/admin/dashboard/editPage/my-certificates");
@@ -670,6 +671,66 @@ module.exports = {
       });
       return;
     }
+  },
 
+  //DELETE /admin/dashboard/profile/logo/remove
+  removeLogo: async function (req, res) {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const logoPath = path.join(__dirname, '../../public/assets/admin1.png');
+      
+      // Cria uma imagem transparente 1x1 para substituir a logo e não exibir ícone de quebrado
+      const transparentPng = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==', 'base64');
+      fs.writeFileSync(logoPath, transparentPng);
+      
+      if (req.xhr || (req.headers.accept && req.headers.accept.includes('json'))) {
+        return res.json({ success: true, message: "Logo removida com sucesso!" });
+      }
+      res.redirect("/admin/dashboard/adminProfile");
+    } catch (error) {
+      if (req.xhr || (req.headers.accept && req.headers.accept.includes('json'))) {
+        return res.status(500).json({ error: "Erro ao remover a logo." });
+      }
+      res.render("warning", { title: "Erro!", info: error.message, textButton: "Voltar", url: "/admin/dashboard/adminProfile" });
+    }
+  },
+
+  //POST /admin/dashboard/profile/password
+  saveAdminPassword: async function (req, res) {
+    try {
+      const { newPassword, confirmPassword } = req.body;
+      if (!newPassword || newPassword !== confirmPassword || newPassword.length < 6) {
+        return res.render("warning", {
+          title: "Aviso!",
+          info: "As senhas não coincidem ou têm menos de 6 caracteres.",
+          textButton: "Voltar",
+          url: "/admin/dashboard/adminProfile"
+        });
+      }
+
+      // Procura o admin logado ou o primeiro admin
+      const admin = await Admin.findOne();
+      if (!admin) {
+        return res.status(404).send("Admin não encontrado");
+      }
+
+      admin.passAdmin = newPassword; // O schema já faz o hash no pre("save")
+      await admin.save();
+
+      res.render("warning", {
+        title: "Sucesso!",
+        info: "Senha do administrador alterada com sucesso.",
+        textButton: "OK",
+        url: "/admin/dashboard/adminProfile"
+      });
+    } catch (error) {
+      res.render("warning", {
+        title: "Erro!",
+        info: error.message,
+        textButton: "Voltar",
+        url: "/admin/dashboard/adminProfile"
+      });
+    }
   }
 }

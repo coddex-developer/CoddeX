@@ -148,6 +148,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
   
   <script>
+    function showAlert(msg, type) {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: type === 'danger' ? 'error' : 'success', title: msg });
+      } else {
+        alert(msg);
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
       let cropper;
       let croppedBlob = null;
@@ -211,11 +219,12 @@
           try {
             const res = await fetch('/account/settings/profile', {
               method: 'POST',
+              headers: { 'Accept': 'application/json' },
               body: formData
             });
             const json = await res.json();
             if (res.ok) {
-              window.location.reload(); // Recarrega a página para atualizar o dashboard na hora
+              window.location.href = window.location.pathname + '?toast=' + encodeURIComponent('Imagem salva com sucesso!');
             } else {
               showAlert(json.error || 'Erro ao salvar a foto.', 'danger');
               btn.innerHTML = originalText;
@@ -245,11 +254,12 @@
           try {
             const res = await fetch('/account/settings/profile', {
               method: 'POST',
+              headers: { 'Accept': 'application/json' },
               body: formData
             });
             const json = await res.json();
             if (res.ok) {
-              window.location.reload();
+              window.location.href = window.location.pathname + '?toast=' + encodeURIComponent('Foto removida com sucesso!');
             } else {
               showAlert(json.error || 'Erro ao remover a foto.', 'danger');
               btn.innerHTML = originalText;
@@ -277,12 +287,13 @@
         try {
           const res = await fetch(this.action, {
             method: 'POST',
+            headers: { 'Accept': 'application/json' },
             body: formData
           });
           const json = await res.json();
           
           if (res.ok) {
-            showAlert(json.success || 'Perfil salvo com sucesso!', 'success');
+            showAlert(json.message || 'Perfil salvo com sucesso!', 'success');
           } else {
             showAlert(json.error || 'Erro ao salvar o perfil.', 'danger');
           }
