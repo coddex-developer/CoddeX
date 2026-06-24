@@ -42,11 +42,10 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto gap-1">
-          <li class="nav-item"><a class="nav-link" href="#sobre"><i class="bi bi-person-circle me-1"></i>Sobre</a></li>
-          <li class="nav-item"><a class="nav-link" href="#projetos"><i class="bi bi-code-slash me-1"></i>Projetos</a></li>
-          <li class="nav-item"><a class="nav-link" href="#certificados"><i class="bi bi-mortarboard me-1"></i>Certificados</a></li>
-
-          <li class="nav-item"><a class="nav-link" href="#contato"><i class="bi bi-envelope me-1"></i>Contato</a></li>
+          <% if (site.showAbout !== false) { %><li class="nav-item"><a class="nav-link" href="#sobre"><i class="bi bi-person-circle me-1"></i>Sobre</a></li><% } %>
+          <% if (site.showProjects !== false) { %><li class="nav-item"><a class="nav-link" href="#projetos"><i class="bi bi-code-slash me-1"></i>Projetos</a></li><% } %>
+          <% if (site.showCertificates !== false) { %><li class="nav-item"><a class="nav-link" href="#certificados"><i class="bi bi-mortarboard me-1"></i>Certificados</a></li><% } %>
+          <% if (site.showContact !== false) { %><li class="nav-item"><a class="nav-link" href="#contato"><i class="bi bi-envelope me-1"></i>Contato</a></li><% } %>
         </ul>
         <div class="d-flex gap-2 ms-lg-3 mt-2 mt-lg-0 align-items-center">
           <% if (currentUser) { %>
@@ -64,10 +63,10 @@
   <header id="top" class="hero">
     <div class="hero-glow"></div>
     <div class="container position-relative text-center">
-      <h1 class="hero-title mt-3" data-animate-bottom>
+      <h1 class="hero-title mt-3" data-animate-bottom style="font-size: clamp(24px, 8vw, <%= site.titleSize || 56 %>px); line-height: 1.1;">
         <span class="gradient-text"><%= site.title %></span>
       </h1>
-      <p class="hero-subtitle mx-auto mt-3" data-animate-bottom><%= site.subtitle %></p>
+      <p class="hero-subtitle mx-auto mt-3" data-animate-bottom style="font-size: clamp(16px, 4vw, <%= site.subtitleSize || 20 %>px);"><%= site.subtitle %></p>
       <div class="d-flex gap-3 justify-content-center flex-wrap mt-4" data-animate-bottom>
         <a class="btn btn-gradient px-4 py-2" href="#contato"><i class="bi bi-send me-2"></i>Entrar em contato</a>
         <a class="btn btn-outline-light px-4 py-2" href="#projetos"><i class="bi bi-grid me-2"></i>Ver projetos</a>
@@ -76,16 +75,19 @@
   </header>
 
   <!-- Sobre -->
+  <% if (site.showAbout !== false) { %>
   <section id="sobre" class="py-5">
     <div class="container">
-      <h2 class="section-title text-center" data-animate-bottom><%= site.titleAboutMe %></h2>
-      <div class="about-box glass p-4 p-md-5 mx-auto mt-4 markdown-body" data-animate-bottom>
+      <h2 class="section-title text-center" data-animate-bottom style="font-size: clamp(20px, 5vw, <%= site.titleAboutMeSize || 32 %>px);"><%= site.titleAboutMe %></h2>
+      <div class="about-box glass p-4 p-md-5 mx-auto mt-4 markdown-body" data-animate-bottom style="font-size: clamp(14px, 3vw, <%= site.textAboutMeSize || 16 %>px);">
         <%- md(site.textAboutMe) %>
       </div>
     </div>
   </section>
+  <% } %>
 
   <!-- Projetos -->
+  <% if (site.showProjects !== false) { %>
   <section id="projetos" class="py-5">
     <div class="container">
       <h2 class="section-title text-center mb-5" data-animate-bottom>Projetos</h2>
@@ -138,18 +140,21 @@
                     data-title="Veja este projeto: <%= project.titlePj %>" 
                     title="Compartilhar" 
                     style="transition: all 0.3s ease;" 
-                    onmouseover="this.style.color='var(--accent-1)'; this.style.transform='scale(1.1) rotate(10deg)';" 
-                    onmouseout="this.style.color=''; this.style.transform='scale(1) rotate(0deg)';">
-                    <i class="bi bi-send"></i>
+                    onmouseover="this.style.color='var(--accent-1)'; this.style.transform='scale(1.1)';" 
+                    onmouseout="this.style.color=''; this.style.transform='scale(1)';">
+                    <i class="bi bi-share"></i>
                   </button>
                 </div>
               </div>
 
               <!-- Corpo (Username + Legenda) -->
-              <div class="ig-body px-2 mb-3 d-flex flex-column" style="flex-grow: 1;">
-                <div class="ig-caption mb-1" style="font-size: 0.9rem; line-height: 1.4;">
-                  <a href="/projeto/<%= project._id %>" class="fw-bold text-white text-decoration-none me-1"><%= site.title %></a>
-                  <span class="ig-desc text-white" style="display: inline;"><%- project.subtitlePj ? project.subtitlePj : md(project.descriptionPj).replace(/<[^>]*>?/gm, '') %></span>
+              <div class="ig-body px-3 mb-3 d-flex flex-column" style="flex-grow: 1;">
+                <div class="ig-caption mb-2" style="font-size: 0.9rem; line-height: 1.4;">
+                  <div class="mb-1">
+                    <a href="/projeto/<%= project._id %>" class="fw-bold text-white text-decoration-none me-1"><%= site.title %></a>
+                    <span class="text-white-50" style="font-weight: 500;"><%= project.titlePj %></span>
+                  </div>
+                  <div class="ig-desc text-muted" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: normal;"><%- project.subtitlePj ? project.subtitlePj : md(project.descriptionPj).replace(/<[^>]*>?/gm, '').trim() %></div>
                 </div>
                 <a href="/projeto/<%= project._id %>#comentarios" class="text-muted text-decoration-none mt-auto" style="font-size: 0.85rem;">
                   <% if (project.commentCount > 0) { %>
@@ -170,8 +175,10 @@
       </div>
     </div>
   </section>
+  <% } %>
 
   <!-- Certificados -->
+  <% if (site.showCertificates !== false) { %>
   <section id="certificados" class="py-5">
     <div class="container">
       <h2 class="section-title text-center mb-5" data-animate-bottom>Certificados</h2>
@@ -199,32 +206,36 @@
       </div>
     <% } %>
   </section>
+  <% } %>
 
   <!-- Serviços / Timeline -->
+  <% if (site.showServices !== false) { %>
   <section id="experiencia" class="py-5">
     <div class="container">
-      <h2 class="section-title text-center" data-animate-bottom>Nosso trabalho</h2>
-      <p class="text-center text-muted-2 mb-5 mx-auto" style="max-width: 640px;" data-animate-bottom>
-        A CoddeX Developer investe tempo e recursos para garantir a mais moderna tecnologia para o seu negócio.
+      <h2 class="section-title text-center" data-animate-bottom style="font-size: clamp(20px, 5vw, <%= site.servicesTitleSize || 32 %>px);"><%= site.servicesTitle || 'Nosso trabalho' %></h2>
+      <p class="text-center text-muted-2 mb-5 mx-auto" style="max-width: 640px; font-size: clamp(14px, 3vw, <%= site.servicesSubtitleSize || 16 %>px);" data-animate-bottom>
+        <%= site.servicesSubtitle || 'A CoddeX Developer investe tempo e recursos para garantir a mais moderna tecnologia para o seu negócio.' %>
       </p>
       <div class="timeline">
-        <div class="timeline-item glass" data-animate-bottom>
-          <h5><i class="bi bi-cursor-fill me-2"></i>Páginas na web</h5>
-          <p class="mb-0">Sites e páginas para aumentar a visibilidade da sua empresa, com equipe especializada em desenvolvimento e mentoria.</p>
-        </div>
-        <div class="timeline-item glass" data-animate-bottom>
-          <h5><i class="bi bi-diagram-3-fill me-2"></i>Sistemas claros e eficientes</h5>
-          <p class="mb-0">Projetos claros e eficientes que atendem às necessidades dos seus clientes e às expectativas dos usuários finais.</p>
-        </div>
-        <div class="timeline-item glass" data-animate-bottom>
-          <h5><i class="bi bi-shield-check me-2"></i>Backup e relatórios</h5>
-          <p class="mb-0">Relatórios detalhados, acompanhamento contínuo e mentoria especializada sobre o site ou sistema desenvolvido.</p>
-        </div>
+        <% if (site.services && site.services.length > 0) { %>
+          <% site.services.forEach(s => { %>
+            <div class="timeline-item glass" data-animate-bottom>
+              <h5 style="font-size: clamp(16px, 4vw, <%= s.titleSize || 20 %>px);"><i data-lucide="<%= s.icon %>" class="me-2" style="color: var(--accent-1);"></i><%= s.title %></h5>
+              <p class="mb-0" style="font-size: clamp(14px, 3vw, <%= s.descriptionSize || 16 %>px);"><%= s.description %></p>
+            </div>
+          <% }); %>
+        <% } else { %>
+          <div class="text-center w-100 text-muted">
+            Nenhum serviço configurado.
+          </div>
+        <% } %>
       </div>
     </div>
   </section>
+  <% } %>
 
   <!-- Contato -->
+  <% if (site.showContact !== false) { %>
   <section id="contato" class="py-5">
     <div class="container">
       <div class="contact-box glass mx-auto p-4 p-md-5" data-animate-bottom>
@@ -252,6 +263,7 @@
       </div>
     </div>
   </section>
+  <% } %>
 
   <!-- Footer -->
   <footer class="py-4">
@@ -349,7 +361,10 @@
     });
   </script>
 
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+  </script>
   <script src="./script/index.js" type="module"></script>
 </body>
-
 </html>

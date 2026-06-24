@@ -8,19 +8,64 @@ const siteConfigSchema = new Schema({
     type: String,
     default: "CoddeX Developer"
   },
+  titleSize: { type: Number, default: 56 }, // px
+  
   subtitle: {
     type: String,
     default: "Transformando ideias em projetos incríveis!"
   },
+  subtitleSize: { type: Number, default: 20 }, // px
+  
+  // Visibilidade de seções
+  showAbout: { type: Boolean, default: true },
+  showProjects: { type: Boolean, default: true },
+  showCertificates: { type: Boolean, default: true },
+  showServices: { type: Boolean, default: true },
+  showContact: { type: Boolean, default: true },
+
   titleAboutMe: {
     type: String,
     default: "Sobre Mim"
   },
+  titleAboutMeSize: { type: Number, default: 32 }, // px
+  
   // Suporta markdown
   textAboutMe: {
     type: String,
     default: "Olá, sou Gabriel Rodrigues Lima, desenvolvedor apaixonado por tecnologia! Com habilidades de Front-End e Back-End, transformo ideias em soluções criativas e eficientes."
   },
+  textAboutMeSize: { type: Number, default: 16 }, // px
+
+  // Serviços (Nosso Trabalho)
+  servicesTitle: {
+    type: String,
+    default: "Nosso trabalho"
+  },
+  servicesTitleSize: { type: Number, default: 32 }, // px
+  
+  servicesSubtitle: {
+    type: String,
+    default: "A CoddeX Developer investe tempo e recursos para garantir a mais moderna tecnologia para o seu negócio."
+  },
+  servicesSubtitleSize: { type: Number, default: 16 }, // px
+  
+  services: {
+    type: [
+      {
+        icon: { type: String, default: "cursor" },
+        title: { type: String, default: "Páginas na web" },
+        titleSize: { type: Number, default: 20 }, // px
+        description: { type: String, default: "Sites e páginas para aumentar a visibilidade da sua empresa, com equipe especializada em desenvolvimento e mentoria." },
+        descriptionSize: { type: Number, default: 16 } // px
+      }
+    ],
+    default: [
+      { icon: "mouse-pointer-click", title: "Páginas na web", titleSize: 20, description: "Sites e páginas para aumentar a visibilidade da sua empresa, com equipe especializada em desenvolvimento e mentoria.", descriptionSize: 16 },
+      { icon: "network", title: "Sistemas claros e eficientes", titleSize: 20, description: "Projetos claros e eficientes que atendem às necessidades dos seus clientes e às expectativas dos usuários finais.", descriptionSize: 16 },
+      { icon: "shield-check", title: "Backup e relatórios", titleSize: 20, description: "Relatórios detalhados, acompanhamento contínuo e mentoria especializada sobre o site ou sistema desenvolvido.", descriptionSize: 16 }
+    ]
+  },
+
   social: {
     github: { type: String, default: "" },
     linkedin: { type: String, default: "" },

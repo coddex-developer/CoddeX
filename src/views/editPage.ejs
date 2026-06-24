@@ -16,31 +16,147 @@
     </div>
   </div>
 
-  <form class="ajax-form" action="/admin/dashboard/editPage/save" method="POST">
-    <!-- Bloco de Conteúdo Principal -->
+  <form action="/admin/dashboard/editPage/save" method="POST">
+    <!-- Bloco: Visibilidade das Seções -->
     <div class="glass-panel p-4 mb-4 border-0">
-      <h2 class="h5 mb-4 text-white fw-bold"><i class="bi bi-fonts me-2" style="color: var(--accent-2);"></i>Textos da Landing Page</h2>
-
+      <h2 class="h5 mb-4 text-white fw-bold"><i class="bi bi-eye me-2" style="color: var(--accent-1);"></i>Visibilidade das Seções</h2>
+      <p class="text-muted small mb-4">Ligue ou desligue os blocos para exibí-los ou ocultá-los na página principal.</p>
+      <div class="row g-4">
+        <div class="col-md-4 col-sm-6">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="showAbout" name="showAbout" <%= site.showAbout ? 'checked' : '' %>>
+            <label class="form-check-label text-white" for="showAbout">Seção Sobre</label>
+          </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="showProjects" name="showProjects" <%= site.showProjects ? 'checked' : '' %>>
+            <label class="form-check-label text-white" for="showProjects">Projetos</label>
+          </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="showCertificates" name="showCertificates" <%= site.showCertificates ? 'checked' : '' %>>
+            <label class="form-check-label text-white" for="showCertificates">Certificados</label>
+          </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="showServices" name="showServices" <%= site.showServices ? 'checked' : '' %>>
+            <label class="form-check-label text-white" for="showServices">Serviços</label>
+          </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="showContact" name="showContact" <%= site.showContact ? 'checked' : '' %>>
+            <label class="form-check-label text-white" for="showContact">Contato</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Bloco: Hero (Página Inicial) -->
+    <div class="glass-panel p-4 mb-4 border-0">
+      <h2 class="h5 mb-4 text-white fw-bold"><i class="bi bi-window-desktop me-2" style="color: var(--accent-1);"></i>Cabeçalho do Site</h2>
       <div class="row g-4">
         <div class="col-md-12">
           <label for="title" class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Título Principal</label>
-          <input type="text" class="form-control" id="title" name="titleForm" value="<%= site.title %>" required>
+          <div class="input-group">
+            <input type="text" class="form-control" id="title" name="titleForm" value="<%= site.title %>" required>
+            <span class="input-group-text bg-dark border-secondary text-white" title="Tamanho da fonte"><i class="bi bi-type"></i></span>
+            <input type="number" class="form-control" style="max-width: 90px;" name="titleSize" value="<%= site.titleSize || 56 %>" min="10" max="150" title="Tamanho em Pixels" required>
+          </div>
         </div>
-
         <div class="col-md-12">
           <label for="subtitle" class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Subtítulo / Slogan</label>
-          <textarea class="form-control" id="subtitle" name="subtitleForm" rows="2" required><%= site.subtitle %></textarea>
+          <div class="input-group">
+            <textarea class="form-control" id="subtitle" name="subtitleForm" rows="2" required><%= site.subtitle %></textarea>
+            <span class="input-group-text bg-dark border-secondary text-white" title="Tamanho da fonte"><i class="bi bi-type"></i></span>
+            <input type="number" class="form-control" style="max-width: 90px;" name="subtitleSize" value="<%= site.subtitleSize || 20 %>" min="10" max="150" title="Tamanho em Pixels" required>
+          </div>
         </div>
+      </div>
+    </div>
 
+    <!-- Bloco: Sobre Mim -->
+    <div class="glass-panel p-4 mb-4 border-0">
+      <h2 class="h5 mb-4 text-white fw-bold"><i class="bi bi-person-badge me-2" style="color: var(--accent-2);"></i>Seção Sobre</h2>
+      <div class="row g-4">
         <div class="col-md-12">
-          <label for="aboutTitle" class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Título da Seção "Sobre"</label>
-          <input type="text" class="form-control" id="aboutTitle" name="titleAboutMeForm" value="<%= site.titleAboutMe %>" required>
+          <label for="aboutTitle" class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Título da Seção</label>
+          <div class="input-group">
+            <input type="text" class="form-control" id="aboutTitle" name="titleAboutMeForm" value="<%= site.titleAboutMe %>" required>
+            <span class="input-group-text bg-dark border-secondary text-white" title="Tamanho da fonte"><i class="bi bi-type"></i></span>
+            <input type="number" class="form-control" style="max-width: 90px;" name="titleAboutMeSize" value="<%= site.titleAboutMeSize || 32 %>" min="10" max="150" title="Tamanho em Pixels" required>
+          </div>
         </div>
-
         <div class="col-md-12">
-          <label for="aboutText" class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Texto "Sobre mim" (Markdown Suportado)</label>
+          <div class="d-flex justify-content-between">
+            <label for="aboutText" class="form-label text-uppercase text-muted mb-1" style="font-size: 0.75rem; letter-spacing: 1px;">Texto "Sobre mim" (Markdown Suportado)</label>
+            <div class="d-flex align-items-center mb-1" style="max-width: 150px;">
+              <span class="text-muted small me-2"><i class="bi bi-type"></i> px:</span>
+              <input type="number" class="form-control form-control-sm" name="textAboutMeSize" value="<%= site.textAboutMeSize || 16 %>" min="10" max="150" title="Tamanho em Pixels" required>
+            </div>
+          </div>
           <textarea class="form-control bg-dark text-white" id="aboutText" name="textAboutMeForm" required><%= site.textAboutMe %></textarea>
         </div>
+      </div>
+    </div>
+
+    <!-- Bloco de Serviços -->
+    <div class="glass-panel p-4 mb-4 border-0">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h5 text-white fw-bold mb-0"><i class="bi bi-diagram-3 me-2" style="color: var(--accent-1);"></i>Nosso Trabalho (Serviços)</h2>
+        <button type="button" class="btn btn-outline-light btn-sm" onclick="addServiceCard()"><i class="bi bi-plus-lg me-1"></i>Adicionar</button>
+      </div>
+
+      <div class="row g-4 mb-4">
+        <div class="col-md-12">
+          <label class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Título da Seção</label>
+          <div class="input-group">
+            <input type="text" class="form-control" name="servicesTitleForm" value="<%= site.servicesTitle || 'Nosso trabalho' %>" required>
+            <span class="input-group-text bg-dark border-secondary text-white" title="Tamanho da fonte"><i class="bi bi-type"></i></span>
+            <input type="number" class="form-control" style="max-width: 90px;" name="servicesTitleSize" value="<%= site.servicesTitleSize || 32 %>" min="10" max="150" title="Tamanho em Pixels" required>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <label class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Subtítulo da Seção</label>
+          <div class="input-group">
+            <textarea class="form-control" name="servicesSubtitleForm" rows="2" required><%= site.servicesSubtitle || 'A CoddeX Developer investe tempo e recursos...' %></textarea>
+            <span class="input-group-text bg-dark border-secondary text-white" title="Tamanho da fonte"><i class="bi bi-type"></i></span>
+            <input type="number" class="form-control" style="max-width: 90px;" name="servicesSubtitleSize" value="<%= site.servicesSubtitleSize || 16 %>" min="10" max="150" title="Tamanho em Pixels" required>
+          </div>
+        </div>
+      </div>
+
+      <div id="servicesContainer" class="d-flex flex-column gap-3">
+        <% if(site.services && site.services.length > 0) { %>
+          <% site.services.forEach((s, index) => { %>
+            <div class="service-card p-3 rounded position-relative" style="background: rgba(0,0,0,0.2); border: 1px solid var(--border-strong);">
+              <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2" onclick="if(confirm('Tem certeza que deseja remover este serviço?')) this.parentElement.remove()" style="padding: 0.15rem 0.4rem;"><i class="bi bi-trash"></i></button>
+              <div class="row g-3 align-items-center">
+                <div class="col-md-2 text-center">
+                  <input type="hidden" name="servicesIcon[]" value="<%= s.icon %>" class="icon-input">
+                  <button type="button" class="btn btn-outline-secondary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3" onclick="openIconModal(this)">
+                    <i data-lucide="<%= s.icon %>" class="mb-2 icon-preview"></i>
+                    <small style="font-size: 0.65rem;">Mudar Ícone</small>
+                  </button>
+                </div>
+                <div class="col-md-10">
+                  <div class="mb-2 input-group input-group-sm">
+                    <input type="text" class="form-control" name="servicesTitleItem[]" value="<%= s.title %>" placeholder="Título do Serviço" required>
+                    <span class="input-group-text bg-dark border-secondary text-white" title="Tamanho (px)"><i class="bi bi-type"></i></span>
+                    <input type="number" class="form-control" style="max-width: 70px;" name="servicesTitleSizeItem[]" value="<%= s.titleSize || 20 %>" min="10" max="150" required>
+                  </div>
+                  <div class="input-group input-group-sm">
+                    <textarea class="form-control" name="servicesDescItem[]" rows="2" placeholder="Descrição do Serviço" required><%= s.description %></textarea>
+                    <span class="input-group-text bg-dark border-secondary text-white" title="Tamanho (px)"><i class="bi bi-type"></i></span>
+                    <input type="number" class="form-control" style="max-width: 70px;" name="servicesDescSizeItem[]" value="<%= s.descriptionSize || 16 %>" min="10" max="150" required>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        <% } %>
       </div>
     </div>
 
@@ -62,14 +178,148 @@
   .CodeMirror-cursor { border-color: var(--accent-2) !important; }
 </style>
 
+<script src="https://unpkg.com/lucide@latest"></script>
 <script>
   new EasyMDE({
     element: document.getElementById("aboutText"),
     spellChecker: false,
     minHeight: "200px",
     status: false,
+    forceSync: true, // Garante que o texto seja copiado para o textarea invisível antes do submit
     toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "preview", "guide"]
   });
+
+  // Renderiza icones lucide da parte de servicos já carregada
+  lucide.createIcons();
+
+  // Template do card de servico
+  function addServiceCard() {
+    const container = document.getElementById('servicesContainer');
+    const newCard = document.createElement('div');
+    newCard.className = 'service-card p-3 rounded position-relative';
+    newCard.style.background = 'rgba(0,0,0,0.2)';
+    newCard.style.border = '1px solid var(--border-strong)';
+    newCard.innerHTML = `
+      <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2" onclick="if(confirm('Tem certeza que deseja remover este serviço?')) this.parentElement.remove()" style="padding: 0.15rem 0.4rem;"><i class="bi bi-trash"></i></button>
+      <div class="row g-3 align-items-center">
+        <div class="col-md-2 text-center">
+          <input type="hidden" name="servicesIcon[]" value="circle-dashed" class="icon-input">
+          <button type="button" class="btn btn-outline-secondary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3" onclick="openIconModal(this)">
+            <i data-lucide="circle-dashed" class="mb-2 icon-preview"></i>
+            <small style="font-size: 0.65rem;">Escolher Ícone</small>
+          </button>
+        </div>
+        <div class="col-md-10">
+          <div class="mb-2 input-group input-group-sm">
+            <input type="text" class="form-control" name="servicesTitleItem[]" placeholder="Título do Serviço" required>
+            <span class="input-group-text bg-dark border-secondary text-white" title="Tamanho (px)"><i class="bi bi-type"></i></span>
+            <input type="number" class="form-control" style="max-width: 70px;" name="servicesTitleSizeItem[]" value="20" min="10" max="150" required>
+          </div>
+          <div class="input-group input-group-sm">
+            <textarea class="form-control" name="servicesDescItem[]" rows="2" placeholder="Descrição do Serviço" required></textarea>
+            <span class="input-group-text bg-dark border-secondary text-white" title="Tamanho (px)"><i class="bi bi-type"></i></span>
+            <input type="number" class="form-control" style="max-width: 70px;" name="servicesDescSizeItem[]" value="16" min="10" max="150" required>
+          </div>
+        </div>
+      </div>
+    `;
+    container.appendChild(newCard);
+    lucide.createIcons({ root: newCard });
+  }
+
+  // --- Sistema Dinâmico de Ícones Lucide ---
+  let currentIconButton = null;
+  let iconModal = null;
+  
+  function openIconModal(btn) {
+    if (!iconModal) {
+      iconModal = new bootstrap.Modal(document.getElementById('lucideIconModal'));
+    }
+    currentIconButton = btn;
+    document.getElementById('iconSearch').value = '';
+    renderIcons();
+    iconModal.show();
+  }
+
+  let iconsRendered = false;
+
+  function renderIcons() {
+    if (iconsRendered) return; // Renderiza todos os ícones apenas uma vez
+    
+    const grid = document.getElementById('iconGrid');
+    grid.innerHTML = '';
+    
+    const allIconNames = Object.keys(lucide.icons);
+    allIconNames.forEach(iconName => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn btn-outline-secondary p-3 d-flex flex-column align-items-center justify-content-center icon-btn';
+      btn.style.gap = '8px';
+      btn.title = iconName;
+      // dataset para busca mais rápida
+      btn.dataset.name = iconName.toLowerCase();
+      // Criando node temporário para o createIcons parsear
+      btn.innerHTML = `<i data-lucide="${iconName}"></i>`;
+      btn.onclick = () => selectIcon(iconName);
+      grid.appendChild(btn);
+    });
+    
+    // Executa a substituição dos SVGs uma única vez
+    lucide.createIcons({ root: grid });
+    iconsRendered = true;
+  }
+
+  document.getElementById('iconSearch').addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    const buttons = document.querySelectorAll('#iconGrid .icon-btn');
+    
+    // Oculta ou mostra os botões sem precisar recriar o DOM (extremamente mais rápido)
+    buttons.forEach(btn => {
+      if (btn.dataset.name.includes(query)) {
+        btn.style.display = '';
+      } else {
+        btn.style.display = 'none';
+      }
+    });
+  });
+
+  function selectIcon(iconName) {
+    if (currentIconButton) {
+      // Atualiza o input hidden
+      const hiddenInput = currentIconButton.parentElement.querySelector('.icon-input');
+      hiddenInput.value = iconName;
+      
+      // Atualiza o preview visual
+      const preview = currentIconButton.querySelector('.icon-preview');
+      const newI = document.createElement('i');
+      newI.setAttribute('data-lucide', iconName);
+      newI.className = 'mb-2 icon-preview';
+      currentIconButton.replaceChild(newI, preview);
+      
+      lucide.createIcons({ root: currentIconButton });
+    }
+    iconModal.hide();
+  }
 </script>
+
+<!-- Modal de Ícones Lucide -->
+<div class="modal fade" id="lucideIconModal" tabindex="-1" data-bs-theme="dark">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg">
+    <div class="modal-content" style="background: var(--surface-1); border: 1px solid var(--border-strong);">
+      <div class="modal-header border-bottom border-secondary d-flex flex-column align-items-stretch gap-3">
+        <div class="d-flex justify-content-between align-items-center w-100">
+          <h5 class="modal-title fw-bold text-white mb-0"><i class="bi bi-stars me-2 text-warning"></i>Biblioteca Lucide Icons</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <input type="text" id="iconSearch" class="form-control bg-dark text-white border-secondary" placeholder="Pesquisar ícone por nome (ex: laptop, server, shield...)">
+      </div>
+      <div class="modal-body p-4 pt-3">
+        <div id="iconGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px;">
+          <!-- Ícones renderizados por JS aqui -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <%- include('fragments/footer') %>

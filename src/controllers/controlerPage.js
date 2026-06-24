@@ -295,10 +295,17 @@ module.exports = {
 
   //POST /admin/dashboard/editPage/save
   saveEditPage: async (req, res) => {
-    const { titleForm, subtitleForm, titleAboutMeForm, textAboutMeForm } = req.body;
+    const { 
+      titleForm, titleSize, subtitleForm, subtitleSize, 
+      titleAboutMeForm, titleAboutMeSize, textAboutMeForm, textAboutMeSize,
+      servicesTitleForm, servicesTitleSize, servicesSubtitleForm, servicesSubtitleSize,
+      showAbout, showProjects, showCertificates, showServices, showContact,
+      'servicesIcon[]': servicesIcon, 'servicesTitleItem[]': servicesTitleItem, 'servicesTitleSizeItem[]': servicesTitleSizeItem, 
+      'servicesDescItem[]': servicesDescItem, 'servicesDescSizeItem[]': servicesDescSizeItem
+    } = req.body;
 
     if (!titleForm || !subtitleForm || !titleAboutMeForm || !textAboutMeForm) {
-      return res.status(400).send("Todos os campos precisam ser preenchidos corretamente!");
+      return res.status(400).send("Os campos principais precisam ser preenchidos corretamente!");
     }
 
     try {
@@ -307,6 +314,48 @@ module.exports = {
       site.subtitle = subtitleForm;
       site.titleAboutMe = titleAboutMeForm;
       site.textAboutMe = textAboutMeForm;
+      
+      if (titleSize) site.titleSize = Number(titleSize);
+      if (subtitleSize) site.subtitleSize = Number(subtitleSize);
+      if (titleAboutMeSize) site.titleAboutMeSize = Number(titleAboutMeSize);
+      if (textAboutMeSize) site.textAboutMeSize = Number(textAboutMeSize);
+
+      site.showAbout = showAbout === 'on';
+      site.showProjects = showProjects === 'on';
+      site.showCertificates = showCertificates === 'on';
+      site.showServices = showServices === 'on';
+      site.showContact = showContact === 'on';
+
+      if (servicesTitleForm) site.servicesTitle = servicesTitleForm;
+      if (servicesTitleSize) site.servicesTitleSize = Number(servicesTitleSize);
+      
+      if (servicesSubtitleForm) site.servicesSubtitle = servicesSubtitleForm;
+      if (servicesSubtitleSize) site.servicesSubtitleSize = Number(servicesSubtitleSize);
+
+      // Processa os cartões dinâmicos de serviço
+      if (servicesIcon && servicesTitleItem && servicesDescItem) {
+        let newServices = [];
+        // Se vier só um elemento, vem como string; se vier mais, vem como array. Convertendo para array garantido:
+        let icons = Array.isArray(servicesIcon) ? servicesIcon : [servicesIcon];
+        let titles = Array.isArray(servicesTitleItem) ? servicesTitleItem : [servicesTitleItem];
+        let tSizes = servicesTitleSizeItem ? (Array.isArray(servicesTitleSizeItem) ? servicesTitleSizeItem : [servicesTitleSizeItem]) : [];
+        let descs = Array.isArray(servicesDescItem) ? servicesDescItem : [servicesDescItem];
+        let dSizes = servicesDescSizeItem ? (Array.isArray(servicesDescSizeItem) ? servicesDescSizeItem : [servicesDescSizeItem]) : [];
+
+        for (let i = 0; i < icons.length; i++) {
+          newServices.push({
+            icon: icons[i],
+            title: titles[i],
+            titleSize: tSizes[i] ? Number(tSizes[i]) : 20,
+            description: descs[i],
+            descriptionSize: dSizes[i] ? Number(dSizes[i]) : 16
+          });
+        }
+        site.services = newServices;
+      } else {
+        site.services = []; // Se não veio nada, usuário deletou todos os cartões
+      }
+
       await site.save();
 
       res.render("warning", {

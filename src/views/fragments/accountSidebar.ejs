@@ -54,7 +54,7 @@
       <span class="badge mt-2" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-strong); color: var(--text-muted);">@<%= user.username || 'user' %></span>
     </div>
 
-    <div class="p-3 flex-grow-1">
+    <div class="p-3 flex-grow-1" style="overflow-y: auto;">
       <ul class="nav flex-column gap-2">
         <li class="nav-item">
           <a href="/account" class="nav-link text-white rounded p-3 d-flex align-items-center gap-3 <%= currentPath === '/account' ? 'active bg-gradient text-white fw-bold' : 'hover-bg' %>" style="transition: all 0.2s;">
