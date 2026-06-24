@@ -4,7 +4,7 @@
 <head>
   <% 
     const plainDesc = project.subtitlePj ? project.subtitlePj : md(project.descriptionPj).replace(/<[^>]*>?/gm, '').trim().substring(0, 160);
-    const firstImage = (project.imagesPj && project.imagesPj.length > 0) ? project.imagesPj[0] : '/assets/admin1.png';
+    const firstImage = project.imagePj ? project.imagePj : '/assets/admin1.png';
   %>
   <%- include('fragments/head', { pageTitle: project.titlePj + ' · CoddeX', pageDescription: plainDesc }) %>
   
