@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <%- include('fragments/head', { pageTitle: 'Configurações · CoddeX' }) %>
+  <!-- Cropper.js CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+  <style>
+    .avatar-wrapper {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      overflow: hidden;
+      cursor: pointer;
+      border: 3px solid var(--accent-1);
+    }
+    .avatar-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .avatar-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .avatar-wrapper:hover .avatar-overlay {
+      opacity: 1;
+    }
+    #cropperImage {
+      max-width: 100%;
+      max-height: 60vh;
+    }
+  </style>
+</head>
+<body class="d-flex flex-column min-vh-100" style="background: var(--bg);">
+  
+  <div class="container-fluid py-4 flex-grow-1">
+    <div class="row gx-4">
+      
+      <!-- Sidebar -->
+      <div class="col-md-4 col-lg-3">
+        <%- include('fragments/accountSidebar', { user: user, currentPath: '/account/settings' }) %>
+      </div>
+
+      <!-- Main Content -->
+      <div class="col-md-8 col-lg-9 mt-4 mt-md-0">
+        
+        <h1 class="h3 fw-bold text-white mb-4">Configurações da Conta</h1>
+
+        <!-- Perfil Form -->
+        <div class="glass p-4 mb-4 rounded" style="border: 1px solid var(--border);">
+          <h4 class="fw-bold text-white mb-4"><i class="bi bi-person-badge me-2"></i>Perfil</h4>
+          
+          <form id="profileForm" action="/account/settings/profile" method="POST" enctype="multipart/form-data">
+            
+            <div class="d-flex align-items-center gap-4 mb-4">
+              <!-- Avatar Upload trigger -->
+              <div class="avatar-wrapper" onclick="document.getElementById('avatarInput').click()">
+                <% if (user.avatar) { %>
+                  <img id="avatarPreview" src="<%= user.avatar %>" alt="<%= user.name %>">
+                <% } else { %>
+                  <div class="account-avatar w-100 h-100 d-flex align-items-center justify-content-center" style="font-size: 3rem;" id="avatarPreviewFallback"><%= user.name.charAt(0).toUpperCase() %></div>
+                  <img id="avatarPreview" src="" style="display:none;">
+                <% } %>
+                <div class="avatar-overlay">
+                  <i class="bi bi-camera-fill text-white fs-3"></i>
+                </div>
+              </div>
+              <div>
+                <h5 class="text-white mb-1">Sua Foto</h5>
+                <p class="text-muted small mb-2">Clique na imagem para alterar. JPG, PNG ou GIF.</p>
+                <% if (user.avatar) { %>
+                  <button type="button" class="btn btn-sm btn-outline-danger" id="removeAvatarBtn"><i class="bi bi-trash me-1"></i>Remover foto</button>
+                <% } %>
+              </div>
+            </div>
+            
+            <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+
+            <div class="mb-3">
+              <label class="form-label text-muted">Nome de Exibição</label>
+              <input type="text" name="name" class="form-control bg-dark text-white border-secondary" value="<%= user.name %>" required minlength="2">
+              <div class="form-text">Seu nome público (não altera o seu @).</div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label text-white">Nome de Usuário (@)</label>
+              <div class="input-group">
+                <span class="input-group-text bg-dark border-secondary text-muted">@</span>
+                <input type="text" name="username" class="form-control bg-dark text-white border-secondary" value="<%= user.username || '' %>" required>
+              </div>
+              <div class="form-text">Apenas letras, números e underline. Mínimo 3 caracteres.</div>
+            </div>
+
+            <button type="submit" class="btn btn-gradient px-4 py-2 fw-bold w-100 w-sm-auto" id="saveProfileBtn">Salvar Perfil</button>
+          </form>
+        </div>
+
+        <!-- Segurança Form -->
+        <div class="glass p-4 rounded" style="border: 1px solid var(--border);">
+          <h4 class="fw-bold text-white mb-4"><i class="bi bi-shield-lock me-2"></i>Segurança</h4>
+          
+          <form class="ajax-form" action="/account/settings/security" method="POST">
+            <div class="mb-3">
+              <label class="form-label text-white">Senha Atual</label>
+              <input type="password" name="currentPassword" class="form-control bg-dark text-white border-secondary" required>
+            </div>
+            <div class="mb-4">
+              <label class="form-label text-white">Nova Senha</label>
+              <input type="password" name="newPassword" class="form-control bg-dark text-white border-secondary" required minlength="6">
+            </div>
+            <button type="submit" class="btn btn-outline-light px-4 py-2 fw-bold w-100 w-sm-auto">Atualizar Senha</button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal do Cropper -->
+  <div class="modal fade" id="cropperModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content glass" style="background: var(--surface-1);">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title text-white">Ajustar Imagem</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <div class="img-container d-inline-block w-100">
+            <img id="cropperImage" src="" alt="Picture">
+          </div>
+        </div>
+        <div class="modal-footer border-secondary">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-gradient" id="cropBtn">Salvar Imagem</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cropper.js JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      let cropper;
+      let croppedBlob = null;
+      const avatarInput = document.getElementById('avatarInput');
+      const cropperImage = document.getElementById('cropperImage');
+      const cropperModal = new bootstrap.Modal(document.getElementById('cropperModal'));
+      const avatarPreview = document.getElementById('avatarPreview');
+      const fallback = document.getElementById('avatarPreviewFallback');
+      
+      avatarInput.addEventListener('change', function (e) {
+        const files = e.target.files;
+        if (files && files.length > 0) {
+          const file = files[0];
+          const url = URL.createObjectURL(file);
+          cropperImage.src = url;
+          cropperModal.show();
+        }
+      });
+
+      document.getElementById('cropperModal').addEventListener('shown.bs.modal', function () {
+        cropper = new Cropper(cropperImage, {
+          aspectRatio: 1,
+          viewMode: 2,
+          dragMode: 'move',
+          autoCropArea: 1,
+          restore: false,
+          guides: false,
+          center: false,
+          highlight: false,
+          cropBoxMovable: false,
+          cropBoxResizable: false,
+          toggleDragModeOnDblclick: false,
+        });
+      });
+
+      document.getElementById('cropperModal').addEventListener('hidden.bs.modal', function () {
+        if (cropper) {
+          cropper.destroy();
+          cropper = null;
+        }
+        avatarInput.value = '';
+      });
+
+      document.getElementById('cropBtn').addEventListener('click', function () {
+        if (!cropper) return;
+        
+        const btn = this;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Salvando...';
+        btn.disabled = true;
+
+        const canvas = cropper.getCroppedCanvas({
+          width: 300,
+          height: 300,
+        });
+
+        canvas.toBlob(async function (blob) {
+          const formData = new FormData();
+          formData.append('avatar', blob, 'avatar.jpg');
+          
+          try {
+            const res = await fetch('/account/settings/profile', {
+              method: 'POST',
+              body: formData
+            });
+            const json = await res.json();
+            if (res.ok) {
+              window.location.reload(); // Recarrega a página para atualizar o dashboard na hora
+            } else {
+              showAlert(json.error || 'Erro ao salvar a foto.', 'danger');
+              btn.innerHTML = originalText;
+              btn.disabled = false;
+            }
+          } catch (err) {
+            showAlert('Erro de conexão.', 'danger');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+          }
+        });
+      });
+
+      // Lógica de Remover Foto
+      const removeBtn = document.getElementById('removeAvatarBtn');
+      if (removeBtn) {
+        removeBtn.addEventListener('click', async function() {
+          if (!confirm('Deseja realmente remover sua foto de perfil?')) return;
+          const btn = this;
+          const originalText = btn.innerHTML;
+          btn.innerHTML = 'Removendo...';
+          btn.disabled = true;
+
+          const formData = new FormData();
+          formData.append('removeAvatar', 'true');
+          
+          try {
+            const res = await fetch('/account/settings/profile', {
+              method: 'POST',
+              body: formData
+            });
+            const json = await res.json();
+            if (res.ok) {
+              window.location.reload();
+            } else {
+              showAlert(json.error || 'Erro ao remover a foto.', 'danger');
+              btn.innerHTML = originalText;
+              btn.disabled = false;
+            }
+          } catch (err) {
+            showAlert('Erro de conexão.', 'danger');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+          }
+        });
+      }
+
+      // Submissão do form de Perfil apenas para nome de usuário
+      document.getElementById('profileForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+
+        const btn = document.getElementById('saveProfileBtn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Salvando...';
+        btn.disabled = true;
+
+        try {
+          const res = await fetch(this.action, {
+            method: 'POST',
+            body: formData
+          });
+          const json = await res.json();
+          
+          if (res.ok) {
+            showAlert(json.success || 'Perfil salvo com sucesso!', 'success');
+          } else {
+            showAlert(json.error || 'Erro ao salvar o perfil.', 'danger');
+          }
+        } catch (err) {
+          showAlert('Erro de conexão.', 'danger');
+        } finally {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

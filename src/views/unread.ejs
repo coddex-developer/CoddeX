@@ -1,52 +1,72 @@
 <%- include('fragments/header') %>
 
-<div class="container my-5">
-  <!-- Botão de Voltar -->
-  <div class="text-center mb-4">
-    <a href="/admin/dashboard" class="btn btn-outline-danger rounded-pill px-4 py-2 shadow-sm">
-      <i class="bi bi-house-fill me-2"></i>Return Home
-    </a>
+<div class="container py-5" style="max-width: 1000px;">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
+    <div class="mb-3 mb-md-0">
+      <a href="/admin/dashboard" class="text-muted text-decoration-none small d-flex align-items-center mb-2">
+        <i class="bi bi-arrow-left me-1"></i> Voltar ao Painel
+      </a>
+      <h1 class="h3 fw-bold mb-1 text-white">Mensagens Pendentes</h1>
+      <p class="text-muted mb-0">Mensagens que aguardam sua leitura ou resposta.</p>
+    </div>
+    <div>
+      <a href="/admin/dashboard/messages" class="btn btn-secondary px-4 py-2 rounded-pill shadow-sm">
+        <i class="bi bi-archive me-2"></i>Ver Histórico Completo
+      </a>
+    </div>
   </div>
 
-  <div class="btn-group mb-4">
-    <a href="/admin/dashboard/messages" class="btn btn-outline-warning" aria-current="page">Todos</a>
-    <a href="#" class="btn btn-outline-warning active">Não lido</a>
-  </div>
-
-  <!-- Lista de Mensagens -->
-  <div class="row justify-content-center g-4">
-    <% resultMessage.forEach(function(note) { %>
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-        <a class="text-decoration-none" id="<%= note.id %>" href="/admin/dashboard/messages/<%= note.id %>">
-          <div class="card shadow-lg border-0 rounded-4 text-center h-100">
-            <div class="card-body d-flex justify-content-between align-items-center">
-              <!-- Ícone de mensagem à esquerda -->
-              <% if (!note.completed) { %>
-                <i class="bi bi-envelope display-1 text-warning"></i> <!-- Carta fechada -->
-              <% } else { %>
-                <i class="bi bi-envelope-open display-1 text-success"></i> <!-- Carta aberta -->
-              <% } %>
-              <!-- Informações à direita -->
-              <div class="text-end">
-                <!-- Nome -->
-                <h5 class="card-title mb-2 text-white fw-bold"><%= note.name %></h5>
-                <!-- Data e Hora -->
-                <p class="text-secondary mb-0"><i class="bi bi-calendar-week"></i> <%= note.data %></p>
-                <p class="text-secondary mb-0"><i class="bi bi-clock-history"></i> <%= note.time %></p>
+  <div class="row g-4">
+    <% if (unreadMessage && unreadMessage.length > 0) { %>
+      <% unreadMessage.forEach(function(note) { %>
+        <div class="col-12 col-md-6">
+          <div class="card h-100 border-0 glass-panel overflow-hidden" style="border-radius: var(--radius-lg); border-left: 4px solid var(--warning) !important;">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="d-flex align-items-center">
+                  <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px; background: rgba(255, 138, 0, 0.1); color: var(--warning);">
+                    <i class="bi bi-person-fill fs-5"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0 fw-bold text-white"><%= note.name %></h6>
+                    <small class="text-muted"><%= note.email %></small>
+                  </div>
+                </div>
+                <div>
+                  <span class="badge bg-warning text-white rounded-pill px-3 py-1 shadow-glow" style="text-shadow: 0 1px 2px rgba(0,0,0,0.5);">Pendente</span>
+                </div>
+              </div>
+              
+              <div class="p-3 rounded-3 mt-3 mb-4" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05);">
+                <p class="mb-0 text-white" style="font-size: 0.95rem; line-height: 1.5;"><%= note.message %></p>
               </div>
             </div>
-            <!-- Rodapé da mensagem -->
-            <div class="card-footer rounded-bottom-4">
-              <% if (!note.completed) { %>
-                <span class="badge bg-warning text-dark rounded-pill px-3 py-1">Pendente</span>
-              <% } else { %>
-                <span class="badge bg-success rounded-pill px-3 py-1">Concluído</span>
-              <% } %>
+            
+            <div class="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center p-3" style="background: var(--surface-solid) !important;">
+              <small class="text-muted"><i class="bi bi-clock me-1"></i><%= note.createdAt.toLocaleDateString('pt-BR') %></small>
+              
+              <div class="d-flex gap-2">
+                <form action="/admin/dashboard/messages/<%= note.id %>/complete" method="post" class="m-0 ajax-form">
+                  <button class="btn btn-outline-success btn-sm rounded-pill px-3" type="submit"><i class="bi bi-check2-circle me-1"></i>Marcar Concluído</button>
+                </form>
+                
+                <form action="/admin/dashboard/messages/<%= note.id %>/delete" method="post" class="m-0 ajax-form" data-confirm="Excluir esta mensagem permanentemente?" data-confirm-title="Excluir Mensagem" data-confirm-btn="Excluir">
+                  <button class="btn btn-outline-danger btn-sm rounded-pill px-3" type="submit"><i class="bi bi-trash3-fill"></i></button>
+                </form>
+              </div>
             </div>
           </div>
-        </a>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div class="col-12">
+        <div class="glass-panel p-5 text-center border-0" style="background: rgba(0, 255, 127, 0.05);">
+          <i class="bi bi-check-circle text-muted mb-3 d-block" style="font-size: 3rem; color: var(--success) !important;"></i>
+          <h5 class="text-white fw-bold">Tudo Limpo!</h5>
+          <p class="text-muted mb-0">Você não tem mensagens pendentes no momento.</p>
+        </div>
       </div>
-    <% }); %>
+    <% } %>
   </div>
 </div>
 

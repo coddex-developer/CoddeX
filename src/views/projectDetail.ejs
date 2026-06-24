@@ -35,116 +35,208 @@
         <img src="<%= project.imagePj %>" alt="<%= project.titlePj %>" style="width:100%; max-height:360px; object-fit:cover;">
         <div class="p-4 p-md-5">
           <h1 class="section-title gradient-text mb-3"><%= project.titlePj %></h1>
+          <% if (project.createdAt) { %>
+            <div class="d-flex align-items-center mb-4 text-muted" style="font-size: 0.9rem;">
+              <i class="bi bi-clock me-2"></i> Publicado há <%= timeAgo(project.createdAt) %>
+            </div>
+          <% } %>
           <div class="markdown-body mb-4"><%- md(project.descriptionPj) %></div>
 
-          <div class="d-flex flex-wrap gap-2 align-items-center">
-            <!-- Curtir -->
+          <style>
+            .btn-glass-action {
+              background: transparent;
+              border: 1px solid rgba(255, 255, 255, 0.15);
+              color: var(--text);
+              transition: all 0.3s ease;
+              font-weight: 500;
+            }
+            .btn-glass-action:hover {
+              background: rgba(255, 255, 255, 0.08);
+              border-color: rgba(255, 255, 255, 0.3);
+              color: #fff;
+            }
+            .btn-glass-action.liked {
+              border-color: rgba(243, 91, 4, 0.4);
+              color: var(--accent-1);
+            }
+            .btn-glass-action.liked:hover {
+              background: rgba(243, 91, 4, 0.1);
+            }
+          </style>
+
+          <div class="d-flex flex-wrap gap-3 align-items-center mt-4">
+            <!-- 1. Curtir -->
             <% if (currentUser) { %>
               <form action="/projeto/<%= project.id %>/like" method="post" class="m-0 ajax-form">
-                <button class="btn <%= likedByMe ? 'btn-gradient' : 'btn-outline-light' %>" type="submit">
+                <button class="btn btn-glass-action rounded-pill px-3 py-2 <%= likedByMe ? 'liked' : '' %>" type="submit">
                   <i class="bi <%= likedByMe ? 'bi-heart-fill' : 'bi-heart' %> me-1"></i>
-                  <%= likedByMe ? 'Curtido' : 'Curtir' %>
-                  <span class="badge rounded-pill ms-1 like-badge" data-project-id="<%= project.id %>"><%= likeCount %></span>
+                  <span class="like-text"><%= likedByMe ? 'Curtido' : 'Curtir' %></span>
+                  <span class="badge rounded-pill ms-1 like-badge" data-project-id="<%= project.id %>" style="background: rgba(255,255,255,0.1);"><%= likeCount %></span>
                 </button>
               </form>
             <% } else { %>
-              <a href="/login" class="btn btn-outline-light">
+              <a href="/login" class="btn btn-glass-action rounded-pill px-3 py-2">
                 <i class="bi bi-heart me-1"></i>Curtir
-                <span class="badge rounded-pill ms-1"><%= likeCount %></span>
+                <span class="badge rounded-pill ms-1" style="background: rgba(255,255,255,0.1);"><%= likeCount %></span>
               </a>
             <% } %>
 
-            <a href="<%= project.linkPj %>" target="_blank" rel="noopener" class="btn btn-gradient">
+            <!-- 2. Comentários -->
+            <button class="btn btn-glass-action rounded-pill px-3 py-2" data-bs-toggle="modal" data-bs-target="#commentsModal">
+              <i class="bi bi-chat me-1"></i>Comentários 
+              <span class="badge rounded-pill ms-1 comment-badge" data-project-id="<%= project.id %>" style="background: rgba(255,255,255,0.1);"><%= commentCount %></span>
+            </button>
+
+            <!-- 3. Ver projeto ao vivo -->
+            <a href="<%= project.linkPj %>" target="_blank" rel="noopener" class="btn btn-glass-action rounded-pill px-3 py-2">
               <i class="bi bi-box-arrow-up-right me-1"></i>Ver projeto ao vivo
             </a>
           </div>
         </div>
       </article>
 
-      <!-- Comentários -->
-      <section id="comentarios" class="glass p-4 p-md-5">
-        <h2 class="h4 mb-4"><i class="bi bi-chat-left-text me-2 gradient-text"></i>Comentários (<span class="comment-badge" data-project-id="<%= project.id %>"><%= commentCount %></span>)</h2>
-
-        <% if (canInteract) { %>
-          <form action="/projeto/<%= project.id %>/comment" method="post" class="mb-4 ajax-form">
-            <textarea class="form-control mb-2" name="body" rows="3" maxlength="2000"
-              placeholder="Escreva um comentário (suporta markdown)..." required></textarea>
-            <button class="btn btn-gradient" type="submit"><i class="bi bi-send me-1"></i>Comentar</button>
-          </form>
-        <% } else { %>
-          <div class="alert" style="background:var(--surface-2);border-color:var(--border);">
-            <a href="/login" style="color:var(--accent-2);">Entre na sua conta</a> para curtir e comentar.
-          </div>
-        <% } %>
-
-        <%
-          // Renderiza um comentário (e, se for raiz, suas respostas)
-          function commentBlock(c, isReply) {
-        %>
-          <div class="comment <%= isReply ? 'comment-reply' : '' %>" id="c-<%= c._id %>">
-            <div class="d-flex gap-2">
-              <span class="comment-avatar <%= c.isAuthor ? 'is-author' : '' %>"><%= c.userName.charAt(0).toUpperCase() %></span>
-              <div class="flex-grow-1 min-w-0">
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                  <strong><%= c.userName %></strong>
-                  <% if (c.isAuthor) { %><span class="badge-author"><i class="bi bi-patch-check-fill me-1"></i>Autor</span><% } %>
-                  <small class="text-muted-2"><%= new Date(c.createdAt).toLocaleDateString('pt-BR') %></small>
-                </div>
-                <div class="markdown-body comment-body"><%- md(c.body) %></div>
-
-                <div class="comment-actions">
-                  <% if (canInteract) { %>
-                    <form action="/projeto/<%= project.id %>/comment/<%= c._id %>/like" method="post" class="d-inline m-0">
-                      <button class="c-action c-like <%= c.likedByMe ? 'liked' : '' %>" type="submit">
-                        <i class="bi <%= c.likedByMe ? 'bi-heart-fill' : 'bi-heart' %>"></i> <%= c.likeCount %>
-                      </button>
-                    </form>
-                  <% } else { %>
-                    <a href="/login" class="c-action c-like"><i class="bi bi-heart"></i> <%= c.likeCount %></a>
-                  <% } %>
-
-                  <% if (canInteract && !isReply) { %>
-                    <button type="button" class="c-action c-reply-toggle" data-target="reply-<%= c._id %>">
-                      <i class="bi bi-reply me-1"></i>Responder
-                    </button>
-                  <% } %>
-
-                  <% if (canInteract && (isAdmin || String(c.user) === String(actorId))) { %>
-                    <form action="/projeto/<%= project.id %>/comment/<%= c._id %>/delete" method="post" class="d-inline m-0"
-                      data-confirm="Excluir este comentário?" data-confirm-btn="Excluir">
-                      <button class="c-action text-danger" type="submit"><i class="bi bi-trash"></i></button>
-                    </form>
-                  <% } %>
-                </div>
-
-                <% if (canInteract && !isReply) { %>
-                  <form id="reply-<%= c._id %>" class="reply-form mt-2" style="display:none;"
-                    action="/projeto/<%= project.id %>/comment" method="post">
-                    <input type="hidden" name="parent" value="<%= c._id %>">
-                    <textarea class="form-control mb-2" name="body" rows="2" maxlength="2000" placeholder="Escreva uma resposta..." required></textarea>
-                    <button class="btn btn-gradient btn-sm" type="submit"><i class="bi bi-send me-1"></i>Responder</button>
-                  </form>
-                <% } %>
-
-                <% if (!isReply && c.replies && c.replies.length) { %>
-                  <div class="replies mt-2">
-                    <% c.replies.forEach(r => commentBlock(r, true)); %>
-                  </div>
-                <% } %>
-              </div>
+      <!-- Modal de Comentários (Instagram Style) -->
+      <div class="modal fade" id="commentsModal" tabindex="-1" aria-hidden="true" data-bs-theme="dark">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 600px;">
+          <div class="modal-content" style="background: var(--surface-solid); border: 1px solid var(--border); border-radius: 15px;">
+            <div class="modal-header border-bottom-0 pb-0 position-relative">
+              <h6 class="modal-title fw-bold text-white w-100 text-center">Comentários</h6>
+              <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-          </div>
-        <% } %>
+            <hr style="border-color: var(--border); margin-bottom: 0;">
 
-        <% if (comments.length === 0) { %>
-          <p id="emptyComments" class="text-muted-2 mb-0">Seja o primeiro a comentar!</p>
-          <div id="commentsContainer" class="d-flex flex-column gap-3"></div>
-        <% } else { %>
-          <div id="commentsContainer" class="d-flex flex-column gap-3">
-            <% comments.forEach(c => commentBlock(c, false)); %>
+            <div class="modal-body p-3" id="commentsContainerModal" style="overflow-x: hidden;">
+              <%
+                function commentBlock(c, isReply) {
+              %>
+                <div class="comment-ig d-flex gap-3 mb-3 <%= isReply ? 'ms-4 mt-2' : '' %>" id="c-<%= c._id %>">
+                  <!-- Avatar -->
+                  <div class="rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0" style="width: 40px; height: 40px; font-weight: bold; overflow: hidden; background: var(--surface-1); border: 2px solid var(--border);">
+                    <% if (c.isAuthor) { %>
+                      <img src="/assets/admin1.png" alt="Autor" style="width: 100%; height: 100%; object-fit: cover;">
+                    <% } else if (c.userAvatar) { %>
+                      <img src="<%= c.userAvatar %>" alt="<%= c.userName %>" style="width: 100%; height: 100%; object-fit: cover;">
+                    <% } else { %>
+                      <%= c.userName.charAt(0).toUpperCase() %>
+                    <% } %>
+                  </div>
+                  
+                  <!-- Body -->
+                  <div class="flex-grow-1 min-w-0">
+                    <div class="d-flex justify-content-between align-items-start">
+                      <div>
+                        <span class="fw-bold text-white me-1" style="font-size: 0.9rem;">
+                          <% if (c.isAuthor) { %>
+                            CoddeX <i class="bi bi-patch-check-fill text-primary ms-1" style="font-size: 0.8rem;"></i>
+                          <% } else { %>
+                            <%= c.userName %> <span class="text-muted fw-normal" style="font-size: 0.75rem;">@<%= c.userUsername || 'user' %></span>
+                          <% } %>
+                        </span>
+                        <span class="text-white" style="font-size: 0.9rem; word-break: break-word;">
+                          <%- c.body.replace(/@([a-zA-Z0-9_]+)/g, '<span style="color: #3b82f6;">@$1</span>') %>
+                        </span>
+                      </div>
+                      
+                      <!-- Like icon -->
+                      <% if (canInteract) { %>
+                        <form action="/projeto/<%= project.id %>/comment/<%= c._id %>/like" method="post" class="m-0 ajax-form d-flex flex-column align-items-center" data-comment-id="<%= c._id %>">
+                          <button class="btn p-0 border-0 bg-transparent" type="submit">
+                            <i id="comment-like-icon-<%= c._id %>" class="bi <%= c.likedByMe ? 'bi-heart-fill text-danger' : 'bi-heart text-muted' %>" style="font-size: 0.85rem;"></i>
+                          </button>
+                        </form>
+                      <% } else { %>
+                        <a href="/login" class="text-muted"><i class="bi bi-heart" style="font-size: 0.85rem;"></i></a>
+                      <% } %>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex align-items-center gap-3 mt-1">
+                      <small class="text-muted" style="font-size: 0.75rem;"><%= timeAgo(c.createdAt) %></small>
+                      
+                      <small id="comment-like-count-<%= c._id %>" class="text-muted fw-bold" style="font-size: 0.75rem; <%= c.likeCount > 0 ? '' : 'display: none;' %>">
+                        <%= c.likeCount %> curtida<%= c.likeCount === 1 ? '' : 's' %>
+                      </small>
+
+                      <% if (canInteract && !isReply) { %>
+                        <button type="button" class="btn p-0 border-0 bg-transparent text-muted fw-bold c-reply-toggle" data-comment-id="<%= c._id %>" data-username="<%= c.userUsername || 'user' %>" style="font-size: 0.75rem;">Responder</button>
+                      <% } %>
+
+                      <% if (canInteract && (isAdmin || String(c.user) === String(actorId))) { %>
+                        <form action="/projeto/<%= project.id %>/comment/<%= c._id %>/delete" method="post" class="d-inline m-0 ajax-form" data-confirm="Excluir comentário?">
+                          <button class="btn p-0 border-0 bg-transparent text-danger fw-bold" type="submit" style="font-size: 0.75rem;">Excluir</button>
+                        </form>
+                      <% } %>
+                    </div>
+
+                    <!-- Formulário de Resposta Removido (agora usa o input principal) -->
+
+                    <!-- Replies -->
+                    <% if (!isReply && c.replies && c.replies.length) { %>
+                      <div class="mt-1" id="replies-container-<%= c._id %>">
+                        <div class="replies-list" style="display:none;">
+                          <% c.replies.forEach((r, idx) => { %>
+                            <div class="reply-item" style="display: none;" data-index="<%= idx %>">
+                              <% commentBlock(r, true); %>
+                            </div>
+                          <% }); %>
+                        </div>
+                        <button class="btn p-0 border-0 bg-transparent text-muted fw-bold d-flex align-items-center gap-2 c-replies-load-more mt-2" data-target="replies-container-<%= c._id %>" data-total="<%= c.replies.length %>" data-shown="0" style="font-size: 0.75rem;">
+                          <div style="width: 20px; height: 1px; background: #6c757d;"></div> <span class="btn-text">ver respostas (<%= c.replies.length %>)</span>
+                        </button>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+              <% } %>
+
+              <% if (comments.length === 0) { %>
+                <div class="text-center py-5">
+                  <h4 class="text-white fw-bold">Sem comentários ainda.</h4>
+                  <p class="text-muted">Inicie a conversa.</p>
+                </div>
+              <% } else { %>
+                <div id="commentsWrapper">
+                  <% comments.forEach(c => commentBlock(c, false)); %>
+                </div>
+              <% } %>
+            </div>
+
+            <div class="modal-footer border-top-0 p-3 flex-column align-items-start" style="background: var(--surface-2); border-radius: 0 0 15px 15px;">
+              <% if (canInteract) { %>
+                <!-- Indicador de Resposta -->
+                <div id="replyingIndicator" class="w-100 d-flex justify-content-between align-items-center mb-2 px-1" style="display: none !important;">
+                  <small class="text-muted fw-bold" style="font-size: 0.8rem;" id="replyingText">Respondendo a ...</small>
+                  <button type="button" class="btn p-0 border-0 bg-transparent text-muted" id="cancelReplyBtn">
+                    <i class="bi bi-x-circle-fill"></i>
+                  </button>
+                </div>
+
+                <form action="/projeto/<%= project.id %>/comment" method="post" id="mainCommentForm" class="w-100 d-flex gap-2 align-items-center ajax-form position-relative">
+                  <input type="hidden" name="parent" id="mainReplyParentId" value="">
+                  <div class="rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0" style="width: 36px; height: 36px; font-weight: bold; font-size: 14px; overflow: hidden; background: var(--surface-1); border: 2px solid var(--border);">
+                    <% if (actorId === 'admin') { %>
+                      <img src="/assets/admin1.png" alt="Autor" style="width: 100%; height: 100%; object-fit: cover;">
+                    <% } else if (user && user.avatar) { %>
+                      <img src="<%= user.avatar %>" alt="<%= user.name %>" style="width: 100%; height: 100%; object-fit: cover;">
+                    <% } else if (user) { %>
+                      <%= user.name.charAt(0).toUpperCase() %>
+                    <% } else { %>
+                      U
+                    <% } %>
+                  </div>
+                  <input type="text" class="form-control bg-transparent text-white border-0" id="mainCommentInput" name="body" placeholder="Adicione um comentário..." required style="box-shadow: none; outline: none;">
+                  <button class="btn text-primary fw-bold p-0 px-2" type="submit">Publicar</button>
+                </form>
+              <% } else { %>
+                <div class="w-100 text-center">
+                  <a href="/login" class="text-primary text-decoration-none fw-bold">Faça login para comentar</a>
+                </div>
+              <% } %>
+            </div>
+
           </div>
-        <% } %>
-      </section>
+        </div>
+      </div>
 
     </div>
   </main>
@@ -154,14 +246,118 @@
   </footer>
 
   <script>
+    // Toggle para o formulário de resposta unificado
     document.querySelectorAll(".c-reply-toggle").forEach(btn => {
       btn.addEventListener("click", () => {
-        const f = document.getElementById(btn.dataset.target);
-        if (!f) return;
-        const open = f.style.display !== "none";
-        f.style.display = open ? "none" : "block";
-        if (!open) { const ta = f.querySelector("textarea"); if (ta) ta.focus(); }
+        const commentId = btn.dataset.commentId;
+        const username = btn.dataset.username;
+        const input = document.getElementById("mainCommentInput");
+        const parentIdInput = document.getElementById("mainReplyParentId");
+        
+        if (input && parentIdInput) {
+          parentIdInput.value = commentId;
+          input.value = `@${username} `;
+          input.focus();
+          
+          const indicator = document.getElementById("replyingIndicator");
+          const indicatorText = document.getElementById("replyingText");
+          if (indicator && indicatorText) {
+            indicatorText.innerText = `Respondendo a @${username}`;
+            indicator.style.setProperty('display', 'flex', 'important');
+          }
+        }
       });
+    });
+
+    // Cancelar Resposta
+    const cancelReplyBtn = document.getElementById("cancelReplyBtn");
+    if (cancelReplyBtn) {
+      cancelReplyBtn.addEventListener("click", () => {
+        const input = document.getElementById("mainCommentInput");
+        const parentIdInput = document.getElementById("mainReplyParentId");
+        const indicator = document.getElementById("replyingIndicator");
+        
+        if (parentIdInput) parentIdInput.value = "";
+        if (indicator) indicator.style.setProperty('display', 'none', 'important');
+        if (input && input.value.startsWith("@")) input.value = "";
+      });
+    }
+
+    // Paginação para ver respostas (subcomentários)
+    document.querySelectorAll(".c-replies-load-more").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const targetId = btn.dataset.target;
+        const container = document.getElementById(targetId);
+        if (!container) return;
+
+        const list = container.querySelector('.replies-list');
+        const items = list.querySelectorAll('.reply-item');
+        const total = parseInt(btn.dataset.total);
+        let shown = parseInt(btn.dataset.shown);
+
+        if (shown === total) {
+          // Ocultar tudo
+          items.forEach(item => item.style.display = "none");
+          btn.dataset.shown = "0";
+          list.style.display = "none";
+          btn.querySelector('.btn-text').innerText = `ver respostas (${total})`;
+        } else {
+          // Revela as próximas 10 respostas
+          list.style.display = "block";
+          const limit = shown + 10;
+          for (let i = shown; i < limit && i < total; i++) {
+            if (items[i]) items[i].style.display = "block";
+            shown++;
+          }
+          btn.dataset.shown = shown;
+
+          const remaining = total - shown;
+          if (remaining > 0) {
+            btn.querySelector('.btn-text').innerText = `ver respostas (${remaining})`;
+          } else {
+            btn.querySelector('.btn-text').innerText = `Ocultar respostas`;
+          }
+        }
+      });
+    });
+
+    // --- Sistema Inteligente de Notificações (Auto-Open Modal e Highlight) ---
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.location.hash && window.location.hash.startsWith("#c-")) {
+        const commentId = window.location.hash.substring(1); // 'c-abc'
+        const commentEl = document.getElementById(commentId);
+        
+        if (commentEl) {
+          // Instancia e abre o modal de comentários
+          const modalEl = document.getElementById('commentsModal');
+          const commentsModal = new bootstrap.Modal(modalEl);
+          commentsModal.show();
+          
+          // Se o comentário for uma resposta, ele pode estar oculto dentro do pai
+          const parentList = commentEl.closest('.replies-list');
+          if (parentList) {
+            parentList.style.display = "block";
+            parentList.querySelectorAll('.reply-item').forEach(item => item.style.display = "block");
+            const btnLoadMore = parentList.nextElementSibling;
+            if (btnLoadMore && btnLoadMore.classList.contains('c-replies-load-more')) {
+              btnLoadMore.style.display = "none";
+            }
+          }
+
+          // Aguarda a transição do modal para focar no comentário
+          modalEl.addEventListener('shown.bs.modal', () => {
+            commentEl.scrollIntoView({ behavior: "smooth", block: "center" });
+            const originalBg = commentEl.style.backgroundColor;
+            commentEl.style.backgroundColor = "rgba(59, 130, 246, 0.2)"; // Azul de destaque
+            commentEl.style.transition = "background-color 2s";
+            commentEl.style.borderRadius = "8px";
+            
+            setTimeout(() => {
+              commentEl.style.backgroundColor = originalBg;
+            }, 2000);
+          }, { once: true });
+        }
+      }
     });
   </script>
 </body>

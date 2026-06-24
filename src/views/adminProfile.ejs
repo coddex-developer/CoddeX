@@ -1,154 +1,158 @@
 <%- include('fragments/header') %>
 
-<div class="container py-5" style="max-width: 760px;">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">Perfil & Configurações</h1>
-    <a href="/admin/dashboard" class="btn btn-outline-light btn-sm"><i class="bi bi-house-fill me-1"></i>Início</a>
+<div class="container py-5" style="max-width: 800px;">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
+    <div class="mb-3 mb-md-0">
+      <a href="/admin/dashboard" class="text-muted text-decoration-none small d-flex align-items-center mb-2">
+        <i class="bi bi-arrow-left me-1"></i> Voltar ao Painel
+      </a>
+      <h1 class="h3 fw-bold mb-1 text-white">Perfil & Configurações</h1>
+      <p class="text-muted mb-0">Gerencie credenciais, redes sociais, e-mail e Cloudinary.</p>
+    </div>
   </div>
 
-  <!-- 1. Credenciais do administrador -->
-  <form class="ajax-form glass p-4 mb-4" action="/admin/dashboard/adminProfile" enctype="multipart/form-data" method="post"
-    data-confirm="Salvar novas credenciais? Você será deslogado." data-confirm-title="Salvar credenciais" data-confirm-btn="Salvar">
-    <h2 class="h5 mb-3"><i class="bi bi-person-badge-fill me-2 gradient-text"></i>Logo do sistema</h2>
+  <!-- 1. Logo do Sistema -->
+  <form class="ajax-form glass-panel p-4 mb-4 border-0" action="/admin/dashboard/adminProfile" enctype="multipart/form-data" method="post"
+    data-confirm="Atualizar a logo do sistema?" data-confirm-title="Salvar Logo" data-confirm-btn="Atualizar">
+    <h2 class="h5 mb-4 text-white fw-bold"><i class="bi bi-image me-2 gradient-text"></i>Logo do Sistema</h2>
 
-    <label class="upload-drop d-flex flex-column align-items-center justify-content-center text-center mb-3" for="file">
-      <i class="bi bi-cloud-arrow-up-fill fs-1 mb-1 gradient-text"></i>
-      <span class="text-muted-2">Colar ou importar nova logo</span>
+    <label class="upload-drop d-flex flex-column align-items-center justify-content-center text-center mb-4" for="file" style="min-height: 160px; background: rgba(0, 0, 0, 0.4); border: 1px dashed rgba(0, 240, 255, 0.3); border-radius: var(--radius); cursor: pointer; transition: all 0.3s ease;">
+      <i class="bi bi-cloud-arrow-up fs-1 mb-2 text-accent-2"></i>
+      <span class="text-white fw-medium">Clique para selecionar ou arraste a imagem</span>
+      <small class="text-muted mt-1">Formatos suportados: PNG, JPG, SVG.</small>
       <input type="file" id="file" name="logo" accept="image/*" hidden data-preview="#logoPreview">
     </label>
-    <img id="logoPreview" class="img-preview mb-3" style="display:none;" alt="Pré-visualização da logo">
-<!--
-    <div class="mb-3">
-      <label for="username" class="form-label"><i class="bi bi-person me-1"></i>Nome de usuário</label>
-      <input type="text" class="form-control" id="username" name="username" value="<%= adminUser.userAdmin %>">
+    
+    <div class="text-center">
+      <img id="logoPreview" class="img-preview mb-4 rounded-4 shadow-sm" style="display:none; max-width: 200px;" alt="Pré-visualização da logo">
     </div>
-    <div class="mb-3">
-      <label for="password" class="form-label"><i class="bi bi-lock me-1"></i>Nova senha</label>
-      <div class="password-wrap" style="position: relative;">
-        <input type="text" class="form-control" id="password" name="password" placeholder="Digite a nova senha">
-        <button type="button" id="buttonView" class="toggle-pass" aria-label="Mostrar senha"
-          style="position:absolute; top:50%; right:.5rem; transform:translateY(-50%); background:transparent; border:none; color:var(--text-muted); width:2.2rem; height:2.2rem; border-radius:8px; cursor:pointer;">
-          <i class="bi bi-eye"></i>
-        </button>
-      </div>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-gradient px-4" type="submit"><i class="bi bi-cloud-arrow-up-fill me-2"></i>Fazer Upload</button>
     </div>
--->
-    <button class="btn btn-gradient" type="submit"><i class="bi bi-save me-2"></i>Atualizar Logo</button>
   </form>
 
   <!-- 2. Redes sociais e contato -->
-  <form id="social" class="ajax-form glass p-4 mb-4" action="/admin/dashboard/profile/social" method="post">
-    <h2 class="h5 mb-3"><i class="bi bi-share-fill me-2 gradient-text"></i>Redes sociais e contato</h2>
-    <p class="text-muted-2 small mb-3">Os links preenchidos aparecem no rodapé do site.</p>
-    <div class="row g-3">
+  <form id="social" class="ajax-form glass-panel p-4 mb-4 border-0" action="/admin/dashboard/profile/social" method="post">
+    <div class="mb-4">
+      <h2 class="h5 text-white fw-bold"><i class="bi bi-share-fill me-2" style="color: var(--accent-1);"></i>Redes Sociais & Contato</h2>
+      <p class="text-muted small mb-0">Estes links serão exibidos no rodapé do site principal.</p>
+    </div>
+
+    <div class="row g-4">
       <div class="col-md-6">
-        <label class="form-label"><i class="bi bi-github me-1"></i>GitHub</label>
+        <label class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;"><i class="bi bi-github me-1"></i> GitHub</label>
         <input type="url" class="form-control" name="github" value="<%= site.social.github %>" placeholder="https://github.com/...">
       </div>
       <div class="col-md-6">
-        <label class="form-label"><i class="bi bi-linkedin me-1"></i>LinkedIn</label>
+        <label class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;"><i class="bi bi-linkedin me-1"></i> LinkedIn</label>
         <input type="url" class="form-control" name="linkedin" value="<%= site.social.linkedin %>" placeholder="https://linkedin.com/in/...">
       </div>
       <div class="col-md-6">
-        <label class="form-label"><i class="bi bi-instagram me-1"></i>Instagram</label>
+        <label class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;"><i class="bi bi-instagram me-1"></i> Instagram</label>
         <input type="url" class="form-control" name="instagram" value="<%= site.social.instagram %>" placeholder="https://instagram.com/...">
       </div>
       <div class="col-md-6">
-        <label class="form-label"><i class="bi bi-whatsapp me-1"></i>WhatsApp</label>
+        <label class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;"><i class="bi bi-whatsapp me-1"></i> WhatsApp</label>
         <input type="url" class="form-control" name="whatsapp" value="<%= site.social.whatsapp %>" placeholder="https://wa.me/55...">
       </div>
       <div class="col-md-6">
-        <label class="form-label"><i class="bi bi-envelope me-1"></i>E-mail de contato</label>
+        <label class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;"><i class="bi bi-envelope me-1"></i> E-mail Público</label>
         <input type="email" class="form-control" name="contactEmail" value="<%= site.contactEmail %>" placeholder="voce@email.com">
       </div>
       <div class="col-md-6">
-        <label class="form-label"><i class="bi bi-telephone me-1"></i>Telefone</label>
+        <label class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;"><i class="bi bi-telephone me-1"></i> Telefone</label>
         <input type="text" class="form-control" name="contactPhone" value="<%= site.contactPhone %>" placeholder="(DDD) 9 9999-9999">
       </div>
     </div>
-    <button class="btn btn-gradient mt-3" type="submit"><i class="bi bi-save me-2"></i>Salvar redes sociais</button>
+    <div class="d-flex justify-content-end mt-4">
+      <button class="btn btn-secondary px-4" type="submit"><i class="bi bi-check2-circle me-2"></i>Salvar Informações</button>
+    </div>
   </form>
 
   <!-- 3. E-mail (SMTP) -->
-  <div id="mail" class="glass p-4 mb-4">
+  <div id="mail" class="glass-panel p-4 mb-4 border-0">
    <form class="ajax-form" action="/admin/dashboard/profile/mail" method="post">
-    <h2 class="h5 mb-3"><i class="bi bi-envelope-at-fill me-2 gradient-text"></i>E-mail (SMTP)</h2>
-    <p class="text-muted-2 small mb-3">Para Gmail, deixe o host vazio e use uma <strong>senha de app</strong> (não a senha normal).</p>
-    <div class="row g-3">
+    <div class="mb-4">
+      <h2 class="h5 text-white fw-bold"><i class="bi bi-envelope-paper-heart-fill me-2" style="color: var(--warning);"></i>Servidor de E-mail (SMTP)</h2>
+      <p class="text-muted small mb-0">Configure para receber alertas de contato e enviar confirmações de conta.</p>
+    </div>
+
+    <div class="row g-4">
       <div class="col-md-8">
-        <label class="form-label">Host <span class="text-muted-2">(vazio = Gmail)</span></label>
-        <input type="text" class="form-control" name="mailHost" value="<%= site.mail.host %>" placeholder="smtp.seuprovedor.com">
+        <label class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Host SMTP</label>
+        <input type="text" class="form-control" name="mailHost" value="<%= site.mail.host %>" placeholder="vazio = Gmail | smtp.seuprovedor.com">
       </div>
       <div class="col-md-4">
-        <label class="form-label">Porta</label>
-        <input type="text" class="form-control" name="mailPort" value="<%= site.mail.port %>" placeholder="587">
+        <label class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Porta</label>
+        <input type="text" class="form-control" name="mailPort" value="<%= site.mail.port %>" placeholder="587 ou 465">
       </div>
       <div class="col-md-6">
-        <label class="form-label">Usuário (e-mail)</label>
+        <label class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">E-mail do Remetente</label>
         <input type="text" class="form-control" name="mailUser" value="<%= site.mail.user %>" placeholder="voce@gmail.com">
       </div>
       <div class="col-md-6">
-        <label class="form-label">Senha <% if (site.mail.pass) { %><span class="text-muted-2">(salva — deixe em branco para manter)</span><% } %></label>
-        <input type="password" class="form-control" name="mailPass" placeholder="<%= site.mail.pass ? '••••••••' : 'senha de app' %>">
+        <label class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Senha de App</label>
+        <input type="password" class="form-control" name="mailPass" placeholder="<%= site.mail.pass ? '••••••••' : 'Insira a senha do provedor' %>">
       </div>
-      <div class="col-md-8">
-        <label class="form-label">Remetente (From)</label>
+      <div class="col-md-12">
+        <label class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Nome de Exibição (From)</label>
         <input type="text" class="form-control" name="mailFrom" value="<%= site.mail.from %>" placeholder="CoddeX <no-reply@coddex.store>">
       </div>
-      <div class="col-md-4 d-flex align-items-end">
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="mailSecure" name="mailSecure" <%= site.mail.secure ? 'checked' : '' %>>
-          <label class="form-check-label" for="mailSecure">SSL/TLS</label>
-        </div>
+    </div>
+
+    <div class="d-flex flex-column flex-md-row gap-4 mt-4 align-items-md-center">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" role="switch" id="mailSecure" name="mailSecure" <%= site.mail.secure ? 'checked' : '' %>>
+        <label class="form-check-label text-white" for="mailSecure">Usar SSL/TLS</label>
+      </div>
+      
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" role="switch" id="requireVerification" name="requireVerification"
+          <%= (site.requireEmailVerification !== false) ? 'checked' : '' %>>
+        <label class="form-check-label text-white" for="requireVerification">Exigir verificação de E-mail</label>
       </div>
     </div>
-    <hr class="my-3" style="border-color:var(--border);">
-    <div class="form-check form-switch">
-      <input class="form-check-input" type="checkbox" role="switch" id="requireVerification" name="requireVerification"
-        <%= (site.requireEmailVerification !== false) ? 'checked' : '' %>>
-      <label class="form-check-label" for="requireVerification">
-        Exigir verificação de e-mail no cadastro
-        <span class="text-muted-2 d-block small">Se desligado, novas contas entram sem precisar confirmar o e-mail (não requer SMTP).</span>
-      </label>
+
+    <div class="d-flex justify-content-end mt-4">
+      <button class="btn btn-secondary px-4" type="submit"><i class="bi bi-check2-circle me-2"></i>Salvar SMTP</button>
     </div>
-    <button class="btn btn-gradient mt-3" type="submit"><i class="bi bi-save me-2"></i>Salvar e-mail</button>
    </form>
-   <form action="/admin/dashboard/profile/mail/test" method="post" class="ajax-form mt-2 d-inline">
-     <button class="btn btn-outline-light" type="submit"><i class="bi bi-send-check me-2"></i>Testar conexão</button>
+   
+   <hr class="my-4" style="border-color: rgba(255,255,255,0.05);">
+   
+   <form action="/admin/dashboard/profile/mail/test" method="post" class="ajax-form d-flex justify-content-between align-items-center">
+     <span class="text-muted small">Certifique-se de salvar antes de testar a conexão.</span>
+     <button class="btn btn-outline-light btn-sm rounded-pill" type="submit"><i class="bi bi-send-check me-2"></i>Enviar E-mail de Teste</button>
    </form>
-   <p class="text-muted-2 small mt-2 mb-0">Salve primeiro, depois teste. O teste valida as credenciais e envia um e-mail de teste.</p>
   </div>
 
   <!-- 4. Cloudinary -->
-  <form id="cloudinary" class="ajax-form glass p-4 mb-4" action="/admin/dashboard/profile/cloudinary" method="post">
-    <h2 class="h5 mb-3"><i class="bi bi-cloud-fill me-2 gradient-text"></i>Cloudinary (upload de imagens)</h2>
-    <p class="text-muted-2 small mb-3">Credenciais do painel Cloudinary (Dashboard → Account Details).</p>
-    <div class="row g-3">
-      <div class="col-md-4">
-        <label class="form-label">Cloud name</label>
+  <form id="cloudinary" class="ajax-form glass-panel p-4 mb-4 border-0" action="/admin/dashboard/profile/cloudinary" method="post">
+    <div class="mb-4">
+      <h2 class="h5 text-white fw-bold"><i class="bi bi-cloud-arrow-up-fill me-2" style="color: var(--success);"></i>Cloudinary API</h2>
+      <p class="text-muted small mb-0">Armazenamento em nuvem para imagens do portfólio.</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-12">
+        <label class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Cloud Name</label>
         <input type="text" class="form-control" name="cloudName" value="<%= site.cloudinary.cloudName %>">
       </div>
-      <div class="col-md-4">
-        <label class="form-label">API Key</label>
+      <div class="col-md-6">
+        <label class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">API Key</label>
         <input type="text" class="form-control" name="cloudApiKey" value="<%= site.cloudinary.apiKey %>">
       </div>
-      <div class="col-md-4">
-        <label class="form-label">API Secret <% if (site.cloudinary.apiSecret) { %><span class="text-muted-2">(salvo)</span><% } %></label>
+      <div class="col-md-6">
+        <label class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">API Secret</label>
         <input type="password" class="form-control" name="cloudApiSecret" placeholder="<%= site.cloudinary.apiSecret ? '••••••••' : 'sua api secret' %>">
       </div>
     </div>
-    <button class="btn btn-gradient mt-3" type="submit"><i class="bi bi-save me-2"></i>Salvar Cloudinary</button>
+    
+    <div class="d-flex justify-content-end mt-4">
+      <button class="btn btn-secondary px-4" type="submit"><i class="bi bi-check2-circle me-2"></i>Salvar Cloudinary</button>
+    </div>
   </form>
 </div>
-
-<script>
-  const password = document.getElementById("password");
-  const buttonView = document.getElementById("buttonView");
-  buttonView.addEventListener("click", () => {
-    const show = password.type === "password";
-    password.type = show ? "text" : "password";
-    buttonView.innerHTML = show ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
-  });
-</script>
 
 <%- include('fragments/footer') %>

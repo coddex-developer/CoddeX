@@ -39,8 +39,15 @@ router.post("/forgot", authLimiter, auth.forgot);
 router.get("/reset", auth.resetView);
 router.post("/reset", verifyLimiter, auth.reset);
 
+const accountSettings = require("./controllers/controllerAccount");
+const uploadImage = require("./middlewares/middlewareImage");
+const controllerNotification = require("./controllers/controllerNotification");
+
 // Painel do usuário
 router.get("/account", requireUser, auth.account);
+router.get("/account/settings", requireUser, accountSettings.settingsView);
+router.post("/account/settings/profile", requireUser, uploadImage.single('avatar'), accountSettings.updateProfile);
+router.post("/account/settings/security", requireUser, accountSettings.updateSecurity);
 
 // Projetos: detalhe público + curtidas/comentários (exigem login)
 router.get("/projeto/:id", project.detail);
@@ -57,5 +64,7 @@ router.post("/account/tickets/:id/reply", requireUser, ticket.replyMine);
 
 // Contador de notificações não lidas (admin ou usuário) — usado pelo sininho
 router.get("/notifications/unread-count", ticket.unreadCount);
+router.get("/notifications/list", controllerNotification.list);
+router.post("/notifications/read-all", controllerNotification.readAll);
 
 module.exports = router;

@@ -1,70 +1,96 @@
-<% if (isAdmin) { %>
-  <%- include('fragments/header') %>
-<% } else { %>
+<% if (!isAdmin) { %>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <%- include('fragments/head', { pageTitle: ticket.subject + ' · CoddeX' }) %>
+  <%- include('fragments/head', { pageTitle: 'Ticket #' + ticket._id.toString().slice(-6) + ' · CoddeX' }) %>
 </head>
-<body class="d-flex flex-column min-vh-100">
-  <nav class="navbar sticky-top" data-bs-theme="dark">
-    <div class="container">
-      <a class="navbar-brand d-flex align-items-center gap-2" href="/">
-        <img src="/assets/admin1.png" alt="CoddeX" style="max-height: 38px;">
-        <span class="fw-bold gradient-text d-none d-sm-inline">CoddeX</span>
-      </a>
-      <a href="/account" class="btn btn-outline-light btn-sm"><i class="bi bi-person-circle me-1"></i>Conta</a>
-    </div>
-  </nav>
-  <div class="flex-grow-1">
+<body class="d-flex flex-column min-vh-100" style="background: var(--bg);">
+  <div class="container-fluid py-4 flex-grow-1">
+    <div class="row gx-4">
+      <div class="col-md-4 col-lg-3">
+        <%- include('fragments/accountSidebar', { user: currentUser, currentPath: '/account/tickets' }) %>
+      </div>
+      <div class="col-md-8 col-lg-9 mt-4 mt-md-0">
+<% } else { %>
+  <%- include('fragments/header') %>
 <% } %>
 
-  <script>
-    window.currentTicketId = "<%= ticket._id %>";
-    window.currentUserType = "<%= isAdmin ? 'admin' : 'user' %>";
-  </script>
-
-  <div class="container py-5" style="max-width: 720px;">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <div>
-        <a href="<%= backUrl %>" class="text-muted-2 text-decoration-none small"><i class="bi bi-arrow-left me-1"></i>Conversas</a>
-        <h1 class="h4 mb-0"><%= ticket.subject %></h1>
-        <% if (isAdmin) { %><small class="text-muted-2"><%= ticket.userName %> · <%= ticket.userEmail %></small><% } %>
-      </div>
-      <% if (ticket.status === 'closed') { %><span class="badge bg-secondary align-self-start">fechado</span><% } %>
+<div class="container<%= isAdmin ? ' py-4' : '' %>" style="max-width: <%= isAdmin ? '800px' : '100%' %>;">
+  <!-- Cabeçalho -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+    <div class="mb-3 mb-md-0">
+      <a href="<%= backUrl %>" class="text-muted text-decoration-none small d-flex align-items-center mb-2">
+        <i class="bi bi-arrow-left me-1"></i> Voltar
+      </a>
+      <h1 class="h4 fw-bold mb-1 text-white">Ticket #<%= ticket._id.toString().slice(-6) %></h1>
+      <p class="text-muted mb-0">Assunto: <span class="text-white fw-bold"><%= ticket.subject %></span></p>
     </div>
-
-    <!-- Mensagens -->
-    <div id="chatContainer" class="chat glass p-3 p-md-4 mb-3">
-      <% if (messages.length === 0) { %>
-        <p class="text-muted-2 mb-0 text-center">Sem mensagens.</p>
+    <div>
+      <% if (ticket.status === 'open') { %>
+        <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill px-3 py-2 border border-warning border-opacity-50 shadow-glow"><i class="bi bi-circle-fill me-1 small"></i> Em Andamento</span>
+      <% } else { %>
+        <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-3 py-2 border border-success border-opacity-50"><i class="bi bi-check-circle-fill me-1"></i> Resolvido</span>
       <% } %>
-      <% messages.forEach(m => { %>
-        <% const mine = (isAdmin && m.senderType === 'admin') || (!isAdmin && m.senderType === 'user'); %>
-        <div class="chat-row <%= mine ? 'mine' : 'theirs' %>">
+    </div>
+  </div>
+
+  <div class="glass-panel border-0 d-flex flex-column overflow-hidden" style="height: 65vh; max-height: 600px;">
+    
+    <!-- Histórico de Mensagens (Chat) -->
+    <div class="chat flex-grow-1 p-4" id="chatContainer" style="overflow-y: auto; background: rgba(0,0,0,0.2);">
+      <% messages.forEach(msg => { %>
+        <% const isAdminMsg = msg.senderRole === 'admin'; %>
+        <div class="chat-row <%= isAdminMsg ? 'mine' : 'theirs' %> mb-3">
           <div class="chat-bubble">
-            <div class="markdown-body"><%- md(m.body) %></div>
-            <div class="chat-meta">
-              <%= m.senderType === 'admin' ? 'Suporte' : (isAdmin ? ticket.userName : 'Você') %>
-              · <%= new Date(m.createdAt).toLocaleString('pt-BR') %>
+            <% if (!isAdminMsg) { %>
+              <div class="fw-bold mb-1" style="font-size: 0.8rem; color: var(--accent-1);"><%= ticket.userId ? ticket.userId.name : 'Usuário' %></div>
+            <% } %>
+            <p class="mb-0"><%= msg.content %></p>
+            <div class="chat-meta text-end mt-1" style="font-size: 0.65rem; opacity: 0.7;">
+              <%= new Date(msg.createdAt).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}) %>
             </div>
           </div>
         </div>
-      <% }); %>
+      <% }) %>
     </div>
 
-    <!-- Responder -->
-    <form action="<%= replyUrl %>" method="post" class="glass p-3 ajax-form">
-      <textarea class="form-control mb-2" name="body" rows="3" placeholder="Escreva uma mensagem (suporta markdown)..." required></textarea>
-      <button class="btn btn-gradient" type="submit"><i class="bi bi-send me-1"></i>Enviar</button>
-    </form>
-  </div>
+    <!-- Área de Resposta -->
+    <div class="p-3 border-top" style="border-color: var(--border-strong) !important; background: var(--surface-solid);">
+      <form class="ajax-form d-flex gap-2" action="<%= replyUrl %>" method="POST">
+        <input type="text" name="body" class="form-control rounded-pill px-4 bg-dark text-white border-0" placeholder="Escreva sua resposta..." required autocomplete="off">
+        <button type="submit" class="btn btn-gradient rounded-pill px-4 shadow-glow d-flex align-items-center">
+          <i class="bi bi-send-fill"></i><span class="d-none d-sm-inline ms-2">Enviar</span>
+        </button>
+      </form>
+    </div>
 
-<% if (isAdmin) { %>
-  <%- include('fragments/footer') %>
-<% } else { %>
   </div>
-  <footer class="text-center py-3 mt-auto"><small>&copy; <%= new Date().getFullYear() %> · CoddeX Developer</small></footer>
+</div>
+
+<script>
+  // Rolar o chat para o fundo automaticamente
+  const chat = document.getElementById('chatContainer');
+  chat.scrollTop = chat.scrollHeight;
+
+  // Atualiza via socket se houver nova msg (opicional se implementado)
+  const socket = typeof io !== "undefined" ? io() : null;
+  if (socket) {
+    socket.emit("joinTicket", "<%= ticket._id %>");
+    socket.on("newMessage", (msg) => {
+      // Recarrega ou insere a msg
+      window.location.reload();
+    });
+  }
+</script>
+
+</script>
+
+<% if (!isAdmin) { %>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
+<% } else { %>
+  <%- include('fragments/footer') %>
 <% } %>

@@ -1,166 +1,74 @@
-<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 <%- include('fragments/header') %>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
-<script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+<div class="container py-5" style="max-width: 800px;">
+  <!-- Cabeçalho -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
+    <div class="mb-3 mb-md-0">
+      <a href="/admin/dashboard/editPage/CreateProjects/allProjects" class="text-muted text-decoration-none small d-flex align-items-center mb-2">
+        <i class="bi bi-arrow-left me-1"></i> Voltar aos Projetos
+      </a>
+      <h1 class="h3 fw-bold mb-1 text-white">Novo Projeto</h1>
+      <p class="text-muted mb-0">Adicione um novo trabalho ao seu portfólio.</p>
+    </div>
+  </div>
 
-<main class="container py-5">
-  <!-- Botão de Voltar -->
-  <div class="text-center mb-4">
-    <a href="/admin/dashboard/editPage/CreateProjects/allProjects" class="btn btn-outline-danger rounded-pill px-4 py-2 shadow-sm">
-      <i class="bi bi-arrow-left-circle me-2"></i>Voltar</a>
-  </div>  
+  <form class="ajax-form" action="/admin/dashboard/editPage" enctype="multipart/form-data" method="POST">
+    <!-- Imagem de Capa -->
+    <div class="glass-panel p-4 mb-4 border-0">
+      <h2 class="h5 mb-4 text-white fw-bold"><i class="bi bi-image me-2" style="color: var(--accent-2);"></i>Capa do Projeto</h2>
+      
+      <label class="upload-drop d-flex flex-column align-items-center justify-content-center text-center mb-3" for="file" style="min-height: 180px; background: rgba(0, 0, 0, 0.4); border: 1px dashed rgba(0, 240, 255, 0.3); border-radius: var(--radius); cursor: pointer; transition: all 0.3s ease;">
+        <i class="bi bi-cloud-arrow-up fs-1 mb-2 text-accent-2"></i>
+        <span class="text-white fw-medium">Fazer upload da imagem (Obrigatório)</span>
+        <small class="text-muted mt-1">Recomendado: 1200x800px (JPG/PNG)</small>
+        <input type="file" id="file" name="imageFile" accept="image/*" required hidden data-preview="#coverPreview">
+      </label>
+      
+      <div class="text-center">
+        <img id="coverPreview" class="img-preview mb-0 rounded-4 shadow-sm w-100" style="display:none; max-height: 300px; object-fit: cover;" alt="Pré-visualização da capa">
+      </div>
+    </div>
 
-  <h1 class="text-center mb-4 text-white">Adicionar Novo Projeto</h1>
-  <div class="card p-4 shadow-sm bg-dark border-0">
-    <form class="ajax-form" id="project-form" action="/admin/dashboard/editPage" method="POST" enctype="multipart/form-data">
-      <!-- Formulário Principal -->
-      <div id="projects-container">
-        <div class="project-fields card mb-2 p-3 shadow-sm bg-dark border-0 text-light">
-          <div class="d-flex gap-2 align-items-center mb-3">
-            <!-- Botão para Gerar URL -->
-            <button 
-              type="button" 
-              class="btn btn-secondary btn-sm shadow-sm popover-trigger" 
-              data-bs-toggle="popover" 
-              data-bs-content="Gerar URL no Imgur"
-              onclick="window.open('https://imgur.com/', '_blank')">
-              <i class="bi bi-brush"></i>
-            </button>
-
-            <!-- Botão para Visualizar Projetos Publicados -->
-            <button 
-              type="button" 
-              class="btn btn-primary btn-sm shadow-sm popover-trigger" 
-              data-bs-toggle="popover" 
-              data-bs-content="Visualizar a lista de projetos publicados"
-              onclick="window.location.href='/admin/dashboard/editPage/CreateProjects/allProjects'">
-              <i class="bi bi-eye-fill"></i>
-            </button>
-          </div>
-          <hr class="text-light">
-          <div class="mb-3">
-            <label class="form-label d-flex align-items-center text-light">
-              <i class="bi bi-image-fill me-2"></i> Imagem do projeto
-            </label>
-            <label class="upload-drop d-flex flex-column align-items-center justify-content-center text-center" for="imageFile">
-              <i class="bi bi-cloud-arrow-up-fill fs-2 gradient-text"></i>
-              <span class="text-muted-2">Clique para enviar uma imagem</span>
-              <input type="file" id="imageFile" name="imageFile" accept="image/*" hidden data-preview="#imgPreview">
-            </label>
-            <img id="imgPreview" class="img-preview mt-2" style="display:none;" alt="Pré-visualização">
-            <div class="upload-divider">— ou cole uma URL —</div>
-            <input type="text" class="form-control" id="image" placeholder="https://exemplo.com/imagem.jpg" name="imagePj">
-          </div>
-
-          <div class="mb-3">
-            <label for="title" class="form-label d-flex align-items-center text-light">
-              <i class="bi bi-pencil-square me-2"></i> Título do Projeto
-            </label>
-            <input 
-              type="text" 
-              class="form-control input-bg shadow-sm bg-dark text-light" 
-              id="title" 
-              name="titlePj" 
-              placeholder="Digite o título do projeto" 
-               
-            >
-          </div>
-
-          <div class="mb-3">
-            <label for="description" class="form-label d-flex align-items-center text-light">
-              <i class="bi bi-card-text me-2"></i> Descrição
-            </label>
-            <textarea 
-              class="form-control input-bg shadow-sm bg-dark text-light" 
-              id="description" 
-              name="descriptionPj" 
-              rows="6" 
-              placeholder="Digite uma descrição breve do projeto" 
-               
-            ></textarea>
-          </div>
-
-          <div class="mb-3">
-            <label for="link" class="form-label d-flex align-items-center text-light">
-              <i class="bi bi-link-45deg me-2"></i> Link do Projeto
-            </label>
-            <input 
-              type="text" 
-              class="form-control input-bg shadow-sm bg-dark text-light" 
-              id="link" 
-              name="linkPj" 
-              placeholder="ex: https://meusite.com/projeto" 
-               
-            >
-          </div>
+    <!-- Informacoes Principais -->
+    <div class="glass-panel p-4 mb-4 border-0">
+      <h2 class="h5 mb-4 text-white fw-bold"><i class="bi bi-text-paragraph me-2" style="color: var(--accent-1);"></i>Informações do Projeto</h2>
+      
+      <div class="row g-4">
+        <div class="col-md-12">
+          <label for="title" class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Título do Projeto</label>
+          <input type="text" class="form-control" id="title" name="titlePj" placeholder="Ex: E-commerce Moderno" required>
+        </div>
+        
+        <div class="col-md-12">
+          <label for="subtitle" class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Pequena Descrição / Slogan</label>
+          <textarea class="form-control" id="subtitle" name="subtitlePj" rows="2" placeholder="Descreva brevemente a essência do projeto" required></textarea>
         </div>
       </div>
+    </div>
 
-      <!-- Botão de Enviar -->
-      <button type="submit" class="btn btn-success w-100 rounded-pill shadow-sm fw-bold">
-        <i class="bi bi-cloud-upload-fill me-2"></i>Publicar Projeto
-      </button>
-    </form>
-  </div>
-</main>
+    <!-- Links do Projeto -->
+    <div class="glass-panel p-4 mb-4 border-0">
+      <h2 class="h5 mb-4 text-white fw-bold"><i class="bi bi-link-45deg me-2" style="color: var(--warning);"></i>Links Externos</h2>
+      
+      <div class="row g-4">
+        <div class="col-md-6">
+          <label for="gitLink" class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;"><i class="bi bi-github me-1"></i>Link do Repositório</label>
+          <input type="url" class="form-control" id="gitLink" name="gitLinkPj" placeholder="https://github.com/...">
+        </div>
+        
+        <div class="col-md-6">
+          <label for="siteLink" class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;"><i class="bi bi-globe me-1"></i>Link do Projeto (Site)</label>
+          <input type="url" class="form-control" id="siteLink" name="siteLinkPj" placeholder="https://seudominio.com">
+        </div>
+      </div>
+    </div>
 
-<!-- Script de Popover -->
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const popovers = [].slice.call(document.querySelectorAll('.popover-trigger')).map(popoverTriggerEl => {
-      const popover = new bootstrap.Popover(popoverTriggerEl, { trigger: 'manual' });
-
-      popoverTriggerEl.addEventListener('click', () => {
-        popover.show();
-        setTimeout(() => popover.hide(), 3000);
-      });
-
-      popoverTriggerEl.addEventListener('blur', () => {
-        popover.hide();
-      });
-
-      return popover;
-    });
-  });
-
-  new EasyMDE({
-    element: document.getElementById("description"),
-    spellChecker: false,
-    minHeight: "150px",
-    status: false,
-    toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "preview", "guide"]
-  });
-</script>
-
-
-<style>
-  .ql-toolbar { background: var(--surface-2); border-color: var(--border) !important; border-radius: 8px 8px 0 0; }
-  .ql-container { border-color: var(--border) !important; font-family: 'Roboto', sans-serif; font-size: 1rem; }
-  .ql-editor { color: var(--text); }
-  .ql-snow .ql-stroke { stroke: var(--text); }
-  .ql-snow .ql-fill { fill: var(--text); }
-  .ql-snow .ql-picker { color: var(--text); }
-</style>
-<script>
-  var quilldescriptionPj = new Quill('#editor-container-descriptionPj', {
-    theme: 'snow',
-    placeholder: 'Escreva aqui...',
-    modules: {
-      toolbar: [
-        [{ 'header': [1, 2, 3, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        ['blockquote', 'code-block'],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-        ['link', 'clean']
-      ]
-    }
-  });
-
-  document.querySelector('.ajax-form').addEventListener('submit', function() {
-    document.getElementById('descriptionPj').value = quilldescriptionPj.root.innerHTML;
-  });
-</script>
+    <!-- Botoes Finais -->
+    <div class="d-flex justify-content-end gap-3 mt-4">
+      <a href="/admin/dashboard/editPage/CreateProjects/allProjects" class="btn btn-secondary px-4 py-2">Cancelar</a>
+      <button type="submit" class="btn btn-gradient px-5 py-2"><i class="bi bi-rocket-takeoff me-2"></i>Publicar Projeto</button>
+    </div>
+  </form>
+</div>
 
 <%- include('fragments/footer') %>

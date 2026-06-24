@@ -5,82 +5,94 @@
   <%- include('fragments/head', { pageTitle: 'Minha conta · CoddeX', pageDescription: 'Painel do usuário' }) %>
 </head>
 
-<body class="d-flex flex-column min-vh-100">
-  <nav class="navbar sticky-top" data-bs-theme="dark">
-    <div class="container">
-      <a class="navbar-brand d-flex align-items-center gap-2" href="/">
-        <img src="/assets/admin1.png" alt="CoddeX" style="max-height: 38px;">
-        <span class="fw-bold gradient-text d-none d-sm-inline">CoddeX</span>
-      </a>
-      <div class="d-flex align-items-center gap-2">
-        <a href="/account/tickets" class="btn btn-outline-light btn-sm notif-bell" title="Minhas conversas">
-          <i class="bi bi-bell-fill"></i>
-          <span id="notifBadge" class="badge rounded-pill" style="display:none;"></span>
-        </a>
-        <a href="/" class="btn btn-outline-light btn-sm"><i class="bi bi-house me-1"></i>Site</a>
-        <a href="/logout" class="btn btn-outline-light btn-sm text-danger"><i class="bi bi-box-arrow-right me-1"></i>Sair</a>
-      </div>
-    </div>
-  </nav>
-
-  <main class="flex-grow-1">
-    <div class="container py-5" style="max-width: 900px;">
-
-      <!-- Cabeçalho -->
-      <div class="glass p-4 mb-4 d-flex align-items-center gap-3 flex-wrap">
-        <div class="account-avatar"><%= user.name.charAt(0).toUpperCase() %></div>
-        <div class="flex-grow-1">
-          <h1 class="h4 mb-1">Olá, <%= user.name %>!</h1>
-          <p class="text-muted-2 mb-0"><i class="bi bi-envelope me-1"></i><%= user.email %></p>
-        </div>
-        <% if (user.emailVerified) { %>
-          <span class="badge rounded-pill" style="background:rgba(34,197,94,.15);color:#86efac;border:1px solid rgba(34,197,94,.4);">
-            <i class="bi bi-patch-check-fill me-1"></i>E-mail verificado
-          </span>
-        <% } %>
+<body class="d-flex flex-column min-vh-100" style="background: var(--bg);">
+  
+  <div class="container-fluid py-4 flex-grow-1">
+    <div class="row gx-4">
+      
+      <!-- Sidebar (Desktop/Mobile) -->
+      <div class="col-md-4 col-lg-3">
+        <%- include('fragments/accountSidebar', { user: user, currentPath: '/account' }) %>
       </div>
 
-      <!-- Projetos que curti -->
-      <h2 class="h5 mb-3"><i class="bi bi-heart-fill me-2" style="color: var(--danger);"></i>Projetos que curti</h2>
-      <% if (likedProjects && likedProjects.length > 0) { %>
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 mb-4">
-          <% likedProjects.forEach(p => { %>
-            <div class="col">
-              <a href="/projeto/<%= p._id %>" class="text-decoration-none">
-                <div class="card h-100">
-                  <img src="<%= p.imagePj %>" alt="<%= p.titlePj %>" style="height:140px;object-fit:cover;border-radius:var(--radius) var(--radius) 0 0;">
-                  <div class="card-body">
-                    <h6 class="fw-bold mb-0"><%= p.titlePj %></h6>
-                  </div>
-                </div>
-              </a>
-            </div>
-          <% }); %>
-        </div>
-      <% } else { %>
-        <div class="glass p-4 mb-4 text-muted-2">
-          Você ainda não curtiu nenhum projeto. <a href="/#projetos" style="color:var(--accent-2);">Explore os projetos</a>.
-        </div>
-      <% } %>
-
-      <!-- Conversas -->
-      <a href="/account/tickets" class="card p-2 text-decoration-none d-block">
-        <div class="card-body d-flex align-items-center gap-3">
-          <i class="bi bi-chat-dots-fill display-6" style="color: var(--info);"></i>
+      <!-- Main Content -->
+      <div class="col-md-8 col-lg-9 mt-4 mt-md-0">
+        
+        <div class="p-4 mb-4 d-flex align-items-center justify-content-between flex-wrap rounded shadow-sm" style="background: var(--surface-1); border: 1px solid var(--border-strong);">
           <div>
-            <h5 class="fw-bold mb-1">Minhas conversas</h5>
-            <p class="text-secondary mb-0">Fale diretamente comigo e acompanhe as respostas.</p>
+            <h1 class="h3 fw-bold mb-1" style="color: var(--text);">Painel do Usuário</h1>
+            <p class="mb-0" style="color: var(--text-muted); font-weight: 500;">Bem-vindo de volta, <%= user.name %></p>
           </div>
-          <i class="bi bi-chevron-right ms-auto fs-4 text-muted-2"></i>
+          <% if (user.emailVerified) { %>
+            <span class="badge rounded-pill mt-2 mt-sm-0" style="background:rgba(34,197,94,.15);color:#86efac;border:1px solid rgba(34,197,94,.4); padding: 0.5rem 1rem;">
+              <i class="bi bi-patch-check-fill me-2"></i>E-mail verificado
+            </span>
+          <% } %>
         </div>
-      </a>
 
+        <!-- Notificações -->
+        <h2 class="h5 mb-3 fw-bold" style="color: var(--text);"><i class="bi bi-bell-fill me-2" style="color: var(--warning);"></i>Notificações Recentes</h2>
+        <% if (notifications && notifications.length > 0) { %>
+          <div class="p-3 mb-5 d-flex flex-column gap-2 rounded shadow-sm" style="background: var(--surface-1); border: 1px solid var(--border-strong);">
+            <% notifications.forEach(notif => { %>
+              <a href="<%= notif.link %>" class="text-decoration-none p-3 rounded d-flex align-items-center gap-3" style="background: var(--bg); border: 1px solid var(--border-strong); transition: border-color 0.2s;" onmouseover="this.style.borderColor='var(--accent-1)'" onmouseout="this.style.borderColor='var(--border-strong)'">
+                <div class="bg-gradient d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width:40px;height:40px; color:var(--text);">
+                  <i class="bi <%= notif.type === 'mention' ? 'bi-at fs-5' : notif.type === 'reply' ? 'bi-reply-fill fs-5' : 'bi-info-circle fs-5' %>"></i>
+                </div>
+                <div class="flex-grow-1 min-w-0">
+                  <p class="mb-0 fw-semibold" style="color: var(--text);"><%= notif.text %></p>
+                  <small style="color: var(--text-muted);"><%= new Date(notif.createdAt).toLocaleDateString('pt-BR') %> às <%= new Date(notif.createdAt).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}) %></small>
+                </div>
+                <% if (!notif.read) { %>
+                  <div class="rounded-circle bg-danger flex-shrink-0" style="width: 10px; height: 10px; box-shadow: 0 0 10px var(--danger);"></div>
+                <% } %>
+              </a>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <div class="p-5 mb-5 text-center rounded shadow-sm" style="background: var(--surface-1); border: 1px solid var(--border-strong);">
+            <i class="bi bi-bell-slash" style="font-size: 2.5rem; color: var(--text-muted);"></i>
+            <h5 class="mt-3" style="color: var(--text);">Nenhuma notificação</h5>
+            <p style="color: var(--text-muted);">Você está por dentro de tudo.</p>
+          </div>
+        <% } %>
+
+        <!-- Projetos que curti -->
+        <h2 class="h5 mb-3 fw-bold" style="color: var(--text);"><i class="bi bi-heart-fill me-2" style="color: var(--danger);"></i>Projetos que curti</h2>
+        <% if (likedProjects && likedProjects.length > 0) { %>
+          <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-5">
+            <% likedProjects.forEach(p => { %>
+              <div class="col">
+                <a href="/projeto/<%= p._id %>" class="text-decoration-none">
+                  <div class="card h-100" style="background: var(--surface-1); border: 1px solid var(--border-strong); transition: border-color 0.2s;" onmouseover="this.style.borderColor='var(--accent-1)'" onmouseout="this.style.borderColor='var(--border-strong)'">
+                    <img src="<%= p.imagePj %>" alt="<%= p.titlePj %>" style="height:160px;object-fit:cover;border-radius:calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;">
+                    <div class="card-body p-3">
+                      <h6 class="fw-bold mb-0 text-truncate" style="color: var(--text);"><%= p.titlePj %></h6>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <div class="p-5 mb-5 text-center rounded shadow-sm" style="background: var(--surface-1); border: 1px solid var(--border-strong);">
+            <i class="bi bi-heart" style="font-size: 2.5rem; color: var(--text-muted);"></i>
+            <h5 class="mt-3" style="color: var(--text);">Nenhuma curtida ainda</h5>
+            <p style="color: var(--text-muted);">Explore o portfólio e salve seus favoritos.</p>
+            <a href="/#projetos" class="btn btn-outline-light mt-2">Explorar Projetos</a>
+          </div>
+        <% } %>
+
+      </div>
     </div>
-  </main>
+  </div>
 
-  <footer class="text-center py-3 mt-auto">
-    <small>&copy; <%= new Date().getFullYear() %> · CoddeX Developer</small>
-  </footer>
+  <script>
+    // Ativa os tooltips do bootstrap
+    document.addEventListener("DOMContentLoaded", () => {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    });
+  </script>
 </body>
-
 </html>

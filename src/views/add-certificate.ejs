@@ -1,64 +1,51 @@
 <%- include('fragments/header') %>
 
-<main class="container py-5">
-  
-  <!-- Botão de Voltar -->
-  <div class="text-center mb-4">
-    <a href="/admin/dashboard/editPage" class="btn btn-outline-danger rounded-pill px-4 py-2 shadow-sm">
-      <i class="bi bi-house-fill me-2"></i>Voltar para Home</a>
-  </div>    
+<div class="container py-5" style="max-width: 800px;">
+  <!-- Cabeçalho -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
+    <div class="mb-3 mb-md-0">
+      <a href="/admin/dashboard/editPage/my-certificates" class="text-muted text-decoration-none small d-flex align-items-center mb-2">
+        <i class="bi bi-arrow-left me-1"></i> Voltar aos Certificados
+      </a>
+      <h1 class="h3 fw-bold mb-1 text-white">Novo Certificado</h1>
+      <p class="text-muted mb-0">Adicione uma nova qualificação ao seu portfólio.</p>
+    </div>
+  </div>
 
-  <h1 class="text-center text-white mb-4">Adicionar Certificado</h1>
-  
-  <form class="ajax-form" action="/admin/dashboard/editPage/certificates/add-certificate/new" method="POST" enctype="multipart/form-data">
-    <!-- Campo Imagem -->
-    <div class="mb-4">
-      <label class="form-label text-white d-flex align-items-center">
-        <i class="bi bi-card-image me-2"></i> Imagem
+  <form class="ajax-form" action="/admin/dashboard/editPage/certificates/add-certificate/new" enctype="multipart/form-data" method="POST">
+    
+    <!-- Imagem do Certificado -->
+    <div class="glass-panel p-4 mb-4 border-0">
+      <h2 class="h5 mb-4 text-white fw-bold"><i class="bi bi-image me-2" style="color: var(--warning);"></i>Imagem do Certificado</h2>
+      
+      <label class="upload-drop d-flex flex-column align-items-center justify-content-center text-center mb-3" for="file" style="min-height: 180px; background: rgba(0, 0, 0, 0.4); border: 1px dashed rgba(255, 138, 0, 0.3); border-radius: var(--radius); cursor: pointer; transition: all 0.3s ease;">
+        <i class="bi bi-cloud-arrow-up fs-1 mb-2 text-warning"></i>
+        <span class="text-white fw-medium">Fazer upload da imagem (Obrigatório)</span>
+        <small class="text-muted mt-1">Recomendado: Formato Paisagem (JPG/PNG)</small>
+        <input type="file" id="file" name="imageFile" accept="image/*" required hidden data-preview="#coverPreview">
       </label>
-      <label class="upload-drop d-flex flex-column align-items-center justify-content-center text-center" for="imageFile">
-        <i class="bi bi-cloud-arrow-up-fill fs-2 gradient-text"></i>
-        <span class="text-muted-2">Clique para enviar uma imagem</span>
-        <input type="file" id="imageFile" name="imageFile" accept="image/*" hidden data-preview="#imgPreview">
-      </label>
-      <img id="imgPreview" class="img-preview mt-2" style="display:none;" alt="Pré-visualização">
-      <div class="upload-divider">— ou cole uma URL —</div>
-      <input type="text" class="form-control" id="image" name="image" placeholder="https://exemplo.com/certificado.jpg">
+      
+      <div class="text-center">
+        <img id="coverPreview" class="img-preview mb-0 rounded-4 shadow-sm w-100" style="display:none; max-height: 350px; object-fit: contain; background: #000;" alt="Pré-visualização do certificado">
+      </div>
     </div>
 
-    <!-- Campo Título -->
-    <div class="mb-4">
-      <label for="title" class="form-label text-white d-flex align-items-center">
-        <i class="bi bi-fonts me-2"></i> Título
-      </label>
-      <input 
-        type="text" 
-        class="form-control input-bg shadow-sm bg-dark text-light" 
-        id="title" 
-        name="title" 
-        placeholder="Título do certificado" 
-        
-      >
+    <!-- Titulo -->
+    <div class="glass-panel p-4 mb-4 border-0">
+      <div class="row g-4">
+        <div class="col-md-12">
+          <label for="title" class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;"><i class="bi bi-text-paragraph me-1"></i>Título do Certificado</label>
+          <input type="text" class="form-control" id="title" name="titleCertificate" placeholder="Ex: Certificado AWS Certified Developer" required>
+        </div>
+      </div>
     </div>
 
-    <!-- Campo URL -->
-    <div class="mb-4">
-      <label for="url" class="form-label text-white d-flex align-items-center">
-        <i class="bi bi-link-45deg me-2"></i> URL
-      </label>
-      <input 
-        type="text" 
-        class="form-control input-bg shadow-sm bg-dark text-light" 
-        id="url" 
-        name="url" 
-        placeholder="URL do certificado" 
-        
-      >
+    <!-- Botoes Finais -->
+    <div class="d-flex justify-content-end gap-3 mt-4">
+      <a href="/admin/dashboard/editPage/my-certificates" class="btn btn-secondary px-4 py-2">Cancelar</a>
+      <button type="submit" class="btn btn-gradient px-5 py-2" style="background: linear-gradient(135deg, var(--warning) 0%, #ff8a00 100%);"><i class="bi bi-check-circle me-2"></i>Salvar Certificado</button>
     </div>
-
-    <!-- Botão Enviar -->
-    <button type="submit" class="btn btn-primary w-100 rounded-pill shadow-sm">Enviar</button>
   </form>
-</main>
+</div>
 
 <%- include('fragments/footer') %>

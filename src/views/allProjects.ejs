@@ -1,58 +1,69 @@
 <%- include('fragments/header') %>
 
-<a href="/admin/dashboard/editPage/CreateProjects" class="btn btn-primary rounded-circle" style="width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; font-size: 24px; position: fixed; bottom: 10%; right: 10%; transform: translate(50%, 50%); z-index: 1;">
-  <i class="bi bi-plus"></i>
-</a>
-
-<main>
-  <!-- Botão de Voltar -->
-  <div class="text-center mt-4 mb-4">
-    <a href="/admin/dashboard/editPage" class="btn btn-outline-danger rounded-pill px-4 py-2 shadow-sm">
-      <i class="bi bi-arrow-left-circle me-2"></i>Return Edit Page</a>
+<div class="container py-5" style="max-width: 1100px;">
+  <!-- Cabeçalho Principal -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
+    <div class="mb-3 mb-md-0">
+      <a href="/admin/dashboard/editPage" class="text-muted text-decoration-none small d-flex align-items-center mb-2">
+        <i class="bi bi-arrow-left me-1"></i> Voltar aos Ajustes
+      </a>
+      <h1 class="h3 fw-bold mb-1 text-white">Projetos Publicados</h1>
+      <p class="text-muted mb-0">Gerencie os projetos que compõem o seu portfólio.</p>
+    </div>
+    <div>
+      <a href="/admin/dashboard/editPage/CreateProjects" class="btn btn-gradient px-4 py-2 shadow-glow">
+        <i class="bi bi-plus-lg me-2"></i>Novo Projeto
+      </a>
+    </div>
   </div>
 
-  <h1 class="text-center mb-4 text-white">List for Projects</h1>
-
-  <div style="display:flex;flex-wrap:wrap;">
-    
-    <% if (projects.length > 0) { %>
-
-    <% projects.forEach(function(project) { %>
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3 mt-4">
-        <div class="card shadow-lg border-0 rounded-4 text-center h-100" style="min-width:300px;max-width:300px;margin: 0 auto;">
-          <!-- Imagem do Projeto -->
-          <img style="height:190px;min-width:300px;" src="<%= project.imagePj %>" class="card-img-top img-fluid" alt="<%= project.titlePj %>">
-          <div class="card-body">
-            <h5 class="card-title mb-2 text-white fw-bold"><%= project.titlePj %></h5>
-          </div>
-          <!-- Botões de Ação -->
-          <div class="card-footer rounded-bottom-4 d-flex justify-content-evenly">
-            <a href="/admin/dashboard/editPage/CreateProjects/allProjects/<%= project.id %>" class="btn btn-secondary rounded-pill shadow-sm">
-              <i class="bi bi-pencil-fill me-1"></i>Editar
-            </a>
-            <!-- Excluir (confirmação via SweetAlert) -->
-            <form action="/admin/dashboard/editPage/CreateProjects/allProjects/<%= project.id %>" method="post"
-              class="m-0" data-confirm="Excluir o projeto '<%= project.titlePj %>'? Esta ação não pode ser desfeita."
-              data-confirm-title="Excluir projeto" data-confirm-btn="Excluir">
-              <button class="btn btn-danger rounded-pill shadow-sm">
-                <i class="bi bi-trash-fill me-1"></i>Excluir
-              </button>
-            </form>
+  <div class="row g-4">
+    <% if (projects && projects.length > 0) { %>
+      <% projects.forEach(function(project) { %>
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 border-0 glass-panel overflow-hidden" style="border-radius: var(--radius-lg); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+            <!-- Imagem do Projeto (Cover) -->
+            <div class="position-relative" style="height: 200px; overflow: hidden;">
+              <img src="<%= project.imagePj %>" class="w-100 h-100" style="object-fit: cover; transition: transform 0.5s ease;" alt="<%= project.titlePj %>" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+              <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.8) 100%);"></div>
+              <h5 class="position-absolute bottom-0 start-0 m-3 mb-2 text-white fw-bold"><%= project.titlePj %></h5>
+            </div>
+            
+            <!-- Ações -->
+            <div class="card-footer bg-transparent border-0 d-flex gap-2 p-3" style="background: var(--surface-solid) !important;">
+              <a href="/admin/dashboard/editPage/CreateProjects/allProjects/<%= project.id %>" class="btn btn-secondary flex-grow-1" style="border-radius: 8px;">
+                <i class="bi bi-pencil-square me-1"></i>Editar
+              </a>
+              <form action="/admin/dashboard/editPage/CreateProjects/allProjects/<%= project.id %>" method="post"
+                class="m-0 ajax-form" data-confirm="Tem certeza que deseja excluir permanentemente o projeto '<%= project.titlePj %>'? Esta ação não pode ser desfeita."
+                data-confirm-title="Excluir Projeto" data-confirm-btn="Excluir">
+                <button class="btn btn-outline-danger px-3 h-100" style="border-radius: 8px;" type="submit" title="Excluir Projeto">
+                  <i class="bi bi-trash3-fill"></i>
+                </button>
+              </form>
+            </div>
           </div>
         </div>
-      </div>
-    <% }); %>
-    
+      <% }); %>
     <% } else { %>
-
-      <!-- Mensagem Caso Não Haja Certificados -->
       <div class="col-12">
-        <div class="alert alert-warning text-center my-5 mx-3">
-          Nenhum projeto foi postado até o momento.
+        <div class="glass-panel p-5 text-center border-0" style="background: rgba(0, 240, 255, 0.05);">
+          <i class="bi bi-window-stack text-muted mb-3 d-block" style="font-size: 3rem; color: var(--accent-2) !important;"></i>
+          <h5 class="text-white fw-bold">Seu Portfólio está Vazio</h5>
+          <p class="text-muted mb-4">Você ainda não publicou nenhum projeto para exibição pública.</p>
+          <a href="/admin/dashboard/editPage/CreateProjects" class="btn btn-outline-primary px-4">Adicionar o Primeiro Projeto</a>
         </div>
       </div>
     <% } %>    
   </div>
-</main>
+</div>
+
+<style>
+  .card.glass-panel:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.5), 0 0 15px rgba(0, 240, 255, 0.1) !important;
+    border-color: rgba(0, 240, 255, 0.3) !important;
+  }
+</style>
 
 <%- include('fragments/footer') %>

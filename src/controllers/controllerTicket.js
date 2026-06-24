@@ -45,7 +45,16 @@ module.exports = {
       await TicketMessage.create({ ticket: ticket._id, senderType: "user", body: body.slice(0, 4000) });
 
       const link = `/admin/dashboard/tickets/${ticket._id}`;
-      await Notification.create({ recipientType: "admin", recipientId: "admin", type: "new_message", text: `Nova mensagem de ${u.name}: ${subject}`, link });
+      await Notification.create({ 
+        recipientType: "admin", 
+        recipientId: "admin", 
+        type: "new_message", 
+        category: "ticket",
+        actorName: u.name,
+        actorAvatar: u.avatar || "",
+        text: `Nova mensagem de ${u.name}: ${subject}`, 
+        link 
+      });
 
       const site = await SiteConfig.getSingleton();
       await trySend(() => notifyAdminNewMessage(site.contactEmail, u.name, subject, snippet(body), abs(req, link)));
@@ -87,7 +96,16 @@ module.exports = {
       await ticket.save();
 
       const link = `/admin/dashboard/tickets/${ticket._id}`;
-      await Notification.create({ recipientType: "admin", recipientId: "admin", type: "new_message", text: `Nova mensagem de ${ticket.userName}`, link });
+      await Notification.create({ 
+        recipientType: "admin", 
+        recipientId: "admin", 
+        type: "new_message", 
+        category: "ticket",
+        actorName: ticket.userName,
+        actorAvatar: req.session.user.avatar || "",
+        text: `Nova mensagem de ${ticket.userName}`, 
+        link 
+      });
       const site = await SiteConfig.getSingleton();
       await trySend(() => notifyAdminNewMessage(site.contactEmail, ticket.userName, ticket.subject, snippet(body), abs(req, link)));
 
@@ -152,7 +170,16 @@ module.exports = {
       await ticket.save();
 
       const link = `/account/tickets/${ticket._id}`;
-      await Notification.create({ recipientType: "user", recipientId: ticket.user, type: "reply", text: "Você recebeu uma resposta do suporte", link });
+      await Notification.create({ 
+        recipientType: "user", 
+        recipientId: ticket.user, 
+        type: "reply", 
+        category: "ticket",
+        actorName: "Suporte",
+        actorAvatar: "/assets/admin1.png",
+        text: "Você recebeu uma resposta do suporte", 
+        link 
+      });
       await trySend(() => notifyUserReply(ticket.userEmail, ticket.subject, snippet(body), abs(req, link)));
 
       if (req.app.get('io')) {

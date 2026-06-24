@@ -1,143 +1,211 @@
 <%- include('fragments/header') %>
 
-<div class="container-fluid py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h1 class="h3 fw-bold mb-1">Olá, <%= adminUser.userAdmin %>!</h1>
-      <p class="text-muted-2 mb-0">Visão geral e relatórios do sistema.</p>
+<div class="container-fluid py-4 px-lg-4">
+  <!-- Cabecalho de Saudacao -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
+    <div class="mb-3 mb-md-0">
+      <h1 class="h3 fw-bold mb-1 text-white">Bem-vindo à Estação, <span class="gradient-text"><%= adminUser.userAdmin %></span></h1>
+      <p class="text-muted mb-0" style="font-size: 0.95rem;">Controle central do seu portfólio. Todos os sistemas operacionais.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2 bg-surface border border-white-50 rounded-pill px-4 py-2 shadow-sm glass">
+      <i class="bi bi-clock text-accent-2" style="color: var(--accent-2);"></i>
+      <span id="liveClock" class="fw-medium text-white" style="font-family: monospace; font-size: 1.1rem;">00:00:00</span>
     </div>
   </div>
 
+  <!-- KPIs: Metricas Premium -->
   <div class="row g-4 mb-5">
-    <!-- Chart -->
-    <div class="col-lg-8">
-      <div class="card h-100 shadow-sm border-0 glass">
-        <div class="card-body">
-          <h5 class="card-title fw-bold mb-4">Métricas Principais</h5>
-          <canvas id="overviewChart" style="max-height: 280px;"></canvas>
+    
+    <!-- KPI Projetos -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card h-100 border-0 glass overflow-hidden position-relative" style="background: rgba(30, 30, 40, 0.6);">
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: radial-gradient(circle at 100% 0%, rgba(0, 240, 255, 0.1), transparent 50%); pointer-events: none;"></div>
+        <div class="card-body p-4 d-flex align-items-center">
+          <div class="rounded-circle d-flex align-items-center justify-content-center me-4 shadow-glow" style="width: 60px; height: 60px; background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3); color: var(--accent-2);">
+            <i class="bi bi-window-stack fs-3"></i>
+          </div>
+          <div>
+            <h6 class="mb-1 text-uppercase fw-bold text-muted" style="font-size: 0.75rem; letter-spacing: 1.5px;">Projetos Publicados</h6>
+            <h2 class="mb-0 fw-bold text-white display-6"><%= projects.length %></h2>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI Mensagens -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card h-100 border-0 glass overflow-hidden position-relative" style="background: rgba(30, 30, 40, 0.6);">
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: radial-gradient(circle at 100% 0%, rgba(138, 43, 226, 0.1), transparent 50%); pointer-events: none;"></div>
+        <div class="card-body p-4 d-flex align-items-center">
+          <div class="rounded-circle d-flex align-items-center justify-content-center me-4" style="width: 60px; height: 60px; background: rgba(138, 43, 226, 0.1); border: 1px solid rgba(138, 43, 226, 0.3); color: var(--accent-1); box-shadow: 0 0 20px rgba(138, 43, 226, 0.2);">
+            <i class="bi bi-chat-left-text fs-3"></i>
+          </div>
+          <div>
+            <h6 class="mb-1 text-uppercase fw-bold text-muted" style="font-size: 0.75rem; letter-spacing: 1.5px;">Total de Contatos</h6>
+            <h2 class="mb-0 fw-bold text-white display-6"><%= resultMessage.length %></h2>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI Pendencias (Destaque Danger/Warning) -->
+    <div class="col-lg-4 col-md-12">
+      <div class="card h-100 border-0 glass overflow-hidden position-relative" style="background: linear-gradient(135deg, rgba(255, 0, 127, 0.05) 0%, rgba(30, 30, 40, 0.8) 100%); border: 1px solid rgba(255, 0, 127, 0.2) !important;">
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: radial-gradient(circle at 100% 100%, rgba(255, 0, 127, 0.1), transparent 60%); pointer-events: none;"></div>
+        <div class="card-body p-4 d-flex align-items-center">
+          <div class="rounded-circle d-flex align-items-center justify-content-center me-4" style="width: 60px; height: 60px; background: rgba(255, 0, 127, 0.15); border: 1px solid rgba(255, 0, 127, 0.4); color: var(--warning); box-shadow: 0 0 25px rgba(255, 0, 127, 0.3);">
+            <i class="bi bi-envelope-exclamation fs-3"></i>
+          </div>
+          <div>
+            <h6 class="mb-1 text-uppercase fw-bold text-muted" style="font-size: 0.75rem; letter-spacing: 1.5px; color: var(--warning) !important;">Aguardando Resposta</h6>
+            <h2 class="mb-0 fw-bold display-6" style="color: var(--warning);"><%= unreadMessage.length %></h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Area Central: Grafico & Acoes -->
+  <div class="row g-4 mb-4">
+    
+    <!-- Grafico Moderno -->
+    <div class="col-xl-8 col-lg-7">
+      <div class="card h-100 border-0 glass">
+        <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4">
+          <h5 class="fw-bold text-white mb-0"><i class="bi bi-bar-chart-line me-2 text-muted"></i>Fluxo de Dados</h5>
+        </div>
+        <div class="card-body p-4">
+          <div style="position: relative; height: 320px; width: 100%;">
+            <canvas id="overviewChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barra de Acoes Rapidas (Separada por contexto) -->
+    <div class="col-xl-4 col-lg-5">
+      <div class="card h-100 border-0 glass">
+        <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4">
+          <h5 class="fw-bold text-white mb-0"><i class="bi bi-grid-1x2 me-2 text-muted"></i>Central de Ações</h5>
+        </div>
+        <div class="card-body p-4 d-flex flex-column gap-4">
+          
+          <!-- Bloco: Comunicacao -->
+          <div>
+            <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size: 0.7rem; letter-spacing: 1px;">Comunicação</h6>
+            <div class="d-flex flex-column gap-2">
+              <a href="/admin/dashboard/unread" class="btn btn-secondary text-start p-3 d-flex align-items-center action-btn">
+                <i class="bi bi-envelope-open fs-5 me-3" style="color: var(--warning);"></i>
+                <div>
+                  <span class="d-block fw-bold text-white">Caixa de Entrada</span>
+                  <small class="text-muted">Gerenciar solicitações</small>
+                </div>
+                <i class="bi bi-chevron-right ms-auto text-muted"></i>
+              </a>
+              <a href="/admin/dashboard/tickets" class="btn btn-secondary text-start p-3 d-flex align-items-center action-btn">
+                <i class="bi bi-chat-dots fs-5 me-3" style="color: var(--accent-1);"></i>
+                <div>
+                  <span class="d-block fw-bold text-white">Conversas (Tickets)</span>
+                  <small class="text-muted">Chat de suporte ao vivo</small>
+                </div>
+                <i class="bi bi-chevron-right ms-auto text-muted"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Bloco: Gestao de Conteudo -->
+          <div>
+            <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size: 0.7rem; letter-spacing: 1px;">Conteúdo & Site</h6>
+            <div class="d-flex flex-column gap-2">
+              <a href="/admin/dashboard/editPage" class="btn btn-secondary text-start p-3 d-flex align-items-center action-btn">
+                <i class="bi bi-pencil-square fs-5 me-3" style="color: var(--accent-2);"></i>
+                <div>
+                  <span class="d-block fw-bold text-white">Ajustes do Site</span>
+                  <small class="text-muted">Editar Home, Contato, etc</small>
+                </div>
+                <i class="bi bi-chevron-right ms-auto text-muted"></i>
+              </a>
+              <a href="/admin/dashboard/editPage/CreateProjects/allProjects" class="btn btn-secondary text-start p-3 d-flex align-items-center action-btn">
+                <i class="bi bi-braces fs-5 me-3" style="color: var(--success);"></i>
+                <div>
+                  <span class="d-block fw-bold text-white">Meus Projetos</span>
+                  <small class="text-muted">Adicionar ou alterar</small>
+                </div>
+                <i class="bi bi-chevron-right ms-auto text-muted"></i>
+              </a>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
     
-    <!-- Quick Stats -->
-    <div class="col-lg-4 d-flex flex-column gap-3">
-      <div class="card bg-gradient text-white border-0 shadow-sm flex-grow-1" style="background: var(--gradient);">
-        <div class="card-body d-flex align-items-center">
-          <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center me-3" style="width: 56px; height: 56px;">
-            <i class="bi bi-envelope-exclamation fs-3"></i>
-          </div>
-          <div>
-            <h6 class="mb-1 text-uppercase fw-bold opacity-75" style="font-size: 0.75rem; letter-spacing: 1px;">Mensagens Pendentes</h6>
-            <h2 class="mb-0 fw-bold"><%= unreadMessage.length %></h2>
-          </div>
-        </div>
-      </div>
-      <div class="card glass border-0 shadow-sm flex-grow-1">
-        <div class="card-body d-flex align-items-center">
-          <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 56px; height: 56px; background: var(--surface-2); color: var(--accent-1);">
-            <i class="bi bi-window-stack fs-3"></i>
-          </div>
-          <div>
-            <h6 class="mb-1 text-uppercase fw-bold text-muted-2" style="font-size: 0.75rem; letter-spacing: 1px;">Projetos Totais</h6>
-            <h2 class="mb-0 fw-bold text-text"><%= projects.length %></h2>
-          </div>
-        </div>
-      </div>
-      <div class="card glass border-0 shadow-sm flex-grow-1">
-        <div class="card-body d-flex align-items-center">
-          <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 56px; height: 56px; background: var(--surface-2); color: var(--success);">
-            <i class="bi bi-chat-left-text fs-3"></i>
-          </div>
-          <div>
-            <h6 class="mb-1 text-uppercase fw-bold text-muted-2" style="font-size: 0.75rem; letter-spacing: 1px;">Mensagens Totais</h6>
-            <h2 class="mb-0 fw-bold text-text"><%= resultMessage.length %></h2>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <h5 class="fw-bold mb-4">Acesso Rápido</h5>
-  <div class="row row-cols-2 row-cols-lg-4 g-3 mb-4">
-    <div class="col">
-      <a href="/admin/dashboard/unread" class="text-decoration-none">
-        <div class="card h-100 shadow-sm border-0 glass card-hover">
-          <div class="card-body text-center p-4">
-            <i class="bi bi-envelope-open fs-2 mb-2 d-block" style="color: var(--warning);"></i>
-            <span class="fw-bold text-text">Caixa de Entrada</span>
-          </div>
-        </div>
-      </a>
-    </div>
-    <div class="col">
-      <a href="/admin/dashboard/tickets" class="text-decoration-none">
-        <div class="card h-100 shadow-sm border-0 glass card-hover">
-          <div class="card-body text-center p-4">
-            <i class="bi bi-chat-dots fs-2 mb-2 d-block" style="color: var(--accent-1);"></i>
-            <span class="fw-bold text-text">Suporte (Tickets)</span>
-          </div>
-        </div>
-      </a>
-    </div>
-    <div class="col">
-      <a href="/admin/dashboard/blog" class="text-decoration-none">
-        <div class="card h-100 shadow-sm border-0 glass card-hover">
-          <div class="card-body text-center p-4">
-            <i class="bi bi-journal-richtext fs-2 mb-2 d-block" style="color: var(--success);"></i>
-            <span class="fw-bold text-text">Postar no Blog</span>
-          </div>
-        </div>
-      </a>
-    </div>
-    <div class="col">
-      <a href="/admin/dashboard/editPage" class="text-decoration-none">
-        <div class="card h-100 shadow-sm border-0 glass card-hover">
-          <div class="card-body text-center p-4">
-            <i class="bi bi-pencil-square fs-2 mb-2 d-block text-danger"></i>
-            <span class="fw-bold text-text">Editar o Site</span>
-          </div>
-        </div>
-      </a>
-    </div>
   </div>
 </div>
 
 <style>
-.card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-.card-hover:hover { transform: translateY(-4px); box-shadow: var(--shadow-2) !important; }
+.action-btn {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255,255,255,0.05) !important;
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255,255,255,0.15) !important;
+  transform: translateX(5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+.action-btn i.bi-chevron-right { transition: transform 0.3s ease; }
+.action-btn:hover i.bi-chevron-right { transform: translateX(3px); color: var(--text) !important; }
 </style>
 
-<!-- Chart.js -->
+<!-- Relogio Digital Script -->
+<script>
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('liveClock').textContent = now.toLocaleTimeString('pt-BR');
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+</script>
+
+<!-- Chart.js com tema Cyberpunk Midnight Obsidian -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const ctx = document.getElementById('overviewChart').getContext('2d');
     
-    // Obtendo as cores do tema pelo CSS vars (se disponíveis) ou fallback
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || 
-                   (!document.documentElement.hasAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    
-    const textColor = isDark ? '#e8eaed' : '#202124';
-    const gridColor = isDark ? '#334155' : '#e0e0e0';
+    // Cores Premium do Tema
+    const colorCyan = 'rgba(0, 240, 255, 0.8)';
+    const colorAmethyst = 'rgba(138, 43, 226, 0.8)';
+    const colorPink = 'rgba(255, 0, 127, 0.8)';
+    const gridColor = 'rgba(255, 255, 255, 0.05)';
+    const textColor = '#8b949e';
+
+    const gradientCyan = ctx.createLinearGradient(0, 0, 0, 400);
+    gradientCyan.addColorStop(0, 'rgba(0, 240, 255, 0.6)');
+    gradientCyan.addColorStop(1, 'rgba(0, 240, 255, 0.0)');
+
+    const gradientAmethyst = ctx.createLinearGradient(0, 0, 0, 400);
+    gradientAmethyst.addColorStop(0, 'rgba(138, 43, 226, 0.6)');
+    gradientAmethyst.addColorStop(1, 'rgba(138, 43, 226, 0.0)');
+
+    const gradientPink = ctx.createLinearGradient(0, 0, 0, 400);
+    gradientPink.addColorStop(0, 'rgba(255, 0, 127, 0.6)');
+    gradientPink.addColorStop(1, 'rgba(255, 0, 127, 0.0)');
 
     const data = {
-      labels: ['Projetos', 'Mensagens de Contato', 'Mensagens Pendentes'],
+      labels: ['Projetos', 'Mensagens de Contato', 'Pendências'],
       datasets: [{
-        label: 'Quantidades',
+        label: 'Métricas',
         data: [<%= projects.length %>, <%= resultMessage.length %>, <%= unreadMessage.length %>],
-        backgroundColor: [
-          'rgba(59, 130, 246, 0.7)',
-          'rgba(16, 185, 129, 0.7)',
-          'rgba(245, 158, 11, 0.7)'
-        ],
-        borderColor: [
-          'rgb(59, 130, 246)',
-          'rgb(16, 185, 129)',
-          'rgb(245, 158, 11)'
-        ],
-        borderWidth: 1,
-        borderRadius: 6,
-        maxBarThickness: 48
+        backgroundColor: [gradientCyan, gradientAmethyst, gradientPink],
+        borderColor: [colorCyan, colorAmethyst, colorPink],
+        borderWidth: 2,
+        borderRadius: 8,
+        barPercentage: 0.5,
+        hoverBackgroundColor: [colorCyan, colorAmethyst, colorPink]
       }]
     };
 
@@ -148,19 +216,35 @@
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { display: false }
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(15, 15, 20, 0.9)',
+            titleColor: '#fff',
+            bodyColor: '#e2e8f0',
+            borderColor: 'rgba(255,255,255,0.1)',
+            borderWidth: 1,
+            padding: 12,
+            displayColors: false,
+            cornerRadius: 8
+          }
         },
         scales: {
           y: {
             beginAtZero: true,
-            ticks: { color: textColor, precision: 0 },
+            ticks: { color: textColor, precision: 0, padding: 10 },
             grid: { color: gridColor, drawBorder: false },
             border: { display: false }
           },
           x: {
-            ticks: { color: textColor },
+            ticks: { color: textColor, font: { weight: '500' } },
             grid: { display: false },
             border: { display: false }
+          }
+        },
+        animation: {
+          y: {
+            duration: 2000,
+            easing: 'easeOutElastic'
           }
         }
       }

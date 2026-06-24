@@ -1,143 +1,91 @@
-<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 <%- include('fragments/header') %>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
-<script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+<div class="container py-5" style="max-width: 800px;">
+  <!-- Cabeçalho -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
+    <div class="mb-3 mb-md-0">
+      <a href="/admin/dashboard/editPage/CreateProjects/allProjects" class="text-muted text-decoration-none small d-flex align-items-center mb-2">
+        <i class="bi bi-arrow-left me-1"></i> Voltar aos Projetos
+      </a>
+      <h1 class="h3 fw-bold mb-1 text-white">Editar Projeto</h1>
+      <p class="text-muted mb-0">Atualize as informações do projeto: <span class="text-white fw-bold"><%= project.titlePj %></span></p>
+    </div>
+  </div>
 
-<main class="container py-5">
-  
-  <!-- Botão de Voltar -->
-  <div class="text-center mb-4">
-    <a href="/admin/dashboard/editPage/Createprojects/allprojects" class="btn btn-outline-danger rounded-pill px-4 py-2 shadow-sm">
-      <i class="bi bi-arrow-left-circle me-2"></i>Voltar</a>
-  </div>  
-
-  <h1 class="text-center mb-4 text-white">Editar Projeto</h1>
-  <div class="card p-4 shadow-sm bg-dark border-0">
+  <form class="ajax-form" action="/admin/dashboard/editPage/allProjects/<%= project.id %>/updated" enctype="multipart/form-data" method="POST">
     
-    <form class="ajax-form" id="projects-form" action="/admin/dashboard/editPage/allProjects/<%= projectsID.id %>/updated" method="POST" enctype="multipart/form-data">
-      <!-- Formulário Principal -->
-      <div id="projectss-container">
-        <div class="projects-fields card mb-2 p-3 shadow-sm bg-dark border-0 text-light">
-          <div class="d-flex gap-2 align-items-center mb-3">
-            <!-- Botão para Gerar URL -->
-            <button 
-              type="button" 
-              class="btn btn-secondary btn-sm shadow-sm popover-trigger" 
-              data-bs-toggle="popover" 
-              data-bs-content="Gerar URL no Imgur"
-              onclick="window.open('https://imgur.com/', '_blank')">
-              <i class="bi bi-brush"></i>
-            </button>
-          </div>
-          <hr class="text-light">
-          <div class="mb-3">
-            <label class="form-label d-flex align-items-center text-light">
-              <i class="bi bi-image-fill me-2"></i> Imagem do projeto
-            </label>
-            <label class="upload-drop d-flex flex-column align-items-center justify-content-center text-center" for="imageFile">
-              <i class="bi bi-cloud-arrow-up-fill fs-2 gradient-text"></i>
-              <span class="text-muted-2">Clique para trocar a imagem</span>
-              <input type="file" id="imageFile" name="imageFile" accept="image/*" hidden data-preview="#imgPreview">
-            </label>
-            <img id="imgPreview" class="img-preview mt-2" src="<%= projectsID.imagePj %>" alt="Imagem atual">
-            <div class="upload-divider">— ou cole uma URL —</div>
-            <input type="text" class="form-control" id="image" placeholder="https://exemplo.com/imagem.jpg"
-              name="updateImagePj" value="<%= projectsID.imagePj %>">
-          </div>
-
-          <div class="mb-3">
-            <label for="title" class="form-label d-flex align-items-center text-light">
-              <i class="bi bi-pencil-square me-2"></i> Título do Projeto
-            </label>
-            <input 
-              type="text" 
-              class="form-control input-bg shadow-sm bg-dark text-light" 
-              id="title" 
-              name="updateTitlePj" 
-              placeholder="Digite o título do projeto"
-              value="<%= projectsID.titlePj %>"
-              
-            >
-          </div>
-
-          <div class="mb-3">
-            <label for="description" class="form-label d-flex align-items-center text-light">
-              <i class="bi bi-card-text me-2"></i> Descrição
-            </label>
-            <textarea 
-              class="form-control input-bg shadow-sm bg-dark text-light" 
-              id="description" 
-              name="updateDescriptionPj" 
-              rows="6" 
-              placeholder="Digite uma descrição breve do projeto" 
-              
-            ><%= projectsID.descriptionPj %></textarea>
-          </div>
-
-          <div class="mb-3">
-            <label for="link" class="form-label d-flex align-items-center text-light">
-              <i class="bi bi-link-45deg me-2"></i> Link do Projeto
-            </label>
-            <input 
-              type="text" 
-              class="form-control input-bg shadow-sm bg-dark text-light" 
-              id="link" 
-              name="updateLinkPj" 
-              placeholder="Digite o link do repositório ou URL"
-              value="<%= projectsID.linkPj %>"
-              
-            >
-          </div>
+    <!-- Imagem de Capa Atual / Nova -->
+    <div class="glass-panel p-4 mb-4 border-0">
+      <h2 class="h5 mb-4 text-white fw-bold"><i class="bi bi-image me-2" style="color: var(--accent-2);"></i>Capa do Projeto</h2>
+      
+      <div class="row align-items-center g-4">
+        <div class="col-md-5 text-center">
+          <p class="text-muted small text-uppercase fw-bold mb-2">Capa Atual</p>
+          <img src="<%= project.imagePj %>" class="img-fluid rounded-4 shadow-sm w-100" style="object-fit: cover; max-height: 180px; border: 1px solid rgba(255,255,255,0.1);" alt="<%= project.titlePj %>">
+        </div>
+        <div class="col-md-7">
+          <label class="upload-drop d-flex flex-column align-items-center justify-content-center text-center w-100" for="file" style="height: 180px; background: rgba(0, 0, 0, 0.4); border: 1px dashed rgba(0, 240, 255, 0.3); border-radius: var(--radius); cursor: pointer; transition: all 0.3s ease;">
+            <i class="bi bi-cloud-arrow-up fs-2 mb-2 text-accent-2"></i>
+            <span class="text-white fw-medium small">Trocar Imagem de Capa</span>
+            <small class="text-muted mt-1">Opcional (Deixe em branco para manter)</small>
+            <input type="file" id="file" name="imageFile" accept="image/*" hidden data-preview="#coverPreview">
+          </label>
         </div>
       </div>
+      
+      <div class="text-center mt-4">
+        <img id="coverPreview" class="img-preview mb-0 rounded-4 shadow-sm w-100" style="display:none; max-height: 300px; object-fit: cover; border: 2px solid var(--accent-2);" alt="Pré-visualização da nova capa">
+      </div>
+    </div>
 
-      <!-- Botão de Enviar -->
-      <button type="submit" class="btn btn-primary w-100 rounded-pill shadow-sm fw-bold">
-        <i class="bi bi-rocket me-2"></i>Adicionar Projeto
-      </button>
-    </form>
-  </div>
-</main>
+    <!-- Informacoes Principais -->
+    <div class="glass-panel p-4 mb-4 border-0">
+      <h2 class="h5 mb-4 text-white fw-bold"><i class="bi bi-text-paragraph me-2" style="color: var(--accent-1);"></i>Informações do Projeto</h2>
+      
+      <div class="row g-4">
+        <div class="col-md-12">
+          <label for="title" class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Título do Projeto</label>
+          <input type="text" class="form-control" id="title" name="titlePj" value="<%= project.titlePj %>" required>
+        </div>
+        
+        <div class="col-md-12">
+          <label for="subtitle" class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Pequena Descrição / Slogan</label>
+          <textarea class="form-control" id="subtitle" name="subtitlePj" rows="2" required><%= project.subtitlePj %></textarea>
+        </div>
+      </div>
+    </div>
 
-<script>
-  new EasyMDE({
-    element: document.getElementById("description"),
-    spellChecker: false,
-    minHeight: "150px",
-    status: false,
-    toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "preview", "guide"]
-  });
-</script>
+    <!-- Links do Projeto -->
+    <div class="glass-panel p-4 mb-4 border-0">
+      <h2 class="h5 mb-4 text-white fw-bold"><i class="bi bi-link-45deg me-2" style="color: var(--warning);"></i>Links Externos</h2>
+      
+      <div class="row g-4">
+        <div class="col-md-6">
+          <label for="gitLink" class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;"><i class="bi bi-github me-1"></i>Link do Repositório</label>
+          <input type="url" class="form-control" id="gitLink" name="gitLinkPj" value="<%= project.gitLinkPj %>">
+        </div>
+        
+        <div class="col-md-6">
+          <label for="siteLink" class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;"><i class="bi bi-globe me-1"></i>Link do Projeto (Site)</label>
+          <input type="url" class="form-control" id="siteLink" name="siteLinkPj" value="<%= project.siteLinkPj %>">
+        </div>
+      </div>
+    </div>
 
-
-<style>
-  .ql-toolbar { background: var(--surface-2); border-color: var(--border) !important; border-radius: 8px 8px 0 0; }
-  .ql-container { border-color: var(--border) !important; font-family: 'Roboto', sans-serif; font-size: 1rem; }
-  .ql-editor { color: var(--text); }
-  .ql-snow .ql-stroke { stroke: var(--text); }
-  .ql-snow .ql-fill { fill: var(--text); }
-  .ql-snow .ql-picker { color: var(--text); }
-</style>
-<script>
-  var quillupdateDescriptionPj = new Quill('#editor-container-updateDescriptionPj', {
-    theme: 'snow',
-    placeholder: 'Escreva aqui...',
-    modules: {
-      toolbar: [
-        [{ 'header': [1, 2, 3, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        ['blockquote', 'code-block'],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-        ['link', 'clean']
-      ]
-    }
-  });
-
-  document.querySelector('.ajax-form').addEventListener('submit', function() {
-    document.getElementById('updateDescriptionPj').value = quillupdateDescriptionPj.root.innerHTML;
-  });
-</script>
+    <!-- Botoes Finais -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+      <form action="/admin/dashboard/editPage/CreateProjects/allProjects/<%= project.id %>" method="post" class="m-0 ajax-form" data-confirm="Excluir o projeto '<%= project.titlePj %>'? Esta ação não pode ser desfeita." data-confirm-title="Excluir Projeto" data-confirm-btn="Excluir">
+        <button class="btn btn-outline-danger px-4 py-2" type="button" onclick="this.closest('form').submit()">
+          <i class="bi bi-trash3-fill me-2"></i>Excluir Projeto
+        </button>
+      </form>
+      
+      <div class="d-flex gap-3">
+        <a href="/admin/dashboard/editPage/CreateProjects/allProjects" class="btn btn-secondary px-4 py-2">Cancelar</a>
+        <button type="submit" class="btn btn-gradient px-5 py-2"><i class="bi bi-save me-2"></i>Salvar Alterações</button>
+      </div>
+    </div>
+  </form>
+</div>
 
 <%- include('fragments/footer') %>

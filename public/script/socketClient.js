@@ -24,6 +24,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Atualizar likes de comentários globalmente
+  socket.on('project:comment:like:updated', (data) => {
+    const likeCountEl = document.getElementById(`comment-like-count-${data.commentId}`);
+    if (likeCountEl) {
+      if (data.likeCount > 0) {
+        likeCountEl.textContent = `${data.likeCount} curtida${data.likeCount === 1 ? '' : 's'}`;
+        likeCountEl.style.display = 'inline';
+      } else {
+        likeCountEl.style.display = 'none';
+      }
+    }
+  });
+
   // Atualizar comentários globalmente
   socket.on('project:comment:added', (data) => {
     // Atualizar os contadores em index/allProjects
@@ -38,31 +51,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Se estiver na projectDetail.ejs do projeto correto, anexar o novo comentário
-    const commentsContainer = document.querySelector('#commentsContainer');
+    const commentsContainer = document.querySelector('#commentsWrapper');
     if (commentsContainer && window.currentProjectId === data.projectId) {
       if (!data.comment.parent) { // é um comentário raiz
         const emptyState = document.querySelector('#emptyComments');
         if (emptyState) emptyState.remove();
 
         const c = data.comment;
+        // Transforma mencoes em azul
+        const bodyParsed = c.body.replace(/@([a-zA-Z0-9_]+)/g, '<span style="color: #3b82f6;">@$1</span>');
+        
         const html = `
-          <div class="comment mb-3" id="c-${c._id}">
-            <div class="d-flex gap-2">
-              <span class="comment-avatar ${c.isAuthor ? 'is-author' : ''}">${c.userName.charAt(0).toUpperCase()}</span>
-              <div class="flex-grow-1 min-w-0">
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                  <strong>${c.userName}</strong>
-                  ${c.isAuthor ? '<span class="badge bg-primary"><i class="bi bi-patch-check-fill me-1"></i>Autor</span>' : ''}
-                  <small class="text-muted-2">${new Date(c.createdAt).toLocaleDateString('pt-BR')}</small>
+          <div class="comment-ig d-flex gap-3 mb-3" id="c-${c._id}">
+            <div class="rounded-circle bg-gradient d-flex align-items-center justify-content-center text-white flex-shrink-0" style="width: 36px; height: 36px; font-weight: bold; font-size: 14px;">
+              ${c.userName.charAt(0).toUpperCase()}
+            </div>
+            <div class="flex-grow-1 min-w-0">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <span class="fw-bold text-white me-1" style="font-size: 0.9rem;">
+                    ${c.userName}
+                    ${c.isAuthor ? '<i class="bi bi-patch-check-fill text-primary ms-1" title="Autor"></i>' : ''}
+                  </span>
+                  <span class="text-white" style="font-size: 0.9rem; word-break: break-word;">
+                    ${bodyParsed}
+                  </span>
                 </div>
-                <div class="markdown-body comment-body"><p>${c.body}</p></div>
+                <!-- Like form injected dynamically or requires refresh for interaction, but we show the icon -->
+                <i class="bi bi-heart text-muted" style="font-size: 0.85rem;"></i>
+              </div>
+              <div class="d-flex align-items-center gap-3 mt-1">
+                <small class="text-muted" style="font-size: 0.75rem;">Agora</small>
               </div>
             </div>
           </div>
         `;
-        commentsContainer.insertAdjacentHTML('afterbegin', html);
-      } else {
-        // Lógica de adicionar resposta seria análoga, inserindo no bloco de replies
+        commentsContainer.insertAdjacentHTML('beforeend', html);
+        
+        // Scroll the modal to bottom
+        const modalBody = document.querySelector('#commentsContainerModal');
+        if (modalBody) modalBody.scrollTop = modalBody.scrollHeight;
       }
     }
   });
@@ -114,17 +142,47 @@ document.addEventListener('DOMContentLoaded', () => {
           // Limpa o input se for comentário/ticket
           const textarea = form.querySelector('textarea');
           if (textarea) textarea.value = '';
+          const textInput = form.querySelector('input[type="text"]');
+          if (textInput) textInput.value = '';
+          const parentInput = form.querySelector('input[name="parent"]');
+          if (parentInput) parentInput.value = '';
+          const indicator = document.getElementById("replyingIndicator");
+          if (indicator) indicator.style.setProperty('display', 'none', 'important');
 
           // Se for curtida e deu sucesso
           if (json.likeCount !== undefined && json.likedByMe !== undefined) {
              const icon = form.querySelector('i');
              if (icon) {
-               if (json.likedByMe) {
-                 icon.className = 'bi bi-heart-fill';
-                 if (submitBtn) { submitBtn.classList.add('btn-gradient'); submitBtn.classList.remove('btn-outline-light'); }
+               if (json.isCommentLike) {
+                 if (json.likedByMe) {
+                   icon.className = 'bi bi-heart-fill text-danger';
+                 } else {
+                   icon.className = 'bi bi-heart text-muted';
+                 }
                } else {
-                 icon.className = 'bi bi-heart';
-                 if (submitBtn) { submitBtn.classList.remove('btn-gradient'); submitBtn.classList.add('btn-outline-light'); }
+                 if (json.likedByMe) {
+                   if (submitBtn && submitBtn.classList.contains('ig-btn')) {
+                     icon.className = 'bi bi-heart-fill text-danger';
+                   } else {
+                     icon.className = 'bi bi-heart-fill me-1';
+                     if (submitBtn) submitBtn.classList.add('liked');
+                   }
+                   if (submitBtn) {
+                     const likeText = submitBtn.querySelector('.like-text');
+                     if (likeText) likeText.textContent = 'Curtido';
+                   }
+                 } else {
+                   if (submitBtn && submitBtn.classList.contains('ig-btn')) {
+                     icon.className = 'bi bi-heart';
+                   } else {
+                     icon.className = 'bi bi-heart me-1';
+                     if (submitBtn) submitBtn.classList.remove('liked');
+                   }
+                   if (submitBtn) {
+                     const likeText = submitBtn.querySelector('.like-text');
+                     if (likeText) likeText.textContent = 'Curtir';
+                   }
+                 }
                }
              }
              return; // Curtidas não precisam de alerta visual grande

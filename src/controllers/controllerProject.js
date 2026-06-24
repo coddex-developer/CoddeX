@@ -3,6 +3,7 @@ const Like = require("../db/likeDB");
 const Comment = require("../db/commentDB");
 const CommentLike = require("../db/commentLikeDB");
 const Notification = require("../db/notificationDB");
+const User = require("../db/userDB");
 
 // Identifica quem está agindo: usuário logado ou o admin (autor do site).
 function getActor(req) {
@@ -116,9 +117,9 @@ module.exports = {
       if (!actor) return res.redirect("/login");
 
       const { id } = req.params;
-      const body = (req.body.body || "").trim();
+      const bodyRaw = (req.body.body || "").trim();
       const parentId = req.body.parent || null;
-      if (!body) return res.redirect("/projeto/" + id + "#comentarios");
+      if (!bodyRaw) return res.redirect("/projeto/" + id + "#comentarios");
 
       const project = await ProjectsDB.findById(id);
       if (!project) return warn(req, res, "Projeto não encontrado.", "/", 404);
@@ -129,22 +130,72 @@ module.exports = {
         if (!parent || String(parent.project) !== String(id)) parent = null;
       }
 
+      let userAvatar = null;
+      let userUsername = null;
+      if (!actor.isAuthor) {
+        const u = await User.findById(actor.id);
+        if (u) {
+          userAvatar = u.avatar;
+          userUsername = u.username;
+        }
+      }
+
       const newComment = await Comment.create({
         project: id,
         user: actor.id,
         userName: actor.name,
+        userUsername: userUsername,
+        userAvatar: userAvatar,
         isAuthor: actor.isAuthor,
         parent: parent ? parent._id : null,
-        body: body.slice(0, 2000)
+        body: bodyRaw.slice(0, 2000)
       });
+
+      const link = `/projeto/${id}#c-${newComment._id}`;
 
       // Notifica o autor do comentário pai quando alguém responde
       if (parent && String(parent.user) !== String(actor.id)) {
-        const link = `/projeto/${id}#comentarios`;
+        const notifData = {
+          type: "reply",
+          category: "comment",
+          actorName: actor.name,
+          actorAvatar: actor.isAuthor ? "/assets/admin1.png" : (userAvatar || ""),
+          text: `${actor.name} respondeu seu comentário`,
+          link
+        };
         if (parent.isAuthor) {
-          await Notification.create({ recipientType: "admin", recipientId: "admin", type: "reply", text: `${actor.name} respondeu seu comentário`, link });
+          await Notification.create({ recipientType: "admin", recipientId: "admin", ...notifData });
         } else {
-          await Notification.create({ recipientType: "user", recipientId: parent.user, type: "reply", text: `${actor.name} respondeu seu comentário`, link });
+          await Notification.create({ recipientType: "user", recipientId: parent.user, ...notifData });
+        }
+      }
+
+      // Processar Menções (@usuario)
+      // Encontra qualquer palavra começando com @ seguida de letras, números ou underscore
+      const mentionRegex = /@([a-zA-Z0-9_]+)/g;
+      const mentions = [];
+      let match;
+      while ((match = mentionRegex.exec(bodyRaw)) !== null) {
+        mentions.push(match[1]); // array of usernames (without @)
+      }
+
+      if (mentions.length > 0) {
+        // Encontra os usuários com esses usernames exatos
+        const mentionedUsers = await User.find({ username: { $in: mentions.map(m => new RegExp(`^${m}$`, "i")) } });
+        for (const mUser of mentionedUsers) {
+          // Não notifica a si mesmo nem tenta notificar se for resposta direta (para evitar notificação dupla)
+          if (String(mUser._id) !== String(actor.id) && (!parent || String(parent.user) !== String(mUser._id))) {
+            await Notification.create({
+              recipientType: "user",
+              recipientId: mUser._id,
+              type: "mention",
+              category: "mention",
+              actorName: actor.name,
+              actorAvatar: actor.isAuthor ? "/assets/admin1.png" : (userAvatar || ""),
+              text: `${actor.name} mencionou você em um comentário.`,
+              link
+            });
+          }
         }
       }
 
@@ -173,11 +224,31 @@ module.exports = {
       if (!actor) return res.redirect("/login");
       const { id, commentId } = req.params;
       const existing = await CommentLike.findOne({ user: actor.id, comment: commentId });
-      if (existing) await existing.deleteOne();
-      else await CommentLike.create({ user: actor.id, comment: commentId });
+      
+      let likedByMe = false;
+      if (existing) {
+        await existing.deleteOne();
+      } else {
+        await CommentLike.create({ user: actor.id, comment: commentId });
+        likedByMe = true;
+      }
+      
+      const likeCount = await CommentLike.countDocuments({ comment: commentId });
+
+      if (req.app.get('io')) {
+        req.app.get('io').emit('project:comment:like:updated', { commentId, likeCount });
+      }
+
+      if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+        return res.json({ success: true, isCommentLike: true, likedByMe, likeCount });
+      }
+
       res.redirect("/projeto/" + id + "#comentarios");
     } catch (error) {
       if (error.code === 11000) return res.redirect("/projeto/" + req.params.id + "#comentarios");
+      if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+        return res.status(500).json({ error: error.message });
+      }
       warn(req, res, error.message, "/projeto/" + req.params.id);
     }
   },

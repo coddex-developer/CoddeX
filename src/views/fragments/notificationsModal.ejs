@@ -1,0 +1,77 @@
+<!-- Modal de Notificações (Estilo Instagram) -->
+<div class="modal fade" id="notificationsModal" tabindex="-1" aria-hidden="true" data-bs-theme="dark">
+  <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-scrollable" style="max-width: 500px; margin: 0 auto; height: 100vh;">
+    <div class="modal-content" style="background: var(--surface-solid, #000); border: 1px solid var(--border-strong, #333); border-radius: 15px;">
+      
+      <!-- Header -->
+      <div class="modal-header border-bottom-0 pb-0">
+        <h5 class="modal-title fw-bold text-white fs-4">Notificações</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Filtros (Abas) -->
+      <div class="px-3 pt-3 pb-2 border-bottom" style="border-color: var(--border, #333) !important; overflow-x: auto; white-space: nowrap;">
+        <div class="d-flex gap-2 pb-1" id="notifTabs">
+          <button class="btn btn-sm rounded-pill fw-bold notif-tab active" data-filter="all" style="background: var(--text); color: var(--bg); transition: 0.2s;">Tudo</button>
+          <button class="btn btn-sm rounded-pill fw-bold notif-tab" data-filter="comment" style="background: var(--surface-2); color: var(--text); border: 1px solid var(--border); transition: 0.2s;">Comentários</button>
+          <button class="btn btn-sm rounded-pill fw-bold notif-tab" data-filter="ticket" style="background: var(--surface-2); color: var(--text); border: 1px solid var(--border); transition: 0.2s;">Tickets</button>
+          <button class="btn btn-sm rounded-pill fw-bold notif-tab" data-filter="mention" style="background: var(--surface-2); color: var(--text); border: 1px solid var(--border); transition: 0.2s;">Menções</button>
+        </div>
+      </div>
+
+      <!-- Corpo das Notificações -->
+      <div class="modal-body p-0" id="notificationsContainer" style="overflow-x: hidden;">
+        <!-- Loading State -->
+        <div class="text-center py-5" id="notifLoading">
+          <div class="spinner-border text-secondary" role="status"></div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="text-center py-5 d-none" id="notifEmpty">
+          <i class="bi bi-bell-slash fs-1 text-muted mb-3 d-block"></i>
+          <h5 class="text-white fw-bold">Nenhuma notificação</h5>
+          <p class="text-muted">Você está atualizado.</p>
+        </div>
+
+        <!-- Lista de Notificações agrupada por Tempo -->
+        <div id="notifList" class="d-none"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  .notif-tab.active {
+    background: var(--text, #fff) !important;
+    color: var(--bg, #000) !important;
+    border-color: transparent !important;
+  }
+  .notif-item {
+    transition: background-color 0.2s;
+    cursor: pointer;
+  }
+  .notif-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  .notif-item.unread {
+    background-color: rgba(255, 255, 255, 0.02);
+  }
+  .notif-unread-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #3b82f6;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  /* Scrollbar oculta nas abas */
+  #notifTabs::-webkit-scrollbar {
+    display: none;
+  }
+  #notifTabs {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style>
+
+<script src="/scripts/notifications.js" defer></script>

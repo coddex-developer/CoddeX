@@ -1,103 +1,105 @@
-<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 <%- include('fragments/header') %>
 
 <!-- EasyMDE (editor markdown com preview ao vivo) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
 <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
 
-<div class="container py-5" style="max-width: 760px;">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">Configurar site</h1>
-    <a href="/admin/dashboard" class="btn btn-outline-light btn-sm"><i class="bi bi-house-fill me-1"></i>Início</a>
+<div class="container py-5" style="max-width: 800px;">
+  <!-- Cabeçalho -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
+    <div class="mb-3 mb-md-0">
+      <a href="/admin/dashboard" class="text-muted text-decoration-none small d-flex align-items-center mb-2">
+        <i class="bi bi-arrow-left me-1"></i> Voltar ao Painel
+      </a>
+      <h1 class="h3 fw-bold mb-1 text-white">Configurar Conteúdo</h1>
+      <p class="text-muted mb-0">Edite os textos principais da página inicial.</p>
+    </div>
   </div>
 
   <form class="ajax-form" action="/admin/dashboard/editPage/save" method="POST">
+    <!-- Bloco de Conteúdo Principal -->
+    <div class="glass-panel p-4 mb-4 border-0">
+      <h2 class="h5 mb-4 text-white fw-bold"><i class="bi bi-fonts me-2" style="color: var(--accent-2);"></i>Textos da Landing Page</h2>
 
-    <!-- Conteúdo principal -->
-    <div class="glass p-4 mb-4">
-      <h2 class="h5 mb-3"><i class="bi bi-fonts me-2 gradient-text"></i>Conteúdo</h2>
+      <div class="row g-4">
+        <div class="col-md-12">
+          <label for="title" class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Título Principal</label>
+          <input type="text" class="form-control" id="title" name="titleForm" value="<%= site.title %>" required>
+        </div>
 
-      <div class="mb-3">
-        <label for="title" class="form-label">Título</label>
-        <input type="text" class="form-control" id="title" name="titleForm" value="<%= site.title %>" required>
-      </div>
+        <div class="col-md-12">
+          <label for="subtitle" class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Subtítulo / Slogan</label>
+          <textarea class="form-control" id="subtitle" name="subtitleForm" rows="2" required><%= site.subtitle %></textarea>
+        </div>
 
-      <div class="mb-3">
-        <label for="subtitle" class="form-label">Subtítulo / slogan</label>
-        <textarea class="form-control" id="subtitle" name="subtitleForm" rows="2" required><%= site.subtitle %></textarea>
-      </div>
+        <div class="col-md-12">
+          <label for="aboutTitle" class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Título da Seção "Sobre"</label>
+          <input type="text" class="form-control" id="aboutTitle" name="titleAboutMeForm" value="<%= site.titleAboutMe %>" required>
+        </div>
 
-      <div class="mb-3">
-        <label for="aboutTitle" class="form-label">Título "Sobre mim"</label>
-        <input type="text" class="form-control" id="aboutTitle" name="titleAboutMeForm" value="<%= site.titleAboutMe %>" required>
-      </div>
-
-      <div class="mb-1">
-        <label for="aboutText" class="form-label">Texto "Sobre mim" <span class="text-muted-2">(suporta markdown)</span></label>
-        <textarea class="form-control" id="aboutText" name="textAboutMeForm" required><%= site.textAboutMe %></textarea>
-      </div>
-    </div>
-
-    <!-- Aviso: configurações movidas -->
-    <div class="glass p-3 mb-4 d-flex align-items-center gap-3">
-      <i class="bi bi-info-circle fs-4 gradient-text"></i>
-      <div class="flex-grow-1 small text-muted-2">
-        Redes sociais, e-mail (SMTP) e Cloudinary agora ficam em
-        <a href="/admin/dashboard/adminProfile" style="color:var(--accent-2);">Perfil & Configurações</a>.
+        <div class="col-md-12">
+          <label for="aboutText" class="form-label text-uppercase text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Texto "Sobre mim" (Markdown Suportado)</label>
+          <textarea class="form-control bg-dark text-white" id="aboutText" name="textAboutMeForm" required><%= site.textAboutMe %></textarea>
+        </div>
       </div>
     </div>
 
-    <!-- Atalhos -->
-    <div class="d-grid gap-2 mb-4">
-      <a href="/admin/dashboard/editPage/CreateProjects/allProjects" class="btn btn-outline-light text-start">
-        <i class="bi bi-window-stack me-2"></i>Gerenciar projetos
-      </a>
-      <a href="/admin/dashboard/editPage/my-certificates" class="btn btn-outline-light text-start">
-        <i class="bi bi-award-fill me-2"></i>Gerenciar certificados
-      </a>
+    <!-- Aviso Informativo -->
+    <div class="glass-panel p-4 mb-4 border-0 d-flex align-items-center gap-3" style="background: rgba(138, 43, 226, 0.05);">
+      <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 45px; height: 45px; background: rgba(138, 43, 226, 0.1); color: var(--accent-1);">
+        <i class="bi bi-info-circle fs-4"></i>
+      </div>
+      <div class="flex-grow-1">
+        <span class="d-block fw-bold text-white mb-1">Configurações Movidas</span>
+        <span class="text-muted small">Redes sociais, SMTP (E-mail) e Cloudinary agora são gerenciados em <a href="/admin/dashboard/adminProfile" style="color:var(--accent-2); text-decoration: none; font-weight: 500;">Perfil & Configurações</a>.</span>
+      </div>
     </div>
 
-    <button type="submit" class="btn btn-gradient w-100"><i class="bi bi-save me-2"></i>Salvar alterações</button>
+    <!-- Atalhos Secundários -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <a href="/admin/dashboard/editPage/CreateProjects/allProjects" class="btn btn-secondary w-100 p-3 text-start d-flex align-items-center" style="border-radius: 12px;">
+          <i class="bi bi-window-stack fs-4 me-3" style="color: var(--success);"></i>
+          <div>
+            <span class="d-block fw-bold text-white">Projetos</span>
+            <small class="text-muted d-block" style="font-size: 0.7rem;">Gerenciar portfólio</small>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-6">
+        <a href="/admin/dashboard/editPage/my-certificates" class="btn btn-secondary w-100 p-3 text-start d-flex align-items-center" style="border-radius: 12px;">
+          <i class="bi bi-award-fill fs-4 me-3" style="color: var(--warning);"></i>
+          <div>
+            <span class="d-block fw-bold text-white">Certificados</span>
+            <small class="text-muted d-block" style="font-size: 0.7rem;">Gerenciar conquistas</small>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end">
+      <button type="submit" class="btn btn-gradient px-5 py-2"><i class="bi bi-check2-circle me-2"></i>Salvar Conteúdo</button>
+    </div>
   </form>
 </div>
+
+<style>
+  /* Customizando o editor EasyMDE para o Dark Mode */
+  .editor-toolbar { border-color: var(--border-strong) !important; background: var(--surface-2) !important; border-radius: var(--radius-sm) var(--radius-sm) 0 0 !important; }
+  .editor-toolbar button { color: var(--text-muted) !important; }
+  .editor-toolbar button:hover, .editor-toolbar button.active { background: rgba(255,255,255,0.1) !important; color: var(--text) !important; border-color: transparent !important; }
+  .editor-toolbar i.separator { border-color: var(--border-strong) !important; }
+  .CodeMirror { border-color: var(--border-strong) !important; background: rgba(0, 0, 0, 0.4) !important; color: var(--text) !important; border-radius: 0 0 var(--radius-sm) var(--radius-sm) !important; font-family: "Outfit", monospace; }
+  .CodeMirror-cursor { border-color: var(--accent-2) !important; }
+</style>
 
 <script>
   new EasyMDE({
     element: document.getElementById("aboutText"),
     spellChecker: false,
-    minHeight: "160px",
+    minHeight: "200px",
     status: false,
     toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "preview", "guide"]
-  });
-</script>
-
-
-<style>
-  .ql-toolbar { background: var(--surface-2); border-color: var(--border) !important; border-radius: 8px 8px 0 0; }
-  .ql-container { border-color: var(--border) !important; font-family: 'Roboto', sans-serif; font-size: 1rem; }
-  .ql-editor { color: var(--text); }
-  .ql-snow .ql-stroke { stroke: var(--text); }
-  .ql-snow .ql-fill { fill: var(--text); }
-  .ql-snow .ql-picker { color: var(--text); }
-</style>
-<script>
-  var quilltextAboutMeForm = new Quill('#editor-container-textAboutMeForm', {
-    theme: 'snow',
-    placeholder: 'Escreva aqui...',
-    modules: {
-      toolbar: [
-        [{ 'header': [1, 2, 3, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        ['blockquote', 'code-block'],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-        ['link', 'clean']
-      ]
-    }
-  });
-
-  document.querySelector('.ajax-form').addEventListener('submit', function() {
-    document.getElementById('textAboutMeForm').value = quilltextAboutMeForm.root.innerHTML;
   });
 </script>
 

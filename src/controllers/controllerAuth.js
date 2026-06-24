@@ -89,7 +89,18 @@ module.exports = {
         return sendError(req, res, "Este e-mail já está cadastrado. Faça login.", "register", values, 400);
       }
 
-      const user = new User({ name: name.trim(), email: normalizedEmail, password, emailVerified: !verifEnabled });
+      // Gera um username base com _ e 4 números aleatórios
+      let baseName = name.trim().split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (!baseName) baseName = 'user';
+      let username;
+      while (true) {
+        const randomNum = Math.floor(1000 + Math.random() * 9000);
+        username = `${baseName}_${randomNum}`;
+        const existingUser = await User.findOne({ username });
+        if (!existingUser) break;
+      }
+
+      const user = new User({ name: name.trim(), username, email: normalizedEmail, password, emailVerified: !verifEnabled });
 
       if (verifEnabled) {
         const code = await user.setVerificationCode();
@@ -280,7 +291,13 @@ module.exports = {
         ? await ProjectsDB.find({ _id: { $in: likedIds } }).lean()
         : [];
 
-      res.render("account", { user, likedProjects });
+      // Fetch notifications
+      const notifications = await Notification.find({ recipientType: "user", recipientId: user._id })
+                                              .sort({ createdAt: -1 })
+                                              .limit(30)
+                                              .lean();
+
+      res.render("account", { user, likedProjects, notifications });
     } catch (error) {
       sendError(req, res, error.message, "warning", {}, 500, "/");
     }
