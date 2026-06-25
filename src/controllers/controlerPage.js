@@ -123,17 +123,9 @@ module.exports = {
     try {
       const resultMessage = await MessageDB.find({ completed: false });
       const projects = await ProjectsDB.find()
-      if (resultMessage.length <= 0) {
-        res.render("warning", {
-          title: "Aviso!",
-          info: "Não temos mensagens no momento volte mais tarde.",
-          textButton: "Voltar",
-          url: "/admin/dashboard"
-        })
-        return
-      }
 
-      res.render("unread", { resultMessage, projects })
+
+      res.render("unread", { unreadMessage: resultMessage, projects })
     } catch (error) {
       res.render("warning", {
         title: "Aviso!",
