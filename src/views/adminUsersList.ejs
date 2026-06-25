@@ -19,9 +19,9 @@
   </div>
 
   <!-- Lista de Usuarios -->
-  <div class="glass-panel border-0 overflow-hidden">
+  <div class="glass-panel border-0" style="overflow: visible !important;">
     <% if (users && users.length > 0) { %>
-      <div class="table-responsive">
+      <div class="table-responsive" style="overflow: visible !important;">
         <table class="table table-dark table-hover mb-0" style="background: transparent;">
           <thead>
             <tr style="border-bottom: 1px solid var(--border-strong);">
@@ -64,28 +64,20 @@
                 </td>
                 <td class="py-3 px-4 align-middle text-end">
                   <div class="dropup d-inline">
-                    <button class="btn btn-outline-light btn-sm rounded-pill px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      Ações <i class="bi bi-chevron-up ms-1" style="font-size: 0.7rem;"></i>
+                    <button class="btn btn-outline-light btn-sm rounded-pill flex" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      ...<!-- <i class="bi bi-fire ms-1" style="font-size: 0.7rem;"></i> -->
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow" style="background: var(--surface-1); border: 1px solid var(--border-strong);">
+                    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow position-absolute z-3" style="background: var(--surface-1); border: 1px solid var(--border-strong);">
                       <li>
-                        <button class="dropdown-item d-flex align-items-center py-2" onclick="showInteractions('<%= user._id %>', '<%= user.name %>')">
-                          <i class="bi bi-activity text-info me-2"></i> Ver Interações
+                        <button class="dropdown-item d-flex align-items-center py-2" 
+                          data-id="<%= user._id %>" 
+                          data-name="<%= user.name %>" 
+                          data-email="<%= user.email %>" 
+                          data-avatar="<%= user.avatar || '' %>" 
+                          data-blocked="<%= user.isBlocked %>" 
+                          onclick="showInteractions(this)">
+                          <i class="bi bi-person-lines-fill text-info me-2"></i> Gerenciar Usuário
                         </button>
-                      </li>
-                      <li>
-                        <button class="dropdown-item d-flex align-items-center py-2" onclick="showPasswordModal('<%= user._id %>', '<%= user.name %>')">
-                          <i class="bi bi-key text-warning me-2"></i> Alterar Senha
-                        </button>
-                      </li>
-                      <li>
-                        <form action="/admin/dashboard/users/<%= user._id %>/block" method="post" class="m-0 ajax-form-block"
-                          data-confirm="Tem certeza que deseja <%= user.isBlocked ? 'desbloquear' : 'bloquear' %> o acesso de '<%= user.name %>'?">
-                          <button class="dropdown-item d-flex align-items-center py-2" type="submit">
-                            <i id="icon-block-<%= user._id %>" class="bi <%= user.isBlocked ? 'bi-unlock text-success' : 'bi-lock text-danger' %> me-2"></i> 
-                            <span id="text-block-<%= user._id %>"><%= user.isBlocked ? 'Desbloquear Conta' : 'Bloquear Conta' %></span>
-                          </button>
-                        </form>
                       </li>
                       <li><hr class="dropdown-divider border-secondary"></li>
                       <li>
@@ -114,44 +106,74 @@
   </div>
 </div>
 
-<!-- Modal Interações -->
+<!-- Modal Interações e Perfil -->
 <div class="modal fade" id="interactionsModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content" style="background: var(--surface-1); border: 1px solid var(--border-strong);">
       <div class="modal-header border-bottom border-secondary">
-        <h5 class="modal-title fw-bold text-white"><i class="bi bi-activity text-info me-2"></i> Interações de <span id="intUserName"></span></h5>
+        <h5 class="modal-title fw-bold text-white"><i class="bi bi-person-lines-fill text-info me-2"></i> Gerenciar Usuário</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body p-4 text-center" id="intLoading">
         <div class="spinner-border text-primary" role="status"></div>
       </div>
       <div class="modal-body p-4 d-none" id="intContent">
-        <div class="row text-center g-3">
+        
+        <!-- Perfil do Usuário -->
+        <div class="d-flex align-items-center mb-4 pb-3 border-bottom border-secondary">
+          <div id="modalUserAvatarWrapper" class="me-3">
+            <img id="modalUserAvatar" src="" alt="User" class="rounded-circle d-none" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid var(--accent-1);">
+            <div id="modalUserAvatarFallback" class="rounded-circle d-flex align-items-center justify-content-center d-none" style="width: 60px; height: 60px; background: rgba(0, 240, 255, 0.1); border: 2px solid rgba(0, 240, 255, 0.2); color: var(--accent-2); font-size: 1.5rem;">
+              <i class="bi bi-person-fill"></i>
+            </div>
+          </div>
+          <div class="text-start">
+            <h5 class="fw-bold text-white mb-0" id="modalUserName">Nome</h5>
+            <small class="text-muted d-block" id="modalUserEmail">@email</small>
+            <span id="modalUserStatus" class="badge mt-1" style="font-size: 0.65rem;"></span>
+          </div>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="row text-center g-2 mb-4">
           <div class="col-4">
-            <div class="p-3 rounded" style="background: var(--surface-2); border: 1px solid var(--border);">
-              <i class="bi bi-chat-left-text text-primary fs-4 mb-2 d-block"></i>
-              <h4 class="fw-bold text-white mb-0" id="intComments">0</h4>
-              <small class="text-muted" style="font-size: 0.7rem;">Comentários</small>
+            <div class="p-2 rounded" style="background: var(--surface-2); border: 1px solid var(--border);">
+              <h5 class="fw-bold text-white mb-0" id="intComments">0</h5>
+              <small class="text-muted" style="font-size: 0.65rem;">Comentários</small>
             </div>
           </div>
           <div class="col-4">
-            <div class="p-3 rounded" style="background: var(--surface-2); border: 1px solid var(--border);">
-              <i class="bi bi-heart-fill text-danger fs-4 mb-2 d-block"></i>
-              <h4 class="fw-bold text-white mb-0" id="intLikes">0</h4>
-              <small class="text-muted" style="font-size: 0.7rem;">Curtidas</small>
+            <div class="p-2 rounded" style="background: var(--surface-2); border: 1px solid var(--border);">
+              <h5 class="fw-bold text-white mb-0" id="intLikes">0</h5>
+              <small class="text-muted" style="font-size: 0.65rem;">Curtidas</small>
             </div>
           </div>
           <div class="col-4">
-            <div class="p-3 rounded" style="background: var(--surface-2); border: 1px solid var(--border);">
-              <i class="bi bi-headset text-warning fs-4 mb-2 d-block"></i>
-              <h4 class="fw-bold text-white mb-0" id="intTickets">0</h4>
-              <small class="text-muted" style="font-size: 0.7rem;">Tickets</small>
+            <div class="p-2 rounded" style="background: var(--surface-2); border: 1px solid var(--border);">
+              <h5 class="fw-bold text-white mb-0" id="intTickets">0</h5>
+              <small class="text-muted" style="font-size: 0.65rem;">Tickets</small>
             </div>
           </div>
         </div>
-      </div>
-      <div class="modal-footer border-top border-secondary">
-        <button type="button" class="btn btn-outline-light rounded-pill px-4" data-bs-dismiss="modal">Fechar</button>
+
+        <!-- Gráfico -->
+        <div class="mb-4" style="height: 180px; position: relative;">
+          <canvas id="interactionsChart"></canvas>
+        </div>
+        
+        <!-- Ações do Usuário -->
+        <div class="d-flex flex-column gap-2 mt-4 pt-3 border-top border-secondary">
+          <button class="btn btn-outline-warning w-100 d-flex justify-content-center align-items-center" type="button" id="modalBtnChangePassword">
+            <i class="bi bi-key me-2"></i> Alterar Senha
+          </button>
+          
+          <form id="modalBlockForm" method="post" class="m-0 ajax-form-block w-100">
+            <button class="btn btn-outline-danger w-100 d-flex justify-content-center align-items-center" type="submit" id="modalBtnBlock">
+              <i class="bi bi-lock me-2" id="modalIconBlock"></i> <span id="modalTextBlock">Bloquear Conta</span>
+            </button>
+          </form>
+        </div>
+
       </div>
     </div>
   </div>
@@ -182,6 +204,7 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   // Excluir e Bloquear forms via AJAX com SweetAlert2
   document.querySelectorAll('.ajax-form-block, .ajax-form-delete').forEach(form => {
@@ -223,11 +246,57 @@
     });
   });
 
-  const intModal = new bootstrap.Modal(document.getElementById('interactionsModal'));
-  const passModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+  let intChartInstance = null;
 
-  function showInteractions(id, name) {
-    document.getElementById('intUserName').innerText = name;
+  function showInteractions(btn) {
+    const intModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('interactionsModal'));
+    const id = btn.getAttribute('data-id');
+    const name = btn.getAttribute('data-name');
+    const email = btn.getAttribute('data-email');
+    const avatar = btn.getAttribute('data-avatar');
+    const isBlocked = btn.getAttribute('data-blocked') === 'true';
+
+    // Set Profile Info
+    document.getElementById('modalUserName').innerText = name;
+    document.getElementById('modalUserEmail').innerText = email;
+    
+    const avatarImg = document.getElementById('modalUserAvatar');
+    const avatarFallback = document.getElementById('modalUserAvatarFallback');
+    if (avatar) {
+      avatarImg.src = avatar;
+      avatarImg.classList.remove('d-none');
+      avatarFallback.classList.add('d-none');
+    } else {
+      avatarImg.classList.add('d-none');
+      avatarFallback.classList.remove('d-none');
+    }
+
+    // Set Status
+    const statusBadge = document.getElementById('modalUserStatus');
+    if (isBlocked) {
+      statusBadge.className = 'badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-50 mt-1';
+      statusBadge.innerText = 'Bloqueado';
+    } else {
+      statusBadge.className = 'badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-50 mt-1';
+      statusBadge.innerText = 'Ativo';
+    }
+
+    // Configure Actions
+    document.getElementById('modalBtnChangePassword').onclick = () => {
+      intModal.hide();
+      showPasswordModal(id, name);
+    };
+
+    const blockForm = document.getElementById('modalBlockForm');
+    blockForm.action = `/admin/dashboard/users/${id}/block`;
+    const actionText = isBlocked ? 'desbloquear' : 'bloquear';
+    blockForm.setAttribute('data-confirm', `Tem certeza que deseja ${actionText} o acesso de '${name}'?`);
+    
+    document.getElementById('modalIconBlock').className = isBlocked ? 'bi bi-unlock me-2' : 'bi bi-lock me-2';
+    document.getElementById('modalTextBlock').innerText = isBlocked ? 'Desbloquear Conta' : 'Bloquear Conta';
+    document.getElementById('modalBtnBlock').className = isBlocked ? 'btn btn-outline-success w-100 d-flex justify-content-center align-items-center' : 'btn btn-outline-danger w-100 d-flex justify-content-center align-items-center';
+
+    // Show Loading
     document.getElementById('intLoading').classList.remove('d-none');
     document.getElementById('intContent').classList.add('d-none');
     intModal.show();
@@ -236,20 +305,72 @@
       .then(res => res.json())
       .then(data => {
         if(data.success) {
-          document.getElementById('intComments').innerText = data.stats.comments;
-          document.getElementById('intLikes').innerText = data.stats.likes;
-          document.getElementById('intTickets').innerText = data.stats.tickets;
+          const comments = data.stats.comments || 0;
+          const likes = data.stats.likes || 0;
+          const tickets = data.stats.tickets || 0;
+          
+          document.getElementById('intComments').innerText = comments;
+          document.getElementById('intLikes').innerText = likes;
+          document.getElementById('intTickets').innerText = tickets;
+          
+          renderChart(comments, likes, tickets);
+
           document.getElementById('intLoading').classList.add('d-none');
           document.getElementById('intContent').classList.remove('d-none');
         }
       });
   }
 
+  function renderChart(comments, likes, tickets) {
+    const ctx = document.getElementById('interactionsChart').getContext('2d');
+    
+    if (intChartInstance) {
+      intChartInstance.destroy();
+    }
+
+    intChartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Comentários', 'Curtidas', 'Tickets'],
+        datasets: [{
+          data: [comments, likes, tickets],
+          backgroundColor: [
+            'rgba(0, 240, 255, 0.7)',
+            'rgba(255, 0, 127, 0.7)',
+            'rgba(255, 193, 7, 0.7)'
+          ],
+          borderColor: [
+            'rgba(0, 240, 255, 1)',
+            'rgba(255, 0, 127, 1)',
+            'rgba(255, 193, 7, 1)'
+          ],
+          borderWidth: 1,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: { color: '#8b949e', font: { size: 11 } }
+          }
+        },
+        cutout: '65%'
+      }
+    });
+  }
+
+  function getPassModal() {
+    return bootstrap.Modal.getOrCreateInstance(document.getElementById('passwordModal'));
+  }
+
   function showPasswordModal(id, name) {
     document.getElementById('passUserName').innerText = name;
     document.getElementById('passUserId').value = id;
     document.getElementById('newPassword').value = '';
-    passModal.show();
+    getPassModal().show();
   }
 
   document.getElementById('passwordForm').addEventListener('submit', function(e) {
@@ -266,7 +387,7 @@
       body: JSON.stringify({ newPassword })
     }).then(res => res.json()).then(data => {
       if(data.success) {
-        passModal.hide();
+        getPassModal().hide();
         Swal.fire({ icon: 'success', title: 'Sucesso', text: data.message, toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: 'var(--surface-1)', color: 'var(--text)' });
       } else {
         Swal.fire({ icon: 'error', title: 'Erro', text: data.error, background: 'var(--surface-1)', color: 'var(--text)' });
