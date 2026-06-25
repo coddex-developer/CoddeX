@@ -43,7 +43,7 @@
             </div>
             
             <div class="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center p-3" style="background: var(--surface-solid) !important;">
-              <small class="text-muted"><i class="bi bi-clock me-1"></i><%= note.createdAt.toLocaleDateString('pt-BR') %></small>
+              <small class="text-muted"><i class="bi bi-clock me-1"></i><%= note.data %> às <%= note.time %></small>
               
               <div class="d-flex gap-2">
                 <form action="/admin/dashboard/messages/<%= note.id %>/complete" method="post" class="m-0 ajax-form">
