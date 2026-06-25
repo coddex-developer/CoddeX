@@ -181,21 +181,41 @@ module.exports = {
       }
 
       if (mentions.length > 0) {
-        // Encontra os usuários com esses usernames exatos
-        const mentionedUsers = await User.find({ username: { $in: mentions.map(m => new RegExp(`^${m}$`, "i")) } });
-        for (const mUser of mentionedUsers) {
-          // Não notifica a si mesmo nem tenta notificar se for resposta direta (para evitar notificação dupla)
-          if (String(mUser._id) !== String(actor.id) && (!parent || String(parent.user) !== String(mUser._id))) {
-            await Notification.create({
-              recipientType: "user",
-              recipientId: mUser._id,
-              type: "mention",
-              category: "mention",
-              actorName: actor.name,
-              actorAvatar: actor.isAuthor ? "/assets/admin1.png" : (userAvatar || ""),
-              text: `${actor.name} mencionou você em um comentário.`,
-              link
-            });
+        // Verificar se admin foi mencionado
+        const adminMentioned = mentions.some(m => m.toLowerCase() === 'admin');
+        if (adminMentioned && !actor.isAuthor && (!parent || parent.isAuthor === false)) {
+          // Não notifica se for resposta direta ao admin (já notificado no bloco acima)
+          await Notification.create({
+            recipientType: "admin",
+            recipientId: "admin",
+            type: "mention",
+            category: "mention",
+            actorName: actor.name,
+            actorAvatar: userAvatar || "",
+            text: `${actor.name} mencionou você em um comentário.`,
+            link
+          });
+        }
+
+        // Filtra "admin" da lista para buscar usuários reais
+        const userMentions = mentions.filter(m => m.toLowerCase() !== 'admin');
+        
+        if (userMentions.length > 0) {
+          const mentionedUsers = await User.find({ username: { $in: userMentions.map(m => new RegExp(`^${m}$`, "i")) } });
+          for (const mUser of mentionedUsers) {
+            // Não notifica a si mesmo nem tenta notificar se for resposta direta (para evitar notificação dupla)
+            if (String(mUser._id) !== String(actor.id) && (!parent || String(parent.user) !== String(mUser._id))) {
+              await Notification.create({
+                recipientType: "user",
+                recipientId: mUser._id,
+                type: "mention",
+                category: "mention",
+                actorName: actor.name,
+                actorAvatar: actor.isAuthor ? "/assets/admin1.png" : (userAvatar || ""),
+                text: `${actor.name} mencionou você em um comentário.`,
+                link
+              });
+            }
           }
         }
       }
@@ -232,6 +252,27 @@ module.exports = {
       } else {
         await CommentLike.create({ user: actor.id, comment: commentId });
         likedByMe = true;
+        
+        // Notificar o autor do comentário sobre a curtida
+        const comment = await Comment.findById(commentId);
+        // Não notifica se foi a própria pessoa que curtiu o próprio comentário
+        if (comment && String(comment.user) !== String(actor.id) && !(comment.isAuthor && actor.isAuthor)) {
+          let userAvatar = "";
+          if (!actor.isAuthor) {
+            const actingUser = await User.findById(actor.id);
+            if (actingUser) userAvatar = actingUser.avatar;
+          }
+          await Notification.create({
+            recipientType: comment.isAuthor ? "admin" : "user",
+            recipientId: comment.isAuthor ? "admin" : comment.user,
+            type: "like",
+            category: "comment",
+            actorName: actor.name,
+            actorAvatar: actor.isAuthor ? "/assets/admin1.png" : (userAvatar || ""),
+            text: `${actor.name} curtiu seu comentário.`,
+            link: `/projeto/${id}#c-${commentId}`
+          });
+        }
       }
       
       const likeCount = await CommentLike.countDocuments({ comment: commentId });

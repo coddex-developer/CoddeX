@@ -5,6 +5,8 @@ const ticketMessageSchema = new Schema({
   ticket: { type: Schema.Types.ObjectId, required: true, ref: "Ticket" },
   senderType: { type: String, enum: ["user", "admin"], required: true },
   body: { type: String, required: true }, // markdown (sanitizado na renderização)
+  attachments: { type: [Schema.Types.Mixed], default: [] },
+  isInternal: { type: Boolean, default: false },
   read: { type: Boolean, default: false }  // lido pelo destinatário
 }, { timestamps: true });
 

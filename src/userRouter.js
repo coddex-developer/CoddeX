@@ -44,10 +44,13 @@ const uploadImage = require("./middlewares/middlewareImage");
 const controllerNotification = require("./controllers/controllerNotification");
 
 // Painel do usuário
+router.get("/account/suspended", requireUser, accountSettings.suspendedView);
 router.get("/account", requireUser, auth.account);
 router.get("/account/settings", requireUser, accountSettings.settingsView);
 router.post("/account/settings/profile", requireUser, uploadImage.single('avatar'), accountSettings.updateProfile);
 router.post("/account/settings/security", requireUser, accountSettings.updateSecurity);
+
+const fileUpload = require("./middlewares/middlewareFile");
 
 // Projetos: detalhe público + curtidas/comentários (exigem login)
 router.get("/projeto/:id", project.detail);
@@ -58,9 +61,9 @@ router.post("/projeto/:id/comment/:commentId/delete", requireUserOrAdmin, projec
 
 // Tickets (conversas) do usuário
 router.get("/account/tickets", requireUser, ticket.listMine);
-router.post("/account/tickets", requireUser, ticket.create);
+router.post("/account/tickets", requireUser, fileUpload.array('attachments', 10), ticket.create);
 router.get("/account/tickets/:id", requireUser, ticket.threadMine);
-router.post("/account/tickets/:id/reply", requireUser, ticket.replyMine);
+router.post("/account/tickets/:id/reply", requireUser, fileUpload.array('attachments', 10), ticket.replyMine);
 
 // Contador de notificações não lidas (admin ou usuário) — usado pelo sininho
 router.get("/notifications/unread-count", ticket.unreadCount);

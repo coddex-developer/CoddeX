@@ -162,6 +162,11 @@ app.use((err, req, res, next) => {
   const info = err.code === "LIMIT_FILE_SIZE"
     ? "A imagem excede o tamanho máximo de 5 MB."
     : err.message || "Ocorreu um erro inesperado.";
+
+  if (req.xhr || (req.headers.accept && req.headers.accept.includes('json'))) {
+    return res.status(400).json({ error: info });
+  }
+
   res.status(400).render("warning", {
     title: "Aviso!",
     info,

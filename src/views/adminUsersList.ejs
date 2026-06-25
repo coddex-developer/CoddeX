@@ -1,6 +1,6 @@
 <%- include('fragments/header') %>
 
-<div class="container py-5" style="max-width: 900px;">
+<div class="container py-5" style="max-width: 1000px;">
   <!-- Cabeçalho -->
   <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
     <div class="mb-3 mb-md-0">
@@ -27,7 +27,7 @@
             <tr style="border-bottom: 1px solid var(--border-strong);">
               <th scope="col" class="py-3 px-4 text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">Usuário</th>
               <th scope="col" class="py-3 px-4 text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">E-mail & Status</th>
-              <th scope="col" class="py-3 px-4 text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">Cadastro</th>
+              <th scope="col" class="py-3 px-4 text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">Situação</th>
               <th scope="col" class="py-3 px-4 text-end text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">Ações Root</th>
             </tr>
           </thead>
@@ -36,9 +36,13 @@
               <tr style="border-bottom: 1px solid var(--border);">
                 <td class="py-3 px-4 align-middle">
                   <div class="d-flex align-items-center">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.2); color: var(--accent-2);">
-                      <i class="bi bi-person-fill"></i>
-                    </div>
+                    <% if (user.avatar) { %>
+                      <img src="<%= user.avatar %>" alt="User" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover; border: 1px solid var(--accent-1);">
+                    <% } else { %>
+                      <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.2); color: var(--accent-2);">
+                        <i class="bi bi-person-fill"></i>
+                      </div>
+                    <% } %>
                     <div>
                       <span class="d-block fw-bold text-white"><%= user.name %></span>
                       <small class="text-muted text-uppercase" style="font-size: 0.7rem;"><%= user.role || 'user' %></small>
@@ -53,17 +57,47 @@
                     <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill px-2 py-1 mt-1 border border-warning border-opacity-50" style="font-size: 0.65rem;">Pendente</span>
                   <% } %>
                 </td>
-                <td class="py-3 px-4 align-middle text-muted" style="font-size: 0.9rem;">
-                  <%= new Date(user.createdAt).toLocaleDateString('pt-BR') %>
+                <td class="py-3 px-4 align-middle">
+                  <span id="status-<%= user._id %>" class="badge <%= user.isBlocked ? 'bg-danger text-danger' : 'bg-primary text-primary' %> bg-opacity-25 rounded-pill px-2 py-1 border <%= user.isBlocked ? 'border-danger' : 'border-primary' %> border-opacity-50" style="font-size: 0.65rem;">
+                    <%= user.isBlocked ? 'Bloqueado' : 'Ativo' %>
+                  </span>
                 </td>
                 <td class="py-3 px-4 align-middle text-end">
-                  <form action="/admin/dashboard/users/<%= user._id %>/delete" method="post" class="d-inline ajax-form"
-                    data-confirm="Banir e excluir definitivamente o usuário '<%= user.name %>'? Esta ação não pode ser desfeita."
-                    data-confirm-title="Excluir Usuário" data-confirm-btn="Excluir Definitivamente">
-                    <button class="btn btn-outline-danger btn-sm rounded-pill px-3" type="submit" title="Excluir Usuário">
-                      <i class="bi bi-trash3-fill"></i> Excluir
+                  <div class="dropdown d-inline">
+                    <button class="btn btn-outline-light btn-sm rounded-pill px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      Ações <i class="bi bi-chevron-down ms-1" style="font-size: 0.7rem;"></i>
                     </button>
-                  </form>
+                    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow" style="background: var(--surface-1); border: 1px solid var(--border-strong);">
+                      <li>
+                        <button class="dropdown-item d-flex align-items-center py-2" onclick="showInteractions('<%= user._id %>', '<%= user.name %>')">
+                          <i class="bi bi-activity text-info me-2"></i> Ver Interações
+                        </button>
+                      </li>
+                      <li>
+                        <button class="dropdown-item d-flex align-items-center py-2" onclick="showPasswordModal('<%= user._id %>', '<%= user.name %>')">
+                          <i class="bi bi-key text-warning me-2"></i> Alterar Senha
+                        </button>
+                      </li>
+                      <li>
+                        <form action="/admin/dashboard/users/<%= user._id %>/block" method="post" class="m-0 ajax-form-block"
+                          data-confirm="Tem certeza que deseja <%= user.isBlocked ? 'desbloquear' : 'bloquear' %> o acesso de '<%= user.name %>'?">
+                          <button class="dropdown-item d-flex align-items-center py-2" type="submit">
+                            <i id="icon-block-<%= user._id %>" class="bi <%= user.isBlocked ? 'bi-unlock text-success' : 'bi-lock text-danger' %> me-2"></i> 
+                            <span id="text-block-<%= user._id %>"><%= user.isBlocked ? 'Desbloquear Conta' : 'Bloquear Conta' %></span>
+                          </button>
+                        </form>
+                      </li>
+                      <li><hr class="dropdown-divider border-secondary"></li>
+                      <li>
+                        <form action="/admin/dashboard/users/<%= user._id %>/delete" method="post" class="m-0 ajax-form-delete"
+                          data-confirm="Banir e excluir definitivamente o usuário '<%= user.name %>'? Esta ação não pode ser desfeita.">
+                          <button class="dropdown-item d-flex align-items-center py-2 text-danger" type="submit">
+                            <i class="bi bi-trash3-fill me-2"></i> Excluir Definitivamente
+                          </button>
+                        </form>
+                      </li>
+                    </ul>
+                  </div>
                 </td>
               </tr>
             <% }) %>
@@ -79,5 +113,166 @@
     <% } %>
   </div>
 </div>
+
+<!-- Modal Interações -->
+<div class="modal fade" id="interactionsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--surface-1); border: 1px solid var(--border-strong);">
+      <div class="modal-header border-bottom border-secondary">
+        <h5 class="modal-title fw-bold text-white"><i class="bi bi-activity text-info me-2"></i> Interações de <span id="intUserName"></span></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4 text-center" id="intLoading">
+        <div class="spinner-border text-primary" role="status"></div>
+      </div>
+      <div class="modal-body p-4 d-none" id="intContent">
+        <div class="row text-center g-3">
+          <div class="col-4">
+            <div class="p-3 rounded" style="background: var(--surface-2); border: 1px solid var(--border);">
+              <i class="bi bi-chat-left-text text-primary fs-4 mb-2 d-block"></i>
+              <h4 class="fw-bold text-white mb-0" id="intComments">0</h4>
+              <small class="text-muted" style="font-size: 0.7rem;">Comentários</small>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="p-3 rounded" style="background: var(--surface-2); border: 1px solid var(--border);">
+              <i class="bi bi-heart-fill text-danger fs-4 mb-2 d-block"></i>
+              <h4 class="fw-bold text-white mb-0" id="intLikes">0</h4>
+              <small class="text-muted" style="font-size: 0.7rem;">Curtidas</small>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="p-3 rounded" style="background: var(--surface-2); border: 1px solid var(--border);">
+              <i class="bi bi-headset text-warning fs-4 mb-2 d-block"></i>
+              <h4 class="fw-bold text-white mb-0" id="intTickets">0</h4>
+              <small class="text-muted" style="font-size: 0.7rem;">Tickets</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-top border-secondary">
+        <button type="button" class="btn btn-outline-light rounded-pill px-4" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Alterar Senha -->
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--surface-1); border: 1px solid var(--border-strong);">
+      <div class="modal-header border-bottom border-secondary">
+        <h5 class="modal-title fw-bold text-white"><i class="bi bi-key text-warning me-2"></i> Nova Senha para <span id="passUserName"></span></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="passwordForm">
+        <div class="modal-body p-4">
+          <input type="hidden" id="passUserId">
+          <div class="mb-3">
+            <label class="form-label text-muted small fw-bold">Nova Senha</label>
+            <input type="text" class="form-control text-white" id="newPassword" name="newPassword" placeholder="Mínimo de 6 caracteres" style="background: var(--bg); border: 1px solid var(--border);" required minlength="6">
+          </div>
+        </div>
+        <div class="modal-footer border-top border-secondary">
+          <button type="button" class="btn btn-outline-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold">Salvar Senha</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Excluir e Bloquear forms via AJAX com SweetAlert2
+  document.querySelectorAll('.ajax-form-block, .ajax-form-delete').forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const msg = form.getAttribute('data-confirm');
+      Swal.fire({
+        title: 'Confirmação',
+        text: msg,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, confirmar',
+        cancelButtonText: 'Cancelar',
+        background: 'var(--surface-1)',
+        color: 'var(--text)',
+        confirmButtonColor: form.classList.contains('ajax-form-delete') ? 'var(--danger)' : 'var(--primary)'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch(form.action, {
+            method: form.method,
+            headers: { 'Accept': 'application/json' }
+          }).then(res => res.json()).then(data => {
+            if (data.success) {
+              Swal.fire({
+                icon: 'success', title: 'Sucesso', text: data.message, toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: 'var(--surface-1)', color: 'var(--text)'
+              });
+              if (data.redirect) {
+                setTimeout(() => window.location.href = data.redirect, 1000);
+              } else if (form.classList.contains('ajax-form-block')) {
+                // Atualiza a linha localmente
+                setTimeout(() => window.location.reload(), 1000); // Reload pra garantir atualização correta das classes
+              }
+            } else {
+              Swal.fire({ icon: 'error', title: 'Erro', text: data.error, background: 'var(--surface-1)', color: 'var(--text)' });
+            }
+          });
+        }
+      });
+    });
+  });
+
+  const intModal = new bootstrap.Modal(document.getElementById('interactionsModal'));
+  const passModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+
+  function showInteractions(id, name) {
+    document.getElementById('intUserName').innerText = name;
+    document.getElementById('intLoading').classList.remove('d-none');
+    document.getElementById('intContent').classList.add('d-none');
+    intModal.show();
+
+    fetch(`/admin/dashboard/users/${id}/interactions`, { headers: { 'Accept': 'application/json' } })
+      .then(res => res.json())
+      .then(data => {
+        if(data.success) {
+          document.getElementById('intComments').innerText = data.stats.comments;
+          document.getElementById('intLikes').innerText = data.stats.likes;
+          document.getElementById('intTickets').innerText = data.stats.tickets;
+          document.getElementById('intLoading').classList.add('d-none');
+          document.getElementById('intContent').classList.remove('d-none');
+        }
+      });
+  }
+
+  function showPasswordModal(id, name) {
+    document.getElementById('passUserName').innerText = name;
+    document.getElementById('passUserId').value = id;
+    document.getElementById('newPassword').value = '';
+    passModal.show();
+  }
+
+  document.getElementById('passwordForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const id = document.getElementById('passUserId').value;
+    const newPassword = document.getElementById('newPassword').value;
+    
+    fetch(`/admin/dashboard/users/${id}/password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ newPassword })
+    }).then(res => res.json()).then(data => {
+      if(data.success) {
+        passModal.hide();
+        Swal.fire({ icon: 'success', title: 'Sucesso', text: data.message, toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: 'var(--surface-1)', color: 'var(--text)' });
+      } else {
+        Swal.fire({ icon: 'error', title: 'Erro', text: data.error, background: 'var(--surface-1)', color: 'var(--text)' });
+      }
+    });
+  });
+</script>
 
 <%- include('fragments/footer') %>

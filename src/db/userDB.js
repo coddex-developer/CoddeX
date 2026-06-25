@@ -19,7 +19,8 @@ const userSchema = new Schema({
   resetCodeHash: { type: String, default: null },
   resetCodeExpires: { type: Date, default: null },
   resetAttempts: { type: Number, default: 0 },
-  role: { type: String, default: "user" }
+  role: { type: String, default: "user" },
+  isBlocked: { type: Boolean, default: false }
 }, { timestamps: true });
 
 // Hash da senha sempre que for definida/alterada

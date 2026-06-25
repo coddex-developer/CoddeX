@@ -15,7 +15,7 @@
   <%- include('fragments/header') %>
 <% } %>
 
-<div class="container<%= isAdmin ? ' py-5' : '' %>" style="max-width: <%= isAdmin ? '900px' : '100%' %>;">
+<div class="container<%= isAdmin ? ' py-5' : '' %>" style="max-width: <%= isAdmin ? '1000px' : '100%' %>;">
   <!-- Cabeçalho -->
   <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
     <div class="mb-3 mb-md-0">
@@ -27,54 +27,99 @@
       <h1 class="h3 fw-bold mb-1 text-white"><%= isAdmin ? 'Central de Suporte (Tickets)' : 'Minhas Conversas' %></h1>
       <p class="text-muted mb-0"><%= isAdmin ? 'Gerencie as conversas ao vivo e chamados abertos.' : 'Acompanhe seus chamados de suporte e mensagens.' %></p>
     </div>
+    <% if (!isAdmin) { %>
+      <div>
+        <button class="btn btn-primary bg-gradient rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#newTicketModal">
+          <i class="bi bi-plus-lg me-2"></i> Nova Conversa
+        </button>
+      </div>
+    <% } %>
   </div>
 
   <div class="glass-panel border-0 overflow-hidden">
     <% if (tickets && tickets.length > 0) { %>
-      <div class="table-responsive">
-        <table class="table table-dark table-hover mb-0" style="background: transparent;">
-          <thead>
-            <tr style="border-bottom: 1px solid var(--border-strong);">
-              <th scope="col" class="py-3 px-4 text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">Ticket / Usuário</th>
-              <th scope="col" class="py-3 px-4 text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">Última Mensagem</th>
-              <th scope="col" class="py-3 px-4 text-muted text-uppercase text-center" style="font-size: 0.75rem; letter-spacing: 1px;">Status</th>
-              <th scope="col" class="py-3 px-4 text-end text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">Ação</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% tickets.forEach(ticket => { %>
-              <tr style="border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;" onclick="window.location.href='/admin/dashboard/tickets/<%= ticket._id %>'" class="ticket-row">
-                <td class="py-3 px-4 align-middle">
-                  <div class="d-flex align-items-center">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background: rgba(138, 43, 226, 0.1); border: 1px solid rgba(138, 43, 226, 0.2); color: var(--accent-1);">
-                      <i class="bi bi-chat-dots-fill"></i>
-                    </div>
-                    <div>
-                      <span class="d-block fw-bold text-white"><%= ticket.userId ? ticket.userId.name : 'Usuário Anônimo' %></span>
-                      <small class="text-muted"><%= new Date(ticket.updatedAt).toLocaleString('pt-BR') %></small>
-                    </div>
-                  </div>
-                </td>
-                <td class="py-3 px-4 align-middle text-muted" style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                  <span class="text-white"><%= ticket.subject %></span>
-                </td>
-                <td class="py-3 px-4 align-middle text-center">
-                  <% if(ticket.status === 'open') { %>
-                    <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill px-3 py-1 border border-warning border-opacity-50">Aberto</span>
-                  <% } else { %>
-                    <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-3 py-1 border border-success border-opacity-50">Resolvido</span>
-                  <% } %>
-                </td>
-                <td class="py-3 px-4 align-middle text-end">
-                  <a href="/admin/dashboard/tickets/<%= ticket._id %>" class="btn btn-outline-light btn-sm rounded-pill px-3">
-                    Abrir <i class="bi bi-arrow-right ms-1"></i>
-                  </a>
-                </td>
+      <form id="bulkDeleteForm" action="/admin/dashboard/tickets/delete" method="POST">
+        <div class="d-flex justify-content-between align-items-center p-3 border-bottom border-secondary" id="bulkActions" style="display: none !important;">
+          <span class="text-white small fw-bold"><span id="selectedCount">0</span> selecionado(s)</span>
+          <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="confirmBulkDelete()">
+            <i class="bi bi-trash me-1"></i> Excluir
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-dark table-hover mb-0" style="background: transparent;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border-strong);">
+                <% if (isAdmin) { %>
+                  <th scope="col" class="py-3 px-3 text-center" style="width: 50px;">
+                    <input class="form-check-input bg-dark border-secondary" type="checkbox" id="selectAllTickets" onchange="toggleSelectAll(this)">
+                  </th>
+                <% } %>
+                <th scope="col" class="py-3 px-4 text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">Ticket / Usuário</th>
+                <th scope="col" class="py-3 px-4 text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">Assunto</th>
+                <th scope="col" class="py-3 px-4 text-muted text-uppercase text-center" style="font-size: 0.75rem; letter-spacing: 1px;">Status</th>
+                <th scope="col" class="py-3 px-4 text-end text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">Ação</th>
               </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              <% tickets.forEach(ticket => { %>
+                <% const targetUrl = isAdmin ? `/admin/dashboard/tickets/${ticket._id}` : `/account/tickets/${ticket._id}`; %>
+                <tr style="border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;" onclick="if(event.target.tagName !== 'INPUT') window.location.href='<%= targetUrl %>'" class="ticket-row">
+                  <% if (isAdmin) { %>
+                    <td class="py-3 px-3 text-center align-middle" onclick="event.stopPropagation()">
+                      <input class="form-check-input ticket-checkbox bg-dark border-secondary" type="checkbox" name="ticketIds[]" value="<%= ticket._id %>" onchange="updateSelectedCount()">
+                    </td>
+                  <% } %>
+                  <td class="py-3 px-4 align-middle">
+                    <div class="d-flex align-items-center">
+                      <% if (isAdmin && ticket.userAvatar) { %>
+                        <img src="<%= ticket.userAvatar %>" alt="User" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover; border: 1px solid var(--accent-1);">
+                      <% } else { %>
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background: rgba(138, 43, 226, 0.1); border: 1px solid rgba(138, 43, 226, 0.2); color: var(--accent-1);">
+                          <i class="bi bi-chat-dots-fill"></i>
+                        </div>
+                      <% } %>
+                      <div>
+                        <span class="d-block fw-bold text-white">
+                          <%= isAdmin ? ticket.userName : 'Ticket #' + ticket._id.toString().slice(-6) %>
+                          <% if (ticket.unread > 0) { %>
+                            <span class="badge bg-danger rounded-pill ms-1" style="font-size: 0.6rem;"><%= ticket.unread %></span>
+                          <% } %>
+                        </span>
+                        <% if (isAdmin && ticket.preview) { %>
+                          <small class="text-muted d-block" style="font-size: 0.75rem; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><%= ticket.preview %></small>
+                        <% } else { %>
+                          <small class="text-muted"><%= new Date(ticket.updatedAt).toLocaleString('pt-BR') %></small>
+                        <% } %>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4 align-middle" style="max-width: 200px;">
+                    <div class="d-flex flex-column">
+                      <span class="text-white fw-bold text-truncate"><%= ticket.subject %></span>
+                      <div class="d-flex gap-1 mt-1">
+                        <span class="badge bg-secondary bg-opacity-25 text-secondary border border-secondary border-opacity-50" style="font-size: 0.65rem;"><%= ticket.category || 'Geral' %></span>
+                        <% if (isAdmin) { %>
+                          <span class="badge bg-opacity-25 border border-opacity-50 <%= ticket.priority === 'high' ? 'bg-danger text-danger border-danger' : ((ticket.priority || 'normal') === 'normal' ? 'bg-info text-info border-info' : 'bg-secondary text-secondary border-secondary') %>" style="font-size: 0.65rem;"><%= (ticket.priority || 'normal').toUpperCase() %></span>
+                        <% } %>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4 align-middle text-center">
+                    <span class="badge bg-opacity-25 rounded-pill px-3 py-1 border border-opacity-50 <%= ticket.status === 'resolved' || ticket.status === 'closed' ? 'bg-success text-success border-success' : (ticket.status === 'in_progress' ? 'bg-primary text-primary border-primary' : 'bg-warning text-warning border-warning') %>">
+                      <%= ticket.status === 'pending' || ticket.status === 'open' ? 'Pendente' : (ticket.status === 'in_progress' ? 'Em Análise' : 'Resolvido') %>
+                    </span>
+                  </td>
+                  <td class="py-3 px-4 align-middle text-end">
+                    <a href="<%= targetUrl %>" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                      Abrir <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </form>
     <% } else { %>
       <div class="p-5 text-center">
         <i class="bi bi-chat-square-text text-muted mb-3" style="font-size: 3rem;"></i>
@@ -85,7 +130,88 @@
   </div>
 </div>
 
+<% if (!isAdmin) { %>
+<!-- Modal Novo Ticket -->
+<div class="modal fade" id="newTicketModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--surface-1); border: 1px solid var(--border-strong);">
+      <div class="modal-header border-bottom border-secondary">
+        <h5 class="modal-title fw-bold text-white">Iniciar Nova Conversa</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="/account/tickets" method="POST" enctype="multipart/form-data">
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label text-muted small fw-bold">Categoria</label>
+            <select name="category" class="form-select text-white" style="background: var(--bg); border: 1px solid var(--border);">
+              <option value="Dúvida Geral">Dúvida Geral</option>
+              <option value="Suporte Técnico">Suporte Técnico</option>
+              <option value="Financeiro">Financeiro / Pagamentos</option>
+              <option value="Reportar Bug">Reportar Bug / Problema</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="ticketSubject" class="form-label text-muted small fw-bold">Assunto</label>
+            <input type="text" class="form-control text-white" id="ticketSubject" name="subject" placeholder="Ex: Problema com o carregamento" style="background: var(--bg); border: 1px solid var(--border);" required>
+          </div>
+          <div class="mb-3">
+            <label for="ticketBody" class="form-label text-muted small fw-bold">Mensagem</label>
+            <textarea class="form-control text-white" id="ticketBody" name="body" rows="4" placeholder="Descreva o que você precisa detalhadamente..." style="background: var(--bg); border: 1px solid var(--border);" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted small fw-bold">Anexos (Opcional)</label>
+            <input type="file" class="form-control text-white" name="attachments" multiple style="background: var(--bg); border: 1px solid var(--border);">
+            <small class="text-muted mt-1 d-block">Você pode anexar arquivos ou imagens de até 100MB.</small>
+          </div>
+        </div>
+        <div class="modal-footer border-top border-secondary">
+          <button type="button" class="btn btn-outline-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary bg-gradient rounded-pill px-4">Abrir Chamado</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
+<% } %>
+
+<script>
+  function toggleSelectAll(source) {
+    const checkboxes = document.querySelectorAll('.ticket-checkbox');
+    checkboxes.forEach(cb => cb.checked = source.checked);
+    updateSelectedCount();
+  }
+
+  function updateSelectedCount() {
+    const checked = document.querySelectorAll('.ticket-checkbox:checked').length;
+    document.getElementById('selectedCount').innerText = checked;
+    const actions = document.getElementById('bulkActions');
+    if (checked > 0) {
+      actions.style.setProperty('display', 'flex', 'important');
+    } else {
+      actions.style.setProperty('display', 'none', 'important');
+    }
+  }
+
+  function confirmBulkDelete() {
+    Swal.fire({
+      title: 'Tem certeza?',
+      text: "Você não poderá reverter a exclusão destes tickets!",
+      icon: 'warning',
+      showCancelButton: true,
+      background: 'var(--surface-1)',
+      color: 'var(--text)',
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sim, excluir!',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        document.getElementById('bulkDeleteForm').submit();
+      }
+    });
+  }
+</script>
 
 <style>
   .ticket-row:hover {

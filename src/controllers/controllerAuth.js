@@ -84,7 +84,7 @@ module.exports = {
           await existing.save();
           await notifyNewUser(site, existing);
           await loginSession(req, existing);
-          return sendSuccess(req, res, "Bem-vindo!", "/account");
+          return sendSuccess(req, res, "Conta criada com sucesso!", "/account");
         }
         return sendError(req, res, "Este e-mail já está cadastrado. Faça login.", "register", values, 400);
       }
@@ -114,7 +114,7 @@ module.exports = {
       await user.save();
       await notifyNewUser(site, user);
       await loginSession(req, user);
-      sendSuccess(req, res, "Bem-vindo!", "/account");
+      sendSuccess(req, res, "Conta criada com sucesso!", "/account");
     } catch (error) {
       sendError(req, res, error.message, "register", values, 500);
     }
@@ -154,7 +154,7 @@ module.exports = {
       await notifyNewUser(site, user);
 
       await loginSession(req, user);
-      sendSuccess(req, res, "Bem-vindo!", "/account");
+      sendSuccess(req, res, "Conta criada com sucesso!", "/account");
     } catch (error) {
       sendError(req, res, error.message, "verify", { email }, 500);
     }

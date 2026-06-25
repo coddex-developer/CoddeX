@@ -6,7 +6,10 @@ const ticketSchema = new Schema({
   userName: { type: String, required: true },
   userEmail: { type: String, required: true },
   subject: { type: String, required: true },
-  status: { type: String, enum: ["open", "closed"], default: "open" },
+  category: { type: String, default: "Geral" },
+  status: { type: String, enum: ["pending", "in_progress", "resolved", "closed", "open"], default: "pending" },
+  priority: { type: String, enum: ["low", "normal", "high"], default: "normal" },
+  assignee: { type: String, ref: "User", default: null },
   lastMessageAt: { type: Date, default: Date.now }
 }, { timestamps: true });
 

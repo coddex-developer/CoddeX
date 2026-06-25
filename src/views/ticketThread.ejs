@@ -3,6 +3,9 @@
 <html lang="pt-br">
 <head>
   <%- include('fragments/head', { pageTitle: 'Ticket #' + ticket._id.toString().slice(-6) + ' · CoddeX' }) %>
+  <style>
+    .internal-note { margin-left: auto; margin-right: auto; max-width: 90%; }
+  </style>
 </head>
 <body class="d-flex flex-column min-vh-100" style="background: var(--bg);">
   <div class="container-fluid py-4 flex-grow-1">
@@ -13,58 +16,203 @@
       <div class="col-md-8 col-lg-9 mt-4 mt-md-0">
 <% } else { %>
   <%- include('fragments/header') %>
+  <style>
+    .internal-note { margin-left: auto; margin-right: auto; max-width: 90%; }
+  </style>
 <% } %>
 
-<div class="container<%= isAdmin ? ' py-4' : '' %>" style="max-width: <%= isAdmin ? '800px' : '100%' %>;">
+<div class="container<%= isAdmin ? ' py-4' : '' %>" style="max-width: <%= isAdmin ? '1000px' : '100%' %>;">
   <!-- Cabeçalho -->
   <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
     <div class="mb-3 mb-md-0">
       <a href="<%= backUrl %>" class="text-muted text-decoration-none small d-flex align-items-center mb-2">
         <i class="bi bi-arrow-left me-1"></i> Voltar
       </a>
-      <h1 class="h4 fw-bold mb-1 text-white">Ticket #<%= ticket._id.toString().slice(-6) %></h1>
+      <h1 class="h4 fw-bold mb-1 text-white d-flex align-items-center gap-2">
+        Ticket #<%= ticket._id.toString().slice(-6) %>
+        <span class="badge bg-secondary bg-opacity-25 text-secondary rounded-pill border border-secondary border-opacity-50" style="font-size: 0.6rem;"><%= ticket.category || 'Geral' %></span>
+      </h1>
       <p class="text-muted mb-0">Assunto: <span class="text-white fw-bold"><%= ticket.subject %></span></p>
     </div>
-    <div>
-      <% if (ticket.status === 'open') { %>
-        <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill px-3 py-2 border border-warning border-opacity-50 shadow-glow"><i class="bi bi-circle-fill me-1 small"></i> Em Andamento</span>
-      <% } else { %>
-        <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-3 py-2 border border-success border-opacity-50"><i class="bi bi-check-circle-fill me-1"></i> Resolvido</span>
+    <div class="d-flex gap-2 align-items-center">
+      <% if (isAdmin) { %>
+        <span class="badge bg-opacity-25 rounded-pill px-3 py-2 border border-opacity-50 <%= (ticket.priority || 'normal') === 'high' ? 'bg-danger text-danger border-danger' : ((ticket.priority || 'normal') === 'normal' ? 'bg-info text-info border-info' : 'bg-secondary text-secondary border-secondary') %>">
+          Prioridade: <%= (ticket.priority || 'normal').toUpperCase() %>
+        </span>
       <% } %>
+      <span id="ticketStatusBadge" class="badge bg-opacity-25 rounded-pill px-3 py-2 border border-opacity-50 <%= (ticket.status || 'pending') === 'resolved' || (ticket.status || 'pending') === 'closed' ? 'bg-success text-success border-success' : 'bg-warning text-warning border-warning' %>">
+        <%= (ticket.status || 'pending').toUpperCase() %>
+      </span>
     </div>
   </div>
 
-  <div class="glass-panel border-0 d-flex flex-column overflow-hidden" style="height: 65vh; max-height: 600px;">
-    
-    <!-- Histórico de Mensagens (Chat) -->
-    <div class="chat flex-grow-1 p-4" id="chatContainer" style="overflow-y: auto; background: rgba(0,0,0,0.2);">
-      <% messages.forEach(msg => { %>
-        <% const isAdminMsg = msg.senderRole === 'admin'; %>
-        <div class="chat-row <%= isAdminMsg ? 'mine' : 'theirs' %> mb-3">
-          <div class="chat-bubble">
-            <% if (!isAdminMsg) { %>
-              <div class="fw-bold mb-1" style="font-size: 0.8rem; color: var(--accent-1);"><%= ticket.userId ? ticket.userId.name : 'Usuário' %></div>
-            <% } %>
-            <p class="mb-0"><%= msg.content %></p>
-            <div class="chat-meta text-end mt-1" style="font-size: 0.65rem; opacity: 0.7;">
-              <%= new Date(msg.createdAt).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}) %>
+  <div class="row">
+    <div class="col-md-<%= isAdmin ? '8' : '12' %>">
+      <div class="glass-panel border-0 d-flex flex-column overflow-hidden" style="height: 65vh; max-height: 600px;">
+        <!-- Histórico de Mensagens (Chat) -->
+        <div class="chat flex-grow-1 p-4" id="chatContainer" style="overflow-y: auto; background: rgba(0,0,0,0.2);">
+          <% messages.forEach(msg => { %>
+            <% const mine = (isAdmin && msg.senderType === 'admin') || (!isAdmin && msg.senderType === 'user'); %>
+            <div class="chat-row <%= mine ? 'mine' : 'theirs' %> <%= msg.isInternal ? 'internal-note' : '' %> mb-3">
+              <div class="chat-bubble" <%= msg.isInternal ? 'style="background: rgba(255,193,7,0.15); border: 1px solid var(--warning);"' : '' %>>
+                
+                <% if (!mine && !isAdmin) { %>
+                  <div class="fw-bold mb-1" style="font-size: 0.8rem; color: var(--accent-1);">Suporte</div>
+                <% } else if (!mine && isAdmin) { %>
+                  <div class="fw-bold mb-1 d-flex align-items-center gap-2" style="font-size: 0.8rem; color: var(--accent-1);">
+                    <% if (userAvatar) { %>
+                      <img src="<%= userAvatar %>" alt="avatar" class="rounded-circle" style="width: 20px; height: 20px; object-fit: cover;">
+                    <% } %>
+                    <%= ticket.userName %>
+                  </div>
+                <% } %>
+
+                <div class="markdown-body">
+                  <p class="mb-0" style="white-space: pre-wrap;">
+                    <% if (msg.isInternal) { %>
+                      <span class="badge bg-warning text-dark me-2" style="font-size:0.6rem;">NOTA INTERNA</span>
+                    <% } %>
+                    <%= msg.body %>
+                  </p>
+                </div>
+                
+                <% if (msg.attachments && msg.attachments.length > 0) { %>
+                  <div class="chat-attachments mt-2 d-flex flex-wrap gap-2">
+                    <% msg.attachments.forEach(att => { %>
+                      <% 
+                        const isObj = typeof att === 'object' && att !== null;
+                        const url = isObj ? att.url : att;
+                        const isImage = isObj ? att.type && att.type.startsWith('image/') : true; // legacy are images
+                        const name = isObj ? att.name : 'Imagem Anexada';
+                        const size = isObj && att.size ? (att.size / 1024 / 1024).toFixed(2) + ' MB' : '';
+                      %>
+                      <% if (isImage) { %>
+                        <img src="<%= url %>" class="cursor-pointer" onclick="openFullscreen('<%= url %>')" style="max-width: 150px; border-radius: 8px; border: 1px solid var(--border); object-fit: cover; cursor: zoom-in;" title="Ver em tela cheia">
+                      <% } else { %>
+                        <div class="d-flex align-items-center gap-2 p-2 rounded" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border); min-width: 200px;">
+                          <i class="bi bi-file-earmark-arrow-down fs-4 text-primary"></i>
+                          <div class="d-flex flex-column flex-grow-1 overflow-hidden" style="max-width: 150px;">
+                            <span class="text-white text-truncate fw-bold" style="font-size: 0.8rem;" title="<%= name %>"><%= name %></span>
+                            <span class="text-muted" style="font-size: 0.7rem;"><%= size %></span>
+                          </div>
+                          <a href="<%= url %>" download="<%= name %>" class="btn btn-sm btn-outline-light rounded-circle ms-2" title="Baixar Arquivo"><i class="bi bi-download"></i></a>
+                        </div>
+                      <% } %>
+                    <% }) %>
+                  </div>
+                <% } %>
+                
+                <div class="chat-meta text-end mt-1" style="font-size: 0.65rem; opacity: 0.7;">
+                  <%= new Date(msg.createdAt).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}) %>
+                </div>
+              </div>
             </div>
-          </div>
+          <% }) %>
         </div>
-      <% }) %>
+
+        <!-- Área de Resposta -->
+        <% if (!isAdmin && (ticket.status === 'resolved' || ticket.status === 'closed')) { %>
+          <div class="p-4 text-center border-top" style="border-color: var(--border-strong) !important; background: var(--surface-solid);">
+            <i class="bi bi-check-circle-fill text-success fs-1 mb-2 d-block"></i>
+            <h6 class="text-white fw-bold mb-1">Conversa Encerrada</h6>
+            <p class="text-muted small mb-0">Este chamado foi marcado como resolvido. Para tratar de um novo assunto, por favor abra um novo ticket.</p>
+          </div>
+        <% } else { %>
+          <div class="p-3 border-top" style="border-color: var(--border-strong) !important; background: var(--surface-solid);">
+            <form class="ajax-form-multipart" action="<%= replyUrl %>" method="POST" enctype="multipart/form-data">
+              
+              <% if (isAdmin) { %>
+                <div class="form-check form-switch mb-2">
+                  <input class="form-check-input" type="checkbox" id="isInternal" name="isInternal" value="true">
+                  <label class="form-check-label text-warning small" for="isInternal">Salvar como Nota Interna (Invisível para o usuário)</label>
+                </div>
+              <% } %>
+
+              <div class="d-flex flex-column gap-2">
+                <div class="d-flex gap-2">
+                  <input type="text" name="body" class="form-control rounded-pill px-4 bg-dark text-white border-0" placeholder="Escreva sua resposta..." autocomplete="off">
+                  <button type="button" class="btn btn-outline-secondary rounded-pill px-3 text-white border-0" onclick="document.getElementById('ticketAttachments').click()" title="Anexar Imagens/Arquivos">
+                    <i class="bi bi-paperclip fs-5"></i>
+                  </button>
+                  <button type="submit" class="btn btn-gradient rounded-pill px-4 shadow-glow d-flex align-items-center">
+                    <i class="bi bi-send-fill"></i><span class="d-none d-sm-inline ms-2">Enviar</span>
+                  </button>
+                </div>
+                
+                <!-- Input escondido para arquivos -->
+                <input type="file" id="ticketAttachments" name="attachments" multiple class="d-none" onchange="previewFiles()">
+                
+                <div id="filePreviewContainer" class="d-flex flex-wrap gap-2 d-none p-2 rounded" style="background: var(--surface-1);">
+                  <small class="text-muted w-100 mb-1" id="filePreviewText"></small>
+                </div>
+              </div>
+            </form>
+          </div>
+        <% } %>
+      </div>
     </div>
 
-    <!-- Área de Resposta -->
-    <div class="p-3 border-top" style="border-color: var(--border-strong) !important; background: var(--surface-solid);">
-      <form class="ajax-form d-flex gap-2" action="<%= replyUrl %>" method="POST">
-        <input type="text" name="body" class="form-control rounded-pill px-4 bg-dark text-white border-0" placeholder="Escreva sua resposta..." required autocomplete="off">
-        <button type="submit" class="btn btn-gradient rounded-pill px-4 shadow-glow d-flex align-items-center">
-          <i class="bi bi-send-fill"></i><span class="d-none d-sm-inline ms-2">Enviar</span>
-        </button>
-      </form>
+    <% if (isAdmin) { %>
+    <div class="col-md-4 mt-4 mt-md-0">
+      <div class="glass-panel p-4 mb-4">
+        <h5 class="text-white fw-bold mb-3 d-flex align-items-center gap-2">
+          <i class="bi bi-sliders text-primary"></i> Controles
+        </h5>
+        <form action="/admin/dashboard/tickets/<%= ticket._id %>/state" method="POST" class="ajax-form">
+          <div class="mb-3">
+            <label class="form-label text-muted small">Status Atual</label>
+            <select name="status" class="form-select bg-dark text-white border-secondary" style="font-size: 0.9rem;">
+              <option value="pending" <%= ticket.status === 'pending' ? 'selected' : '' %>>Pendente</option>
+              <option value="in_progress" <%= ticket.status === 'in_progress' ? 'selected' : '' %>>Em Análise</option>
+              <option value="resolved" <%= ticket.status === 'resolved' ? 'selected' : '' %>>Resolvido</option>
+              <option value="closed" <%= ticket.status === 'closed' ? 'selected' : '' %>>Fechado</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label class="form-label text-muted small">Prioridade</label>
+            <select name="priority" class="form-select bg-dark text-white border-secondary" style="font-size: 0.9rem;">
+              <option value="low" <%= (ticket.priority || 'normal') === 'low' ? 'selected' : '' %>>Baixa</option>
+              <option value="normal" <%= (ticket.priority || 'normal') === 'normal' ? 'selected' : '' %>>Normal</option>
+              <option value="high" <%= (ticket.priority || 'normal') === 'high' ? 'selected' : '' %>>Alta</option>
+            </select>
+          </div>
+          <button class="btn btn-outline-primary w-100 rounded-pill btn-sm fw-bold">Salvar Alterações</button>
+        </form>
+      </div>
+
+      <div class="glass-panel p-4">
+        <h5 class="text-white fw-bold mb-3 d-flex align-items-center gap-2">
+          <i class="bi bi-images text-info"></i> Galeria do Usuário
+        </h5>
+        <% if (userGallery && userGallery.length > 0) { %>
+          <div class="d-flex flex-wrap gap-2">
+            <% userGallery.forEach(att => { 
+                const url = typeof att === 'object' ? att.url : att;
+                const isImage = typeof att === 'object' ? att.type && att.type.startsWith('image/') : true;
+                if(isImage) {
+            %>
+                <img src="<%= url %>" class="cursor-pointer" onclick="openFullscreen('<%= url %>')" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); transition: transform 0.2s; cursor: zoom-in;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            <%  }
+               }) %>
+          </div>
+        <% } else { %>
+          <div class="text-center py-4">
+            <i class="bi bi-camera text-muted fs-3 mb-2 d-block"></i>
+            <span class="text-muted small">Nenhuma imagem enviada.</span>
+          </div>
+        <% } %>
+      </div>
     </div>
+    <% } %>
 
   </div>
+</div>
+
+<!-- Modal Tela Cheia -->
+<div id="fullscreenViewer" class="d-none" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+  <a id="fullscreenDownload" href="" download class="btn btn-link text-white position-absolute top-0 end-0 m-4 me-5 pe-4 fs-3" style="z-index: 10000;" title="Baixar Imagem"><i class="bi bi-download"></i></a>
+  <button class="btn btn-link text-white position-absolute top-0 end-0 m-4 fs-2" onclick="closeFullscreen()" style="z-index: 10000;" title="Fechar"><i class="bi bi-x-lg"></i></button>
+  <img id="fullscreenImage" src="" style="max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
 </div>
 
 <script>
@@ -72,17 +220,47 @@
   const chat = document.getElementById('chatContainer');
   chat.scrollTop = chat.scrollHeight;
 
-  // Atualiza via socket se houver nova msg (opicional se implementado)
-  const socket = typeof io !== "undefined" ? io() : null;
-  if (socket) {
-    socket.emit("joinTicket", "<%= ticket._id %>");
-    socket.on("newMessage", (msg) => {
-      // Recarrega ou insere a msg
-      window.location.reload();
-    });
+  function openFullscreen(url) {
+    document.getElementById('fullscreenImage').src = url;
+    document.getElementById('fullscreenDownload').href = url;
+    document.getElementById('fullscreenViewer').classList.remove('d-none');
   }
-</script>
 
+  function closeFullscreen() {
+    document.getElementById('fullscreenViewer').classList.add('d-none');
+    document.getElementById('fullscreenImage').src = '';
+  }
+
+  function previewFiles() {
+    const input = document.getElementById('ticketAttachments');
+    const container = document.getElementById('filePreviewContainer');
+    const text = document.getElementById('filePreviewText');
+    
+    if (input.files && input.files.length > 0) {
+      container.classList.remove('d-none');
+      let totalSize = 0;
+      for(let i=0; i<input.files.length; i++) {
+         totalSize += input.files[i].size;
+      }
+      const mb = (totalSize / 1024 / 1024).toFixed(2);
+      text.innerText = `${input.files.length} arquivo(s) selecionado(s) (${mb} MB). Max 100MB.`;
+    } else {
+      container.classList.add('d-none');
+    }
+  }
+
+  // Se o formulário enviar com sucesso, reseta o input de arquivo e atualiza view localmente
+  document.querySelectorAll('.ajax-form-multipart').forEach(form => {
+    form.addEventListener('submit', () => {
+      setTimeout(() => {
+        const input = document.getElementById('ticketAttachments');
+        if(input && input.files.length === 0) {
+           const container = document.getElementById('filePreviewContainer');
+           if(container) container.classList.add('d-none');
+        }
+      }, 500);
+    });
+  });
 </script>
 
 <% if (!isAdmin) { %>

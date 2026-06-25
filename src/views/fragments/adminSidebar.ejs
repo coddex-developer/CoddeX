@@ -11,7 +11,7 @@
     <!-- Notificações Bell -->
     <button class="btn p-0 position-relative border-0 bg-transparent text-white" type="button" data-bs-toggle="modal" data-bs-target="#notificationsModal" id="mobileNotifBtn">
       <i class="bi bi-bell fs-5"></i>
-      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="mobileNotifBadge" style="font-size: 0.6rem; padding: 0.25em 0.4em; transform: translate(-40%, 10%) !important;">
+      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none notif-badge" id="mobileNotifBadge" style="font-size: 0.6rem; padding: 0.25em 0.4em; transform: translate(-40%, 10%) !important;">
         0
       </span>
     </button>
@@ -32,8 +32,17 @@
   </div>
   
   <div class="offcanvas-body d-flex flex-column p-0 h-100">
-    <div class="p-4 text-center d-none d-md-block border-bottom" style="border-color: var(--border-strong) !important;">
-      <div class="position-relative d-inline-block mb-3">
+    <div class="p-4 text-center d-none d-md-block border-bottom position-relative" style="border-color: var(--border-strong) !important;">
+      
+      <!-- Desktop Notificações Bell -->
+      <button class="btn p-0 position-absolute border-0 bg-transparent text-white" type="button" data-bs-toggle="modal" data-bs-target="#notificationsModal" id="desktopNotifBtn" style="top: 15px; right: 20px;">
+        <i class="bi bi-bell fs-5"></i>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none notif-badge" id="desktopNotifBadge" style="font-size: 0.6rem; padding: 0.25em 0.4em; transform: translate(-40%, 10%) !important;">
+          0
+        </span>
+      </button>
+
+      <div class="position-relative d-inline-block mb-3 mt-2">
         <img src="/assets/admin1.png" alt="Admin" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover; border: 2px solid var(--accent-1);">
         <a href="/admin/dashboard/adminProfile" class="position-absolute bottom-0 end-0 bg-gradient rounded-circle d-flex align-items-center justify-content-center text-white text-decoration-none shadow" style="width: 28px; height: 28px; border: 2px solid var(--surface-1); cursor: pointer;">
           <i class="bi bi-pencil-fill" style="font-size: 0.75rem;"></i>

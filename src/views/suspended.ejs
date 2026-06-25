@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <%- include('fragments/head', { pageTitle: 'Conta Suspensa · CoddeX' }) %>
+</head>
+<body class="d-flex flex-column min-vh-100" style="background: var(--bg);">
+  <div class="container d-flex flex-column align-items-center justify-content-center flex-grow-1 py-5">
+    
+    <div class="glass-panel p-5 text-center shadow-lg" style="max-width: 600px; width: 100%; border: 1px solid rgba(255, 60, 60, 0.3);">
+      <div class="mb-4">
+        <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 4rem; filter: drop-shadow(0 0 10px rgba(255,0,0,0.5));"></i>
+      </div>
+      
+      <h1 class="h2 fw-bold text-white mb-3">Sua conta foi suspensa</h1>
+      <p class="text-muted mb-4" style="font-size: 1.1rem;">
+        Sua conta encontra-se bloqueada temporariamente pela administração do sistema e suas ações foram limitadas.
+      </p>
+
+      <div class="p-4 rounded mb-4 text-start" style="background: var(--surface-2); border: 1px solid var(--border);">
+        <h5 class="text-white fw-bold mb-2"><i class="bi bi-chat-dots me-2"></i> Entrar em acordo</h5>
+        <p class="text-muted small mb-3">Se você acredita que isto foi um erro ou deseja conversar com o administrador para reativar o seu acesso, envie um chamado abaixo. Nossa equipe analisará o seu caso.</p>
+        
+        <form action="/account/tickets" method="POST">
+          <input type="hidden" name="subject" value="Apelo de Suspensão de Conta">
+          <div class="mb-3">
+            <textarea class="form-control text-white" name="body" rows="4" placeholder="Explique a sua situação..." style="background: var(--bg); border: 1px solid var(--border);" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-danger w-100 fw-bold">Enviar Apelo para o Admin</button>
+        </form>
+      </div>
+
+      <a href="/login/logout" class="btn btn-outline-light rounded-pill px-4">Sair da conta</a>
+    </div>
+
+  </div>
+</body>
+</html>

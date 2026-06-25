@@ -40,14 +40,21 @@ router.post('/admin/dashboard/messages/:id/incomplete', midlewareLogin, controle
 
 router.post('/sms/env', controllerSms.submitMessage);
 
+const fileUpload = require("./middlewares/middlewareFile");
+
 // Tickets (conversas) — admin
 router.get('/admin/dashboard/tickets', midlewareLogin, controllerTicket.adminList);
+router.post('/admin/dashboard/tickets/delete', midlewareLogin, controllerTicket.adminDeleteTickets);
 router.get('/admin/dashboard/tickets/:id', midlewareLogin, controllerTicket.adminThread);
-router.post('/admin/dashboard/tickets/:id/reply', midlewareLogin, controllerTicket.adminReply);
+router.post('/admin/dashboard/tickets/:id/reply', midlewareLogin, fileUpload.array('attachments', 10), controllerTicket.adminReply);
+router.post('/admin/dashboard/tickets/:id/state', midlewareLogin, controllerTicket.updateState);
 
 // Gerenciamento de Usuários (Acesso Root)
 router.get('/admin/dashboard/users', midlewareLogin, controllerUserAdmin.adminList);
 router.post('/admin/dashboard/users/:id/delete', midlewareLogin, controllerUserAdmin.adminDelete);
+router.post('/admin/dashboard/users/:id/block', midlewareLogin, controllerUserAdmin.toggleBlock);
+router.post('/admin/dashboard/users/:id/password', midlewareLogin, controllerUserAdmin.updatePassword);
+router.get('/admin/dashboard/users/:id/interactions', midlewareLogin, controllerUserAdmin.getInteractions);
 
 //editPage
 router.get('/admin/dashboard/editPage', midlewareLogin, controlerPage.editPage);

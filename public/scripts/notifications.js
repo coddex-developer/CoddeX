@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const notifEmpty = document.getElementById("notifEmpty");
   const notifTabs = document.querySelectorAll(".notif-tab");
   
-  const mobileNotifBadge = document.getElementById("mobileNotifBadge");
+  const notifBadges = document.querySelectorAll(".notif-badge");
 
   let allNotifications = [];
   let currentFilter = "all";
@@ -45,11 +45,13 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const res = await fetch("/notifications/unread-count");
       const json = await res.json();
-      if (json.count > 0 && mobileNotifBadge) {
-        mobileNotifBadge.textContent = json.count > 99 ? "99+" : json.count;
-        mobileNotifBadge.classList.remove("d-none");
-      } else if (mobileNotifBadge) {
-        mobileNotifBadge.classList.add("d-none");
+      if (json.count > 0) {
+        notifBadges.forEach(badge => {
+          badge.textContent = json.count > 99 ? "99+" : json.count;
+          badge.classList.remove("d-none");
+        });
+      } else {
+        notifBadges.forEach(badge => badge.classList.add("d-none"));
       }
     } catch (e) {
       console.error(e);
@@ -163,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
     notifModalEl.addEventListener("hidden.bs.modal", async () => {
       try {
         await fetch("/notifications/read-all", { method: "POST" });
-        if (mobileNotifBadge) mobileNotifBadge.classList.add("d-none");
+        notifBadges.forEach(badge => badge.classList.add("d-none"));
       } catch (e) {
         console.error(e);
       }

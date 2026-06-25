@@ -3,6 +3,18 @@ const { sendError, sendSuccess } = require("../utils/responseHelper");
 const { resolveImage } = require("../utils/uploader");
 
 module.exports = {
+  // GET /account/suspended
+  suspendedView: async (req, res) => {
+    try {
+      const user = await User.findById(req.session.user.id).lean();
+      if (!user) return req.session.destroy(() => res.redirect("/login"));
+      if (!user.isBlocked) return res.redirect("/account");
+      res.render("suspended", { user, currentUser: user, isAdmin: false });
+    } catch (e) {
+      res.redirect("/login");
+    }
+  },
+
   // GET /account/settings
   settingsView: async (req, res) => {
     try {

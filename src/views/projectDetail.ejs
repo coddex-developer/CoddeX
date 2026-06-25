@@ -145,9 +145,9 @@
                       <div>
                         <span class="fw-bold text-white me-1" style="font-size: 0.9rem;">
                           <% if (c.isAuthor) { %>
-                            CoddeX <i class="bi bi-patch-check-fill text-primary ms-1" style="font-size: 0.8rem;"></i>
+                            CoddeX <i class="bi bi-patch-check-fill text-primary ms-1" style="font-size: 0.8rem;"></i> <span class="text-muted fw-normal" style="font-size: 0.75rem;">@admin</span>
                           <% } else { %>
-                            <%= c.userName %> <span class="text-muted fw-normal" style="font-size: 0.75rem;">@<%= c.userUsername || 'user' %></span>
+                            <%= c.userName %> <span class="text-muted fw-normal" style="font-size: 0.75rem;">@<%= c.userUsername || c.userName.replace(/\s+/g, '').toLowerCase() %></span>
                           <% } %>
                         </span>
                         <span class="text-white" style="font-size: 0.9rem; word-break: break-word;">
@@ -156,27 +156,28 @@
                       </div>
                       
                       <!-- Like icon -->
-                      <% if (canInteract) { %>
-                        <form action="/projeto/<%= project.id %>/comment/<%= c._id %>/like" method="post" class="m-0 ajax-form d-flex flex-column align-items-center" data-comment-id="<%= c._id %>">
-                          <button class="btn p-0 border-0 bg-transparent" type="submit">
-                            <i id="comment-like-icon-<%= c._id %>" class="bi <%= c.likedByMe ? 'bi-heart-fill text-danger' : 'bi-heart text-muted' %>" style="font-size: 0.85rem;"></i>
-                          </button>
-                        </form>
-                      <% } else { %>
-                        <a href="/login" class="text-muted"><i class="bi bi-heart" style="font-size: 0.85rem;"></i></a>
-                      <% } %>
+                      <div class="d-flex flex-column align-items-center ms-3">
+                        <% if (canInteract) { %>
+                          <form action="/projeto/<%= project.id %>/comment/<%= c._id %>/like" method="post" class="m-0 ajax-form d-flex flex-column align-items-center" data-comment-id="<%= c._id %>">
+                            <button class="btn p-0 border-0 bg-transparent" type="submit">
+                              <i id="comment-like-icon-<%= c._id %>" class="bi <%= c.likedByMe ? 'bi-heart-fill text-danger' : 'bi-heart text-muted' %>" style="font-size: 0.85rem;"></i>
+                            </button>
+                          </form>
+                        <% } else { %>
+                          <a href="/login" class="text-muted"><i class="bi bi-heart" style="font-size: 0.85rem;"></i></a>
+                        <% } %>
+                        <small id="comment-like-count-<%= c._id %>" class="text-muted fw-bold mt-1" style="font-size: 0.65rem; <%= c.likeCount > 0 ? '' : 'display: none;' %>">
+                          <%= c.likeCount %>
+                        </small>
+                      </div>
                     </div>
 
                     <!-- Actions -->
                     <div class="d-flex align-items-center gap-3 mt-1">
                       <small class="text-muted" style="font-size: 0.75rem;"><%= timeAgo(c.createdAt) %></small>
-                      
-                      <small id="comment-like-count-<%= c._id %>" class="text-muted fw-bold" style="font-size: 0.75rem; <%= c.likeCount > 0 ? '' : 'display: none;' %>">
-                        <%= c.likeCount %> curtida<%= c.likeCount === 1 ? '' : 's' %>
-                      </small>
 
-                      <% if (canInteract && !isReply) { %>
-                        <button type="button" class="btn p-0 border-0 bg-transparent text-muted fw-bold c-reply-toggle" data-comment-id="<%= c._id %>" data-username="<%= c.userUsername || 'user' %>" style="font-size: 0.75rem;">Responder</button>
+                      <% if (canInteract) { %>
+                        <button type="button" class="btn p-0 border-0 bg-transparent text-muted fw-bold c-reply-toggle" data-comment-id="<%= isReply ? c.parent : c._id %>" data-username="<%= c.isAuthor ? 'admin' : (c.userUsername || c.userName.replace(/\\s+/g, '').toLowerCase()) %>" style="font-size: 0.75rem;">Responder</button>
                       <% } %>
 
                       <% if (canInteract && (isAdmin || String(c.user) === String(actorId))) { %>
@@ -264,9 +265,10 @@
   </footer>
 
   <script>
-    // Toggle para o formulário de resposta unificado
-    document.querySelectorAll(".c-reply-toggle").forEach(btn => {
-      btn.addEventListener("click", () => {
+    // Toggle para o formulário de resposta unificado (com delegação de eventos para suportar respostas em tempo real)
+    document.body.addEventListener("click", (e) => {
+      const btn = e.target.closest(".c-reply-toggle");
+      if (btn) {
         const commentId = btn.dataset.commentId;
         const username = btn.dataset.username;
         const input = document.getElementById("mainCommentInput");
@@ -284,7 +286,7 @@
             indicator.style.setProperty('display', 'flex', 'important');
           }
         }
-      });
+      }
     });
 
     // Cancelar Resposta
